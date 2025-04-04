@@ -126,16 +126,21 @@ net start MongoDB
 mongod --config mongod.cfg
 ```
 
-2. Start the development server:
+2. Start the proxy server (in first terminal):
+```bash
+# In the root directory
+node proxy-server.js
+# This will start the backend server on http://localhost:3001
+```
+
+3. Start the React client (in second terminal):
 ```bash
 # In the root directory
 npm start
-# This will start both the frontend and backend
-# Frontend will run on http://localhost:3000
-# Backend will run on http://localhost:3001
+# This will start the frontend on http://localhost:3000
 ```
 
-3. Open your browser and navigate to `http://localhost:3000`
+4. Open your browser and navigate to `http://localhost:3000`
 
 ## Usage
 
