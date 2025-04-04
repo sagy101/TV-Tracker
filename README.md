@@ -126,21 +126,16 @@ net start MongoDB
 mongod --config mongod.cfg
 ```
 
-2. Start the backend server:
+2. Start the development server:
 ```bash
 # In the root directory
-npm run server
-# Server will run on http://localhost:3001
+npm start
+# This will start both the frontend and backend
+# Frontend will run on http://localhost:3000
+# Backend will run on http://localhost:3001
 ```
 
-3. Start the frontend development server:
-```bash
-# In a new terminal
-npm run client
-# React app will run on http://localhost:3000
-```
-
-4. Open your browser and navigate to `http://localhost:3000`
+3. Open your browser and navigate to `http://localhost:3000`
 
 ## Usage
 
