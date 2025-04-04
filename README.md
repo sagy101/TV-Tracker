@@ -79,7 +79,7 @@ All features, from initial setup to the latest enhancements, were implemented th
 - MongoDB (v4.4 or higher)
 - npm or yarn
 
-## Installation
+## Installation & Setup
 
 1. Clone the repository:
 ```bash
@@ -88,7 +88,123 @@ cd tv-tracker
 ```
 
 2. Install dependencies:
+```bash
+# Install backend dependencies
+npm install
+
+# Install frontend dependencies
+cd client
+npm install
+cd ..
 ```
+
+3. Set up MongoDB:
+- Install MongoDB if not already installed
+- Create data directory: `E:/MongoDB/tv-tracker-data/db`
+- Create logs directory: `E:/MongoDB/tv-tracker-data/logs`
+
+4. Configure environment:
+```bash
+# Copy example environment file
+cp .env.example .env
+
+# Edit .env file with your settings
+# Default configuration:
+MONGODB_URI=mongodb://localhost:27017/tv-tracker
+PORT=3001
+MONGODB_DATA_DIR=E:/MongoDB/tv-tracker-data/db
+```
+
+## Running the Application
+
+1. Start MongoDB:
+```bash
+# Using Windows Service (recommended)
+net start MongoDB
+
+# OR using command line
+mongod --config mongod.cfg
+```
+
+2. Start the backend server:
+```bash
+# In the root directory
+npm run server
+# Server will run on http://localhost:3001
+```
+
+3. Start the frontend development server:
+```bash
+# In a new terminal
+npm run client
+# React app will run on http://localhost:3000
+```
+
+4. Open your browser and navigate to `http://localhost:3000`
+
+## Usage
+
+### Adding Shows
+1. Click the "Add Show" button in the navigation bar
+2. Enter a TVMaze Show ID or search by name
+3. Select a show from the search results
+4. The show and its episodes will be added to your tracker
+
+### Managing Shows
+- Toggle show visibility using the eye icon
+- Filter shows using the status toggles
+- Configure items per page using the dropdown
+- Use pagination controls to navigate through shows
+
+### Tracking Episodes
+- Mark episodes as watched/unwatched by clicking the checkbox
+- Filter episodes using the watch status toggle
+- View episode details including air dates and runtime
+- Track your watching progress and time spent
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## Development Guidelines
+
+- Follow the existing code style and conventions
+- Use meaningful commit messages following [Conventional Commits](https://www.conventionalcommits.org/)
+- Add appropriate documentation for new features
+- Update the CHANGELOG.md file with your changes
+- Test your changes thoroughly before submitting a PR
+
+## Troubleshooting
+
+### Common Issues
+
+1. MongoDB Connection Issues
+```bash
+# Check if MongoDB is running
+mongo --eval "db.serverStatus()"
+
+# Verify MongoDB data directory exists and has correct permissions
+ls -l E:/MongoDB/tv-tracker-data/db
+```
+
+2. Port Conflicts
+```bash
+# Check if ports are in use
+netstat -ano | findstr :3000
+netstat -ano | findstr :3001
+```
+
+3. Node.js Version Issues
+```bash
+# Check Node.js version
+node --version
+
+# Use nvm to switch versions if needed
+nvm use 14
 ```
 
 ## Planned Features
@@ -104,3 +220,25 @@ cd tv-tracker
    - Import watched status
    - Handle duplicate entries
    - Progress indicator during import
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [TVMaze API](https://www.tvmaze.com/api) for providing TV show data
+- [Create React App](https://create-react-app.dev/)
+- [TailwindCSS](https://tailwindcss.com/)
+- [Lucide Icons](https://lucide.dev/)
+- [MongoDB](https://www.mongodb.com/)
+- [Express](https://expressjs.com/)
+- [Node.js](https://nodejs.org/)
+
+## Contact
+
+Project Link: [https://github.com/sagy101/tv-tracker](https://github.com/sagy101/tv-tracker)
+
+## Support
+
+If you find this project helpful, please give it a ⭐️!
