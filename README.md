@@ -74,9 +74,7 @@ cd tv-tracker
 ```
 ```
 
-## TODO Features
-
-### Planned Features
+## Planned Features
 1. Auto-refresh for Active Shows
    - Automatically update episode data for shows that aren't marked as "Ended"
    - Fetch new episodes and air dates
