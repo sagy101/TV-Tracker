@@ -17,14 +17,20 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
       clearTimeout(searchTimeoutRef.current);
     }
 
-    // For text search, wait 300ms before searching
-    if (query.length >= 2) {
+    // For both ID and text search, wait 300ms before searching
+    if (query.length >= 1) {
       searchTimeoutRef.current = setTimeout(async () => {
         try {
           const response = await fetch(`/api/shows/search?q=${encodeURIComponent(query)}`);
           if (!response.ok) throw new Error('Search failed');
           const data = await response.json();
-          setSearchResults(data);
+          
+          // If it's a single show (ID search), wrap it in the same format as name search
+          if (data.id) {
+            setSearchResults([{ show: data }]);
+          } else {
+            setSearchResults(data);
+          }
         } catch (err) {
           setError('Error searching for shows');
           setSearchResults([]);
@@ -54,8 +60,16 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
         
         if (Array.isArray(data) && data.length > 0) {
           await onSelectShow(data[0].show);
+          setSearchInput('');
+          setYearFilter('');
+          setSearchResults([]);
+          onClose();
         } else if (data.id) {
           await onSelectShow(data);
+          setSearchInput('');
+          setYearFilter('');
+          setSearchResults([]);
+          onClose();
         } else {
           throw new Error('Show not found');
         }
@@ -122,17 +136,9 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
                         className="flex-1 border rounded px-3 py-1"
                         autoFocus
                       />
-                      <button
-                        type="submit"
-                        disabled={!(/^\d+$/.test(searchInput))}
-                        className="px-3 py-1 border border-transparent rounded text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                        title={/^\d+$/.test(searchInput) ? "Add show by ID" : "Search by name and select from results"}
-                      >
-                        Add
-                      </button>
                     </div>
 
-                    {searchResults.length > 0 && !(/^\d+$/.test(searchInput)) && (
+                    {searchResults.length > 0 && (
                       <div className="flex gap-2 items-center">
                         <label htmlFor="year-filter" className="text-sm text-gray-600">
                           Filter by year:
@@ -152,9 +158,9 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
                     )}
                   </form>
 
-                  {!(/^\d+$/.test(searchInput)) && searchInput.length > 0 && (
+                  {searchInput.length > 0 && (
                     <p className="mt-2 text-sm text-gray-500">
-                      Type to search by name and select a show from the results below
+                      Select a show from the results below to add it
                     </p>
                   )}
 

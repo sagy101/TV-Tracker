@@ -49,10 +49,29 @@ function Episodes({
     return true;
   });
 
+  // Sort episodes by date and time
+  const sortedEpisodes = [...filteredEpisodes].sort((a, b) => {
+    // Compare dates first
+    const dateA = new Date(a.airdate);
+    const dateB = new Date(b.airdate);
+    if (dateA < dateB) return -1;
+    if (dateA > dateB) return 1;
+
+    // If dates are equal, compare times
+    if (a.airdate === b.airdate) {
+      // Convert time to 24-hour format for comparison
+      const timeA = a.airtime === 'TBA' ? '99:99' : a.airtime;
+      const timeB = b.airtime === 'TBA' ? '99:99' : b.airtime;
+      return timeA.localeCompare(timeB);
+    }
+
+    return 0;
+  });
+
   // Calculate pagination
-  const totalPages = Math.ceil(filteredEpisodes.length / itemsPerPage);
+  const totalPages = Math.ceil(sortedEpisodes.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedEpisodes = filteredEpisodes.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedEpisodes = sortedEpisodes.slice(startIndex, startIndex + itemsPerPage);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -165,7 +184,7 @@ function Episodes({
                   title={watchedFilter === 'unwatched' ? "Show All Episodes" : "Show Unwatched Episodes"}
                 >
                   {watchedFilter === 'unwatched' ? <Circle className="h-5 w-5" /> : <CheckCircle className="h-5 w-5" />}
-                  <span className="text-sm">Watched</span>
+                  <span className="text-sm">{watchedFilter === 'unwatched' ? "Unwatched" : "All"}</span>
                 </button>
               </div>
               <div className="flex gap-2">
@@ -179,13 +198,13 @@ function Episodes({
                   title={showIgnoredFilter === 'ignored' ? "Show Only Unignored Shows" : "Show All Shows"}
                 >
                   {showIgnoredFilter === 'ignored' ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
-                  <span className="text-sm">Show Ignored</span>
+                  <span className="text-sm">{showIgnoredFilter === 'ignored' ? "All Shows" : "Unignored Shows"}</span>
                 </button>
               </div>
             </div>
 
             <div className="text-sm text-gray-600">
-              Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredEpisodes.length)} of {filteredEpisodes.length} episodes
+              Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, sortedEpisodes.length)} of {sortedEpisodes.length} episodes
             </div>
           </div>
         </div>
@@ -231,11 +250,11 @@ function Episodes({
                     <tr
                       key={episode.id}
                       className={`${
-                        released
-                          ? episode.watched
-                            ? 'bg-green-50'
-                            : 'bg-yellow-50'
-                          : 'bg-white'
+                        episode.watched
+                          ? 'bg-green-50'
+                          : released
+                            ? 'bg-yellow-50'
+                            : 'bg-blue-50'
                       } hover:bg-gray-50 transition-colors`}
                     >
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

@@ -359,6 +359,99 @@ app.delete('/api/clear-all', async (req, res) => {
   }
 });
 
+// PUT endpoint to refresh active shows
+app.put('/api/shows/refresh', async (req, res) => {
+  try {
+    console.log('Refreshing active shows...');
+    
+    // Get all non-ended shows from database
+    const activeShows = await Show.find({ status: { $ne: 'Ended' } });
+    console.log(`Found ${activeShows.length} active shows to refresh`);
+    
+    const results = {
+      updated: 0,
+      errors: []
+    };
+
+    // Refresh each show
+    for (const show of activeShows) {
+      try {
+        // Fetch latest show data from TVMaze
+        const showData = await fetchFromTVMaze(`https://api.tvmaze.com/shows/${show.tvMazeId}`);
+        
+        // Update show details if changed
+        const updates = {};
+        if (showData.name !== show.name) updates.name = showData.name;
+        if (showData.status !== show.status) updates.status = showData.status;
+        if (showData.image?.medium !== show.image) updates.image = showData.image?.medium;
+        
+        if (Object.keys(updates).length > 0) {
+          await Show.updateOne({ tvMazeId: show.tvMazeId }, updates);
+          console.log(`Updated show details for ${show.name}`);
+        }
+
+        // Fetch latest episodes
+        const episodes = await fetchFromTVMaze(`https://api.tvmaze.com/shows/${show.tvMazeId}/episodes`);
+        
+        // Get existing episodes to preserve watched status
+        const existingEpisodes = await Episode.find({ showId: show.tvMazeId });
+        const existingEpisodeMap = new Map(existingEpisodes.map(ep => [ep.tvMazeId, ep]));
+        
+        // Update or add episodes
+        for (const ep of episodes) {
+          const existingEp = existingEpisodeMap.get(ep.id.toString());
+          
+          if (existingEp) {
+            // Update existing episode if needed
+            const updates = {};
+            if (ep.name !== existingEp.name) updates.name = ep.name;
+            if (ep.airdate !== existingEp.airdate) updates.airdate = ep.airdate || 'TBA';
+            if (ep.airtime !== existingEp.airtime) updates.airtime = ep.airtime || 'TBA';
+            if (ep.runtime !== existingEp.runtime) updates.runtime = ep.runtime || null;
+            
+            if (Object.keys(updates).length > 0) {
+              await Episode.updateOne(
+                { tvMazeId: ep.id.toString() },
+                { $set: updates }
+              );
+              console.log(`Updated episode ${ep.name} for ${show.name}`);
+            }
+          } else {
+            // Add new episode with all required fields
+            await Episode.create({
+              tvMazeId: ep.id.toString(),
+              showId: show.tvMazeId,
+              season: ep.season,
+              number: ep.number,
+              name: ep.name,
+              airdate: ep.airdate || 'TBA',
+              airtime: ep.airtime || 'TBA',
+              runtime: ep.runtime || null,
+              watched: false
+            });
+            console.log(`Added new episode ${ep.name} for ${show.name}`);
+          }
+        }
+        
+        results.updated++;
+      } catch (error) {
+        console.error(`Error refreshing show ${show.name}:`, error);
+        results.errors.push({
+          showId: show.tvMazeId,
+          showName: show.name,
+          error: error.message
+        });
+      }
+    }
+
+    console.log('Refresh completed:', results);
+    res.json(results);
+  } catch (error) {
+    console.error('Error in /api/shows/refresh:', error);
+    res.status(500).json({ error: 'Failed to refresh shows' });
+  }
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({

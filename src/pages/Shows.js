@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Clock, Trash2, Plus, Search, EyeOff, Eye } from 'lucide-react';
+import { X, Clock, Trash2, Plus, Search, EyeOff, Eye, CheckCircle, Circle } from 'lucide-react';
 import SearchDrawer from '../components/SearchDrawer';
 
 function Shows({ shows, episodes, onRemoveShow, onDeleteShow, onAddShow, onToggleIgnore }) {
@@ -15,6 +15,9 @@ function Shows({ shows, episodes, onRemoveShow, onDeleteShow, onAddShow, onToggl
   const [showIgnoredFilter, setShowIgnoredFilter] = useState(() => 
     localStorage.getItem('shows_ignoredFilter') || 'all'
   );
+  const [showWatchedFilter, setShowWatchedFilter] = useState(() => 
+    localStorage.getItem('shows_watchedFilter') || 'all'
+  );
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const searchTimeoutRef = useRef(null);
 
@@ -23,10 +26,14 @@ function Shows({ shows, episodes, onRemoveShow, onDeleteShow, onAddShow, onToggl
     localStorage.setItem('shows_itemsPerPage', itemsPerPage.toString());
   }, [itemsPerPage]);
 
-  // Save ignored filter state to localStorage whenever it changes
+  // Save filter states to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('shows_ignoredFilter', showIgnoredFilter);
   }, [showIgnoredFilter]);
+
+  useEffect(() => {
+    localStorage.setItem('shows_watchedFilter', showWatchedFilter);
+  }, [showWatchedFilter]);
 
   const getShowStats = (showId) => {
     const showEpisodes = episodes.filter(ep => ep.showId === showId);
@@ -121,7 +128,17 @@ function Shows({ shows, episodes, onRemoveShow, onDeleteShow, onAddShow, onToggl
   const filteredShows = shows.filter(show => {
     // When filter is on (ignored), show only ignored shows
     // When filter is off (all), show only unignored shows
-    return showIgnoredFilter === 'ignored' ? show.ignored : !show.ignored;
+    if (showIgnoredFilter === 'ignored' ? !show.ignored : show.ignored) return false;
+
+    // Filter by watched status
+    if (showWatchedFilter !== 'all') {
+      const stats = getShowStats(show.tvMazeId);
+      const isFullyWatched = stats.totalEpisodes > 0 && stats.watchedEpisodes === stats.totalEpisodes;
+      // When filter is on, show only not fully watched shows
+      if (isFullyWatched) return false;
+    }
+
+    return true;
   });
 
   // Calculate pagination
@@ -202,7 +219,7 @@ function Shows({ shows, episodes, onRemoveShow, onDeleteShow, onAddShow, onToggl
               </select>
 
               {/* Filter Icons */}
-              <div className="flex gap-2">
+              <div className="flex items-center gap-6">
                 <button
                   onClick={() => setShowIgnoredFilter(showIgnoredFilter === 'ignored' ? 'all' : 'ignored')}
                   className={`flex items-center gap-2 p-2 rounded-md ${
@@ -213,7 +230,20 @@ function Shows({ shows, episodes, onRemoveShow, onDeleteShow, onAddShow, onToggl
                   title={showIgnoredFilter === 'ignored' ? "Show Unignored Shows" : "Show Ignored Shows"}
                 >
                   {showIgnoredFilter === 'ignored' ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
-                  <span className="text-sm">Ignored Shows</span>
+                  <span className="text-sm">{showIgnoredFilter === 'ignored' ? "Ignored Shows" : "Unignored Shows"}</span>
+                </button>
+
+                <button
+                  onClick={() => setShowWatchedFilter(showWatchedFilter === 'unwatched' ? 'all' : 'unwatched')}
+                  className={`flex items-center gap-2 p-2 rounded-md ${
+                    showWatchedFilter === 'unwatched'
+                      ? 'text-green-600 bg-green-50'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                  title={showWatchedFilter === 'unwatched' ? "Show All Shows" : "Show Incomplete Shows"}
+                >
+                  {showWatchedFilter === 'unwatched' ? <Circle className="h-5 w-5" /> : <CheckCircle className="h-5 w-5" />}
+                  <span className="text-sm">{showWatchedFilter === 'unwatched' ? "Incomplete Shows" : "All Progress"}</span>
                 </button>
               </div>
             </div>
@@ -259,8 +289,15 @@ function Shows({ shows, episodes, onRemoveShow, onDeleteShow, onAddShow, onToggl
               <tbody className="bg-white divide-y divide-gray-200">
                 {paginatedShows.map((show) => {
                   const stats = getShowStats(show.tvMazeId);
+                  const isFullyWatched = stats.totalEpisodes > 0 && stats.watchedEpisodes === stats.totalEpisodes;
                   return (
-                    <tr key={show.tvMazeId} className={`hover:bg-gray-50 transition-colors ${show.ignored ? 'bg-gray-50' : ''}`}>
+                    <tr key={show.tvMazeId} className={`hover:bg-gray-50 transition-colors ${
+                      isFullyWatched
+                        ? 'bg-green-50'
+                        : show.ignored
+                          ? 'bg-gray-50'
+                          : ''
+                    }`}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {show.name}
                       </td>
