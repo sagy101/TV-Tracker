@@ -2,6 +2,23 @@
 
 A web application to track your TV show episodes and mark them as watched.
 
+## Development
+
+This project was intended to test new AI tools and hence was developed entirely using AI assistance through:
+- **Claude 3.5 Sonnet** (Anthropic) - Primary development agent
+  - Architecture design
+  - Feature implementation
+  - Code generation
+  - Documentation
+  - Bug fixes and improvements
+- **Cursor IDE** - Development environment with integrated AI capabilities
+  - Code editing and navigation
+  - Terminal commands
+  - Git operations
+  - File management
+
+All features, from initial setup to the latest enhancements, were implemented through AI pair programming, demonstrating the capabilities of modern AI assistants in full-stack development.
+
 ## Features
 
 - Add TV shows using:
