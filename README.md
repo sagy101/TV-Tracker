@@ -72,3 +72,19 @@ cd tv-tracker
 
 2. Install dependencies:
 ```
+
+## TODO Features
+
+### Planned Features
+1. Auto-refresh for Active Shows
+   - Automatically update episode data for shows that aren't marked as "Ended"
+   - Fetch new episodes and air dates
+   - Update show status if changed
+   - Option to set refresh interval
+
+2. Import from MyEpisodes.com
+   - Support CSV import from MyEpisodes.com
+   - Map fields to match database schema
+   - Import watched status
+   - Handle duplicate entries
+   - Progress indicator during import
