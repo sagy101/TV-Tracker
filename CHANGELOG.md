@@ -1,0 +1,251 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- Show ignore functionality:
+  - Toggle button to mark shows as ignored
+  - Filter to show all/active/ignored shows
+  - Visual indication of ignored shows in table
+  - Tooltips for action buttons
+  - Automatic filtering of ignored shows in Episodes view
+- Pagination for Shows page with configurable items per page (10, 20, 100 lines)
+- Add Show form moved to Shows page for better user experience
+- Adaptive pagination controls on Shows page:
+  - Stick to viewport when enough space is available
+  - Move to page bottom when viewport is too small
+  - Hide when content fits viewport
+- Shows count display and page navigation
+- Adaptive pagination controls on Episodes page:
+  - Stick to viewport when enough space is available
+  - Move to page bottom when viewport is too small
+  - Hide when content fits viewport
+- Smart positioning of pagination controls based on content and header height
+- Responsive pagination layout that adapts to viewport size
+- Table pagination with configurable items per page (10, 20, 100 lines)
+- Navigation controls for moving between pages
+- Page size selector above the episodes table
+- Current page indicator and total pages display
+- MongoDB integration for persistent data storage
+- Custom data directory configuration at `E:/MongoDB/tv-tracker-data`
+- Environment configuration files (.env and .env.example)
+- Improved error handling for API responses
+- Proper port configuration (React app on 3000, Proxy server on 3001)
+- Clear All Data functionality
+  - Added red warning button in top navigation bar
+  - Confirmation dialog with clear explanation of the action
+  - Visual feedback with Trash2 icon
+  - Immediate UI update after clearing data
+- Filter state persistence:
+  - Watched/unwatched filter state saved between sessions
+  - Ignored shows filter state preserved
+  - Items per page preference remembered
+  - States persist through page navigation and browser restarts
+- Episode runtime information:
+  - New column showing episode duration in minutes
+  - Displays "N/A" for episodes without runtime data
+  - Runtime data fetched from TVMaze API
+  - Stored in MongoDB for persistence
+- Items per page selector added to Shows page:
+  - Matches Episodes page functionality
+  - Options for 10, 20, or 100 shows per page
+  - Setting persists between sessions
+  - Automatically resets to first page when changed
+- Shows page ignore filter persistence:
+  - Filter state saved in localStorage
+  - Remembers last selected state between sessions
+  - Persists through page navigation and browser restarts
+  - Consistent with Episodes page filter behavior
+- Enhanced show search functionality:
+  - Support for both TVMaze IDs and show names
+  - Search results with show details
+  - Network and premiere year information
+  - Interactive show selection interface
+  - Automatic handling of exact ID matches
+  - Improved error handling and feedback
+- Year filter for show search:
+  - Dynamic year dropdown based on search results
+  - Filter shows by premiere year
+  - Shows count for filtered results
+  - Auto-updates as you type
+  - Clears when closing drawer
+- Show status column in Shows table:
+  - Visual indicators for Running/Ended status
+  - Color-coded badges for different statuses
+- Enhanced search results:
+  - Increased to 8 results per search
+  - Added show language indicator
+  - Improved layout with bullet separators
+- Enhanced search results display:
+  - Show status badges (Running/Ended/Unknown)
+  - Network and country information
+  - Premiere year and language
+  - Genre list
+  - Limited to 8 results for better focus
+  - Clean, organized layout with bullet separators
+
+### Changed
+- Removed Add Show form from Episodes page
+- Enhanced Shows table with ignore functionality
+- Improved show filtering options
+- Added visual feedback for ignored shows
+- Episodes list now automatically filters out ignored shows
+- Relocated Add Show form from Episodes to Shows page
+- Improved Shows page layout with integrated show management
+- Shows page layout updated with pagination controls
+- Enhanced pagination controls with adaptive positioning on both pages
+- Improved viewport size detection for pagination controls
+- Added minimum content height requirements for table display
+- Improved table layout with better spacing
+- Episodes and Shows tables now show paginated results
+- Enhanced episode filtering with dropdown selection
+- Added items per page configuration
+- Migrated from localStorage to MongoDB for data persistence
+- Updated API endpoints to work with MongoDB
+- Enhanced error logging and validation
+- Improved API response handling with better error messages
+- Simplified filter UI in both Shows and Episodes pages
+  - Replaced dropdown menus with simple toggle buttons
+  - Added clear labels next to filter icons
+  - Shows page: Single toggle for ignored/unignored shows
+  - Episodes page: Separate toggles for watched/unwatched episodes and ignored/unignored shows
+- Improved eye icon behavior for ignored shows
+  - Shows circle background when show is ignored (persistent state)
+  - Uses Eye icon (no line) when ignored
+  - Uses EyeOff icon (with line) when not ignored
+  - Hover effects for better user feedback
+- Improved navigation bar styling
+  - Added Clear All Data button in the top right
+  - Better active state indication for navigation links
+  - Consistent spacing and alignment
+- Episode filter controls redesigned:
+  - Single "Watched" toggle that shows unwatched episodes when active
+  - Removed separate unwatched filter for cleaner UI
+  - Maintained consistent visual feedback with green highlight
+- Enhanced filter button visual feedback:
+  - "Watched" filter: Shows Circle when active (showing unwatched), CheckCircle when inactive
+  - "Ignored Shows" filter: Shows Eye when active (showing ignored), EyeOff when inactive
+  - Icons change with state for clearer visual indication
+  - Maintained consistent background colors for active states
+- Modified Shows page ignore filter behavior:
+  - Filter ON: Shows only ignored shows
+  - Filter OFF: Shows only unignored shows (default)
+  - Updated button text to "Ignored Shows"
+  - Updated tooltips to reflect new behavior
+  - Maintained consistent styling with Episodes page
+- Reversed ignored shows filter behavior:
+  - Default (off): Shows only unignored shows
+  - Active (on): Shows all shows (both ignored and unignored)
+  - Updated button text and tooltips to reflect new behavior
+  - Maintained icon states (Eye/EyeOff) for consistency
+- Enhanced pagination controls behavior:
+  - Now requires minimum of 5 table rows before enabling sticky behavior
+  - Consistent behavior across Shows and Episodes pages
+  - Improved viewport height calculations
+  - Better handling of small content amounts
+- Reversed pagination controls behavior:
+  - Now sticks to viewport bottom in large viewports (> 10 rows height)
+  - Stays at page bottom in small viewports
+  - Consistent behavior across Shows and Episodes pages
+  - Improved visibility in all viewport sizes
+- Unified Shows page layout with Episodes page:
+  - Moved ignore filter next to items per page selector
+  - Added button style matching Episodes page filters
+  - Removed separate filter section for cleaner look
+  - Consistent spacing and visual feedback
+- Updated pagination dropdown behavior in Shows and Episodes pages:
+  - Shows only current page when closed
+  - When clicked, displays all available pages with scrolling
+  - Uses browser's native select behavior for better performance and consistency
+  - Maintains the same styling and width across all states
+- Improved show search experience:
+  - Moved Add Show button to top navigation bar
+  - Enhanced search drawer with clearer instructions
+  - Wider drawer for better readability
+  - Better visual distinction between ID and name search
+  - Clearer guidance for selecting shows from search results
+
+### Fixed
+- Fixed show deletion functionality
+- Fixed show ignore toggle functionality
+- Fixed Add Show form submission handling
+- Pagination controls position in small viewports for both pages
+- Pagination visibility based on content height
+- Table container spacing and margins
+- Port conflict between React app and proxy server
+- JSON parsing errors in API responses
+- MongoDB connection and configuration issues
+- Eye icon state now properly persists when show is ignored
+- Icon background and style now correctly reflect show's ignored status
+- Watched filter now correctly shows watched episodes when selected
+- Filter UI improved for better clarity:
+  - Separate buttons for Watched and Unwatched
+  - Better visual feedback with background colors
+  - Clearer button labels
+  - Consistent spacing and alignment
+- Episodes page now correctly hides ignored shows by default
+- Ignored shows filter behavior improved:
+  - Shows are hidden by default unless explicitly showing ignored
+  - Filter state persists between page navigation
+  - Immediate update when shows are ignored/unignored
+- Improved pagination controls behavior:
+  - Now correctly positions at page bottom in small viewports
+  - Better handling of different content-to-viewport ratios
+  - Fixed z-index issues with sticky controls
+  - More reliable positioning logic for all viewport sizes
+- Show search functionality:
+  - Added node-fetch package for server-side API calls
+  - Fixed JSON parsing errors in search results
+  - Improved error handling for TVMaze API responses
+  - Resolved search by ID and name functionality
+
+## [1.0.1] - 2024-03-XX
+
+### Added
+- Support for custom MongoDB data directory configuration
+- Environment variable for MongoDB data directory path
+- Detailed instructions for configuring custom data paths on different operating systems
+
+### Changed
+- Updated MongoDB installation instructions to include data directory configuration
+- Enhanced environment configuration documentation
+- Improved cross-platform compatibility for data storage
+
+## [1.0.0] - 2024-03-XX
+
+### Added
+- MongoDB integration for data persistence
+- Database models for Shows and Episodes
+- Environment configuration with `.env` file
+- Express server with MongoDB connection
+- API endpoints for CRUD operations
+- Real-time data synchronization
+- Comprehensive installation instructions
+- Database schema documentation
+
+### Changed
+- Migrated from localStorage to MongoDB for data storage
+- Updated frontend components to work with MongoDB
+- Modified show and episode management to use database IDs
+- Enhanced error handling for database operations
+- Updated README with MongoDB setup instructions
+
+### Removed
+- localStorage-based data persistence
+- Client-side data storage logic
+
+## [0.1.0] - 2024-03-XX
+
+### Added
+- Initial release with basic TV show tracking functionality
+- TVMaze API integration
+- Show and episode management
+- Watch status tracking
+- Basic statistics
+- Responsive UI with TailwindCSS
+- localStorage-based data persistence 
