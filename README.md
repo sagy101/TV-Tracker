@@ -72,6 +72,7 @@ cd tv-tracker
 
 2. Install dependencies:
 ```
+```
 
 ## TODO Features
 
