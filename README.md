@@ -1,6 +1,8 @@
-# TV Show Episode Tracker
+# TrackTV
 
-A web application to track your TV show episodes and mark them as watched.
+A modern TV show tracking application that helps you manage and organize your watching progress.
+
+The name "TrackTV" reflects the app's core functionality of keeping your TV show watching progress organized and up to date. The logo, designed by ChatGPT, features a modern and clean design that represents the app's focus on TV show tracking.
 
 ## Development
 
@@ -11,6 +13,10 @@ This project was intended to test new AI tools and hence was developed entirely 
   - Code generation
   - Documentation
   - Bug fixes and improvements
+- **ChatGPT 4** (OpenAI) - Branding and design
+  - Application name
+  - Logo design
+  - Visual identity
 - **Cursor IDE** - Development environment with integrated AI capabilities
   - Code editing and navigation
   - Terminal commands
@@ -22,14 +28,15 @@ All features, from initial setup to the latest enhancements, were implemented th
 ## Features
 
 - Add TV shows using:
-  - Direct TVMaze ID input
-  - Smart search by show name
+  - Unified search interface for both TVMaze ID and show name
+  - Instant search results with show details
   - Year filter for search results
   - Top 8 matching results with:
     - Show name and status badge (Running/Ended)
     - Network and country information
     - Premiere year and language
     - Genre list
+  - Single-click show addition from search results
 - Track episodes for multiple shows
 - Mark episodes as watched/unwatched
 - Show management:
@@ -58,12 +65,36 @@ All features, from initial setup to the latest enhancements, were implemented th
 - Navigation controls for browsing through episodes
 - View show details and episode lists
 - Track time spent watching shows
+- Filter episodes by watched/unwatched status with dynamic icon and label changes
+- Filter shows by ignored status and completion status with dynamic icon and label changes
+  - Toggle between all shows and ignored shows
+  - Toggle between all shows and incomplete shows (not 100% watched)
+  - Active filters highlighted in green/indigo
 
 ### Episodes View
-- Filter episodes by watched/unwatched status (icon changes to Circle when showing unwatched)
-- Filter shows by ignored status (icon changes to Eye when showing ignored)
-- Dynamic filter icons provide clear visual feedback of current state
+- Filter episodes by watched/unwatched status (icon and label change to Circle/Unwatched when showing unwatched)
+- Filter shows by ignored status (icon and label change to Eye/All Shows when showing all shows)
+- Dynamic filter icons and labels provide clear visual feedback of current state
 - Active filters highlighted in green
+- Automatic chronological sorting:
+  - Episodes sorted by air date and time
+  - Same-day episodes ordered by air time
+  - TBA episodes grouped at the end
+  - Real-time sorting as new episodes are added
+- Visual episode status indicators:
+  - Green background for watched episodes
+  - Yellow background for unwatched aired episodes
+  - Light blue background for upcoming episodes
+  - Instant visual feedback on episode status
+  - Intuitive color coding for quick scanning
+
+### Shows View
+- Track show progress with visual indicators:
+  - Green background for fully watched shows
+  - Gray background for ignored shows
+  - Progress percentage for each show
+  - Total time spent watching
+  - Number of seasons and episodes
 
 ## Tech Stack
 

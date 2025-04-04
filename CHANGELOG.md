@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Application rebranding:
+  - New name "TrackTV" replacing "ShowSync"
+  - New logo designed by ChatGPT with proper aspect ratio
+  - Updated visual identity throughout the application
+  - Consistent branding across all pages
 - Show ignore functionality:
   - Toggle button to mark shows as ignored
   - Filter to show all/active/ignored shows
@@ -88,6 +93,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Genre list
   - Limited to 8 results for better focus
   - Clean, organized layout with bullet separators
+- Unified show search experience:
+  - Consistent search results display for both ID and name searches
+  - Show details visible when searching by ID
+  - Single-click show addition from search results
+  - Removed separate Add button for cleaner interface
+- Dynamic filter labels:
+  - Labels now change to reflect current filter state
+  - "Watched" changes to "Unwatched" when showing unwatched episodes
+  - "Unignored Shows" changes to "All Shows" when showing all shows
+  - Consistent behavior across Episodes and Shows pages
+  - Labels match tooltip text for better clarity
+- Automatic episode sorting:
+  - Episodes now automatically sorted by air date and time
+  - TBA episodes appear at the end of the list
+  - Consistent chronological ordering in Episodes view
+  - Time-based sorting within same-day episodes
+- Enhanced episode status visualization:
+  - Green background for watched episodes
+  - Yellow background for unwatched episodes that have aired
+  - Light blue background for future episodes
+  - Clear visual distinction between past and upcoming episodes
+  - Consistent color scheme with overall design
+- Show completion status visualization:
+  - Green background for fully watched shows (100% episodes watched)
+  - Consistent color scheme with episode status
+  - Visual feedback for show progress
+  - Instant recognition of completed shows
+- Shows page completed filter:
+  - New filter to show only 100% watched shows
+  - Toggle between all shows and completed shows
+  - Visual feedback with Circle/CheckCircle icons
+  - Filter state persists between sessions
+  - Consistent styling with other filters
+- Shows page incomplete filter:
+  - New filter to show only incomplete shows (not 100% watched)
+  - Toggle between all shows and incomplete shows
+  - Visual feedback with Circle/CheckCircle icons
+  - Filter state persists between sessions
+  - Consistent styling with other filters
 
 ### Changed
 - Removed Add Show form from Episodes page

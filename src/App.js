@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, NavLink } from 'react-router-dom';
-import { Home, List, Trash2, Plus } from 'lucide-react';
+import { Home, List, Trash2, Plus, RefreshCw, Tv, ArrowLeftRight, Play, Circle, CheckCircle, ArrowUpDown, Infinity } from 'lucide-react';
 import Episodes from './pages/Episodes';
 import Shows from './pages/Shows';
 import SearchDrawer from './components/SearchDrawer';
@@ -39,6 +39,8 @@ function App() {
   const [showUnwatchedOnly, setShowUnwatchedOnly] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshError, setRefreshError] = useState(null);
   
   // Fetch all shows and their episodes from the database
   const fetchAllShows = useCallback(async () => {
@@ -267,13 +269,44 @@ function App() {
     }
   };
 
+  const handleRefreshShows = async () => {
+    try {
+      setIsRefreshing(true);
+      setRefreshError(null);
+      
+      const response = await fetch(`${API_BASE_URL}/shows/refresh`, {
+        method: 'PUT',
+      });
+      
+      const result = await handleApiResponse(response);
+      console.log('Refresh result:', result);
+      
+      // Refresh the shows and episodes data
+      await fetchAllShows();
+      
+      if (result.errors.length > 0) {
+        setRefreshError(`Some shows failed to refresh: ${result.errors.map(e => e.showName).join(', ')}`);
+      }
+    } catch (error) {
+      console.error('Error refreshing shows:', error);
+      setRefreshError(error.message);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   return (
     <Router>
       <div className="min-h-screen bg-gray-100">
         <nav className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
-              <div className="flex">
+              <div className="flex items-center">
+                <div className="flex-shrink-0 flex items-center mr-6">
+                  <div className="flex items-center">
+                    <img src="/ChatGPT-Logo.png" alt="TrackTV Logo" className="h-8 w-auto object-contain" />
+                  </div>
+                </div>
                 <NavLink
                   to="/"
                   className={({ isActive }) =>
@@ -301,6 +334,19 @@ function App() {
                 </NavLink>
               </div>
               <div className="flex items-center space-x-2">
+                <button
+                  onClick={handleRefreshShows}
+                  disabled={isRefreshing}
+                  className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${
+                    isRefreshing
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-green-600 hover:bg-green-700'
+                  } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
+                  title="Refresh active shows"
+                >
+                  <RefreshCw className={`h-5 w-5 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  Refresh Shows
+                </button>
                 <button
                   onClick={() => setIsDrawerOpen(true)}
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -366,6 +412,20 @@ function App() {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {refreshError && (
+          <div className="fixed top-20 right-4 z-50">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+              <span className="block sm:inline">{refreshError}</span>
+              <span className="absolute top-0 bottom-0 right-0 px-4 py-3" onClick={() => setRefreshError(null)}>
+                <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <title>Close</title>
+                  <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+                </svg>
+              </span>
             </div>
           </div>
         )}
