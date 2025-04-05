@@ -281,19 +281,60 @@ node --version
 nvm use 14
 ```
 
-## Planned Features
-1. Auto-refresh for Active Shows
+## Roadmap
+
+1. Multi-User Support
+   - User authentication and authorization system
+   - Individual user profiles and preferences
+   - Show sharing between users
+   - Social features like show recommendations
+   - Watch history privacy settings
+   - User roles (admin, regular user)
+   - User-specific view customization
+
+2. Show Details Page
+   - Dedicated page for each show with comprehensive information
+   - Season-by-season breakdown with collapsible sections
+   - Episode details including summaries and guest stars
+   - Show statistics and watching patterns
+   - Cast information and character details
+   - Related shows recommendations
+   - User notes and episode ratings
+   - Progress tracking visualization
+
+3. Code Architecture Improvements
+   - Refactor components for better modularity
+   - Implement atomic design principles
+   - Create reusable UI components library
+   - Improve state management with Redux/Context
+   - Add comprehensive test coverage
+   - Implement proper TypeScript types
+   - Better error handling and logging
+   - Performance optimizations
+
+4. AI Show Assistant
+   - Natural language interface for show queries
+   - Personalized show recommendations based on watching history
+   - Viewing pattern analysis and insights
+   - Watch time predictions and scheduling suggestions
+   - Show similarity analysis
+   - Mood-based recommendations
+   - Automated show categorization
+   - Viewing habit reports and statistics
+
+5. Auto-refresh for Active Shows
    - Automatically update episode data for shows that aren't marked as "Ended"
    - Fetch new episodes and air dates
    - Update show status if changed
    - Option to set refresh interval
 
-2. Import from MyEpisodes.com
+6. Import/Export Features
    - Support CSV import from MyEpisodes.com
-   - Map fields to match database schema
-   - Import watched status
-   - Handle duplicate entries
-   - Progress indicator during import
+   - Import from other popular tracking services
+   - Export data in various formats
+   - Backup and restore functionality
+   - Batch show adding
+   - Cross-platform sync
 
 ## Known Issues
 
