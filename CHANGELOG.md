@@ -132,8 +132,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Visual feedback with Circle/CheckCircle icons
   - Filter state persists between sessions
   - Consistent styling with other filters
+- Page transition animations:
+  - Smooth slide animations between Episodes and Shows pages
+  - Uses framer-motion library for reliable animations
+  - Coordinated enter/exit animations with proper timing
+  - Contained transitions that preserve layout
+  - Optimized performance with tween animations
+  - Proper sequencing with AnimatePresence component
 
 ### Changed
+- Updated application name in browser tab and tooltips to "TrackTV"
+- Improved animation performance by reducing duration from 500ms to 250ms for smoother transitions
 - Removed Add Show form from Episodes page
 - Enhanced Shows table with ignore functionality
 - Improved show filtering options
@@ -213,6 +222,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Wider drawer for better readability
   - Better visual distinction between ID and name search
   - Clearer guidance for selecting shows from search results
+- Improved search drawer animation for better user experience
+  - Added slide-in transition when opening 
+  - Improved opacity transitions for overlay
+  - Better transition timing with 300ms duration
 
 ### Fixed
 - Fixed show deletion functionality
@@ -247,6 +260,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed JSON parsing errors in search results
   - Improved error handling for TVMaze API responses
   - Resolved search by ID and name functionality
+- Improved animation handling between page transitions:
+  - Fixed layout shifts during page transitions
+  - Ensured header/navigation bar remains stable during transitions
+  - Implemented proper animation sequencing with AnimatePresence
+  - Contained animations within viewport bounds
+  - Added overflow handling to prevent content spilling
 
 ## [1.0.1] - 2024-03-XX
 

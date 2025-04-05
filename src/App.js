@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, NavLink } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
 import { Home, List, Trash2, Plus, RefreshCw, Tv, ArrowLeftRight, Play, Circle, CheckCircle, ArrowUpDown, Infinity } from 'lucide-react';
 import Episodes from './pages/Episodes';
 import Shows from './pages/Shows';
 import SearchDrawer from './components/SearchDrawer';
+import PageTransition from './components/PageTransition';
 
 const API_BASE_URL = 'http://localhost:3001/api';
 
@@ -31,6 +32,7 @@ async function handleApiResponse(response) {
 }
 
 function App() {
+  const location = useLocation();
   const [shows, setShows] = useState([]);
   const [episodes, setEpisodes] = useState([]);
   const [newShowId, setNewShowId] = useState('');
@@ -296,178 +298,188 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-100">
-        <nav className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 flex items-center mr-6">
-                  <div className="flex items-center">
-                    <img src="/ChatGPT-Logo.png" alt="TrackTV Logo" className="h-8 w-auto object-contain" />
+    <div className="min-h-screen bg-gray-100">
+      <nav className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 flex items-center mr-6">
+                <div className="flex items-center">
+                  <img src="/ChatGPT-Logo.png" alt="TrackTV Logo" className="h-8 w-auto object-contain" />
+                </div>
+              </div>
+              <NavLink
+                to="/"
+                className={({ isActive }) =>
+                  `inline-flex items-center px-4 py-2 border-b-2 text-sm font-medium ${
+                    isActive
+                      ? 'border-indigo-500 text-indigo-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`
+                }
+              >
+                <Home className="h-5 w-5 mr-2" />
+                Episodes
+              </NavLink>
+              <NavLink
+                to="/shows"
+                className={({ isActive }) =>
+                  `ml-8 inline-flex items-center px-4 py-2 border-b-2 text-sm font-medium ${
+                    isActive
+                      ? 'border-indigo-500 text-indigo-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`
+                }
+              >
+                <Tv className="h-5 w-5 mr-2" />
+                Shows
+              </NavLink>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleRefreshShows}
+                disabled={isRefreshing}
+                className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${
+                  isRefreshing
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-green-600 hover:bg-green-700'
+                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
+                title="Refresh active shows"
+              >
+                <RefreshCw className={`h-5 w-5 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Refresh Shows
+              </button>
+              <button
+                onClick={() => setIsDrawerOpen(true)}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                Add Show
+              </button>
+              <button
+                onClick={() => setShowClearConfirm(true)}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              >
+                <Trash2 className="h-5 w-5 mr-2" />
+                Clear All Data
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <SearchDrawer
+        isOpen={isDrawerOpen}
+        onSelectShow={handleAddShow}
+        onClose={() => setIsDrawerOpen(false)}
+      />
+
+      {showClearConfirm && (
+        <div className="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+              <div className="sm:flex sm:items-start">
+                <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                  <Trash2 className="h-6 w-6 text-red-600" />
+                </div>
+                <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                    Clear All Data
+                  </h3>
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500">
+                      Are you sure you want to clear all data? This action cannot be undone and will remove all your shows and episodes.
+                    </p>
                   </div>
                 </div>
-                <NavLink
-                  to="/"
-                  className={({ isActive }) =>
-                    `inline-flex items-center px-4 py-2 border-b-2 text-sm font-medium ${
-                      isActive
-                        ? 'border-indigo-500 text-indigo-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`
-                  }
-                >
-                  <Home className="h-5 w-5 mr-2" />
-                  Episodes
-                </NavLink>
-                <NavLink
-                  to="/shows"
-                  className={({ isActive }) =>
-                    `inline-flex items-center px-4 py-2 border-b-2 text-sm font-medium ${
-                      isActive
-                        ? 'border-indigo-500 text-indigo-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`
-                  }
-                >
-                  Shows
-                </NavLink>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                 <button
-                  onClick={handleRefreshShows}
-                  disabled={isRefreshing}
-                  className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${
-                    isRefreshing
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-green-600 hover:bg-green-700'
-                  } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
-                  title="Refresh active shows"
+                  type="button"
+                  onClick={handleClearAllData}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
                 >
-                  <RefreshCw className={`h-5 w-5 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-                  Refresh Shows
-                </button>
-                <button
-                  onClick={() => setIsDrawerOpen(true)}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <Plus className="h-5 w-5 mr-2" />
-                  Add Show
-                </button>
-                <button
-                  onClick={() => setShowClearConfirm(true)}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                >
-                  <Trash2 className="h-5 w-5 mr-2" />
                   Clear All Data
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setShowClearConfirm(false)}
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+                >
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
-        </nav>
+        </div>
+      )}
 
-        {/* Search Drawer */}
-        <SearchDrawer
-          isOpen={isDrawerOpen}
-          onSelectShow={handleAddShow}
-          onClose={() => setIsDrawerOpen(false)}
-        />
-
-        {/* Confirmation Dialog */}
-        {showClearConfirm && (
-          <div className="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-              <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-              <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-              <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-                <div className="sm:flex sm:items-start">
-                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                    <Trash2 className="h-6 w-6 text-red-600" />
-                  </div>
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                      Clear All Data
-                    </h3>
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        Are you sure you want to clear all data? This action cannot be undone and will remove all your shows and episodes.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                  <button
-                    type="button"
-                    onClick={handleClearAllData}
-                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
-                  >
-                    Clear All Data
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowClearConfirm(false)}
-                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
+      {refreshError && (
+        <div className="fixed top-20 right-4 z-50">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{refreshError}</span>
+            <span className="absolute top-0 bottom-0 right-0 px-4 py-3" onClick={() => setRefreshError(null)}>
+              <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <title>Close</title>
+                <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+              </svg>
+            </span>
           </div>
-        )}
+        </div>
+      )}
 
-        {refreshError && (
-          <div className="fixed top-20 right-4 z-50">
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-              <span className="block sm:inline">{refreshError}</span>
-              <span className="absolute top-0 bottom-0 right-0 px-4 py-3" onClick={() => setRefreshError(null)}>
-                <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                  <title>Close</title>
-                  <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
-                </svg>
-              </span>
-            </div>
-          </div>
-        )}
-
-        <main className="py-10">
+      <main className="py-10">
+        <div className="min-h-[calc(100vh-12rem)] relative overflow-hidden">
           <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <Episodes
-                    episodes={episodes}
-                    shows={shows}
-                    loading={loading}
-                    error={error}
-                    showUnwatchedOnly={showUnwatchedOnly}
-                    onAddShow={handleAddShow}
-                    onNewShowIdChange={setNewShowId}
-                    onToggleUnwatched={() => setShowUnwatchedOnly(!showUnwatchedOnly)}
-                    onToggleWatched={handleToggleWatched}
-                    isReleased={isReleased}
-                  />
-                }
-              />
-              <Route
-                path="/shows"
-                element={
-                  <Shows
-                    shows={shows}
-                    episodes={episodes}
-                    onAddShow={handleAddShow}
-                    onDeleteShow={handleDeleteShow}
-                    onToggleIgnore={handleToggleIgnore}
-                  />
-                }
-              />
-            </Routes>
+            <PageTransition location={location}>
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <Episodes
+                      episodes={episodes}
+                      shows={shows}
+                      loading={loading}
+                      error={error}
+                      showUnwatchedOnly={showUnwatchedOnly}
+                      onAddShow={handleAddShow}
+                      onNewShowIdChange={setNewShowId}
+                      onToggleUnwatched={() => setShowUnwatchedOnly(!showUnwatchedOnly)}
+                      onToggleWatched={handleToggleWatched}
+                      isReleased={isReleased}
+                    />
+                  }
+                />
+                <Route
+                  path="/shows"
+                  element={
+                    <Shows
+                      shows={shows}
+                      episodes={episodes}
+                      onAddShow={handleAddShow}
+                      onDeleteShow={handleDeleteShow}
+                      onToggleIgnore={handleToggleIgnore}
+                    />
+                  }
+                />
+              </Routes>
+            </PageTransition>
           </div>
-        </main>
-      </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// Wrap App with Router
+function AppWrapper() {
+  return (
+    <Router>
+      <App />
     </Router>
   );
 }
 
-export default App;
+export default AppWrapper;

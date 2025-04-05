@@ -7,12 +7,15 @@ The name "TrackTV" reflects the app's core functionality of keeping your TV show
 ## Development
 
 This project was intended to test new AI tools and hence was developed entirely using AI assistance through:
-- **Claude 3.5 Sonnet** (Anthropic) - Primary development agent
+- **Claude 3.7 Sonnet** (Anthropic) - Primary development agent
   - Architecture design
   - Feature implementation
   - Code generation
   - Documentation
   - Bug fixes and improvements
+  - Complex UI animations and transitions
+- **Claude 3.5 Sonnet** (Anthropic) - Initial development
+  - Core feature implementation
 - **ChatGPT 4** (OpenAI) - Branding and design
   - Application name
   - Logo design
@@ -37,6 +40,9 @@ All features, from initial setup to the latest enhancements, were implemented th
     - Premiere year and language
     - Genre list
   - Single-click show addition from search results
+- Smooth page transitions between views
+  - Slide animations between Episodes and Shows pages
+  - Animated search drawer
 - Track episodes for multiple shows
 - Mark episodes as watched/unwatched
 - Show management:
@@ -95,6 +101,43 @@ All features, from initial setup to the latest enhancements, were implemented th
   - Progress percentage for each show
   - Total time spent watching
   - Number of seasons and episodes
+
+## Screenshots
+
+### Episodes View
+![Episodes View](ReadmeScreenshots/episodes.png)
+The Episodes view displays your TV show episodes in chronological order. It features:
+- Color-coded episode status (green for watched, yellow for unwatched aired, blue for upcoming)
+- Air date and time information
+- Episode details including season, number, and runtime
+- Quick watch status toggle
+- Configurable filters and pagination
+
+### Shows Management
+![Shows Management](ReadmeScreenshots/shows.png)
+The Shows page provides a comprehensive overview of your TV shows:
+- Show details including status and progress
+- Time spent watching statistics
+- Show management actions (ignore/delete)
+- Color-coded completion status
+- Configurable filters and sorting options
+
+### Show Search
+![Show Search](ReadmeScreenshots/search.png)
+The search interface allows you to find shows easily:
+- Real-time search results
+- Detailed show information
+- Network and premiere year
+- Show status indicators
+- Genre and language details
+
+### Show ID Search
+![Show ID Search](ReadmeScreenshots/showId.png)
+Direct ID search provides a quick way to add shows:
+- Support for TVMaze ID lookup
+- Instant show details
+- One-click show addition
+- Clear error handling
 
 ## Tech Stack
 
@@ -251,6 +294,11 @@ nvm use 14
    - Import watched status
    - Handle duplicate entries
    - Progress indicator during import
+
+## Known Issues
+
+1. Page Transition Animation
+   - When navigating from Episodes to Shows page, there's occasionally a brief content shift before the animation completes. This will be addressed in a future update.
 
 ## License
 
