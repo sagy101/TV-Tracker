@@ -145,6 +145,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Consistent animations across both Episodes and Shows views
   - AnimatePresence wrapper for proper exit animations
   - Framer Motion integration for smooth transitions
+- Bulk show import functionality:
+  - CSV file import support
+  - Flexible field mapping through header row
+  - Support for show names and TVMaze IDs
+  - Optional fields for show status, classification, and more
+  - Example format provided in import dialog
+  - Dedicated import dialog component
 
 ### Changed
 - Updated application name in browser tab and tooltips to "TrackTV"
@@ -234,6 +241,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Better transition timing with 300ms duration
 - Removed page transition animations for simpler navigation
 - Increased row animation duration from 0.2 to 0.4 seconds for better visibility
+- Refactored import dialog into separate component for better maintainability
 
 ### Fixed
 - Fixed show deletion functionality

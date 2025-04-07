@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
-import { Home, List, Trash2, Plus, RefreshCw, Tv, ArrowLeftRight, Play, Circle, CheckCircle, ArrowUpDown, Infinity } from 'lucide-react';
+import { Home, List, Trash2, Plus, RefreshCw, Tv, ArrowLeftRight, Play, Circle, CheckCircle, ArrowUpDown, Infinity, Download } from 'lucide-react';
 import Episodes from './pages/Episodes';
 import Shows from './pages/Shows';
 import SearchDrawer from './components/SearchDrawer';
-import PageTransition from './components/PageTransition';
+import ImportDialog from './components/ImportDialog';
 
 const API_BASE_URL = 'http://localhost:3001/api';
 
@@ -43,6 +43,7 @@ function App() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState(null);
+  const [showImportDialog, setShowImportDialog] = useState(false);
   
   // Fetch all shows and their episodes from the database
   const fetchAllShows = useCallback(async () => {
@@ -297,6 +298,30 @@ function App() {
     }
   };
 
+  const handleImportShows = async (file) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch(`${API_BASE_URL}/shows/import`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      await handleApiResponse(response);
+      await fetchAllShows();
+      setShowImportDialog(false);
+    } catch (error) {
+      console.error('Error importing shows:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <nav className="bg-white shadow-sm">
@@ -337,6 +362,14 @@ function App() {
             </div>
             <div className="flex items-center space-x-2">
               <button
+                onClick={() => setShowImportDialog(true)}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                title="Import shows from file"
+              >
+                <Download className="h-5 w-5 mr-2" />
+                Import Shows
+              </button>
+              <button
                 onClick={handleRefreshShows}
                 disabled={isRefreshing}
                 className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${
@@ -374,12 +407,18 @@ function App() {
         onClose={() => setIsDrawerOpen(false)}
       />
 
+      <ImportDialog
+        isOpen={showImportDialog}
+        onClose={() => setShowImportDialog(false)}
+        onImport={handleImportShows}
+      />
+
       {showClearConfirm && (
         <div className="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
             <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full sm:p-6">
               <div className="sm:flex sm:items-start">
                 <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
                   <Trash2 className="h-6 w-6 text-red-600" />
@@ -433,39 +472,37 @@ function App() {
       <main className="py-10">
         <div className="min-h-[calc(100vh-12rem)] relative overflow-hidden">
           <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <PageTransition location={location}>
-              <Routes>
-                <Route
-                  path="/"
-                  element={
-                    <Episodes
-                      episodes={episodes}
-                      shows={shows}
-                      loading={loading}
-                      error={error}
-                      showUnwatchedOnly={showUnwatchedOnly}
-                      onAddShow={handleAddShow}
-                      onNewShowIdChange={setNewShowId}
-                      onToggleUnwatched={() => setShowUnwatchedOnly(!showUnwatchedOnly)}
-                      onToggleWatched={handleToggleWatched}
-                      isReleased={isReleased}
-                    />
-                  }
-                />
-                <Route
-                  path="/shows"
-                  element={
-                    <Shows
-                      shows={shows}
-                      episodes={episodes}
-                      onAddShow={handleAddShow}
-                      onDeleteShow={handleDeleteShow}
-                      onToggleIgnore={handleToggleIgnore}
-                    />
-                  }
-                />
-              </Routes>
-            </PageTransition>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <Episodes
+                    episodes={episodes}
+                    shows={shows}
+                    loading={loading}
+                    error={error}
+                    showUnwatchedOnly={showUnwatchedOnly}
+                    onAddShow={handleAddShow}
+                    onNewShowIdChange={setNewShowId}
+                    onToggleUnwatched={() => setShowUnwatchedOnly(!showUnwatchedOnly)}
+                    onToggleWatched={handleToggleWatched}
+                    isReleased={isReleased}
+                  />
+                }
+              />
+              <Route
+                path="/shows"
+                element={
+                  <Shows
+                    shows={shows}
+                    episodes={episodes}
+                    onAddShow={handleAddShow}
+                    onDeleteShow={handleDeleteShow}
+                    onToggleIgnore={handleToggleIgnore}
+                  />
+                }
+              />
+            </Routes>
           </div>
         </div>
       </main>

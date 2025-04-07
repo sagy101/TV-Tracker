@@ -40,6 +40,12 @@ All features, from initial setup to the latest enhancements, were implemented th
     - Premiere year and language
     - Genre list
   - Single-click show addition from search results
+- Import shows in bulk:
+  - CSV file import support
+  - Flexible field mapping through header row
+  - Support for show names and TVMaze IDs
+  - Optional fields for show status, classification, and more
+  - Example format provided in import dialog
 - Row animations for better user experience:
   - Smooth fade and height transitions when adding/removing rows
   - 0.4 second animation duration for clear visibility
