@@ -139,6 +139,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Contained transitions that preserve layout
   - Optimized performance with tween animations
   - Proper sequencing with AnimatePresence component
+- Row animations for better user experience:
+  - Smooth fade and height transitions when adding/removing rows
+  - 0.4 second animation duration for clear visibility
+  - Consistent animations across both Episodes and Shows views
+  - AnimatePresence wrapper for proper exit animations
+  - Framer Motion integration for smooth transitions
 
 ### Changed
 - Updated application name in browser tab and tooltips to "TrackTV"
@@ -226,6 +232,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added slide-in transition when opening 
   - Improved opacity transitions for overlay
   - Better transition timing with 300ms duration
+- Removed page transition animations for simpler navigation
+- Increased row animation duration from 0.2 to 0.4 seconds for better visibility
 
 ### Fixed
 - Fixed show deletion functionality

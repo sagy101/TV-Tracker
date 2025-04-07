@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Filter, CheckCircle, Info, Calendar, Clock, Eye, EyeOff, Circle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function Episodes({ 
   shows,
@@ -243,64 +244,70 @@ function Episodes({
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedEpisodes.map((episode) => {
-                  const show = shows.find(s => s.tvMazeId === episode.showId);
-                  const released = isReleased(episode);
-                  return (
-                    <tr
-                      key={episode.id}
-                      className={`${
-                        episode.watched
-                          ? 'bg-green-50'
-                          : released
-                            ? 'bg-yellow-50'
-                            : 'bg-blue-50'
-                      } hover:bg-gray-50 transition-colors`}
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <div className="flex items-center">
-                          <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                          {episode.airdate}
-                          <Clock className="h-4 w-4 mx-2 text-gray-400" />
-                          {episode.airtime}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {episode.showName}
-                        {show?.ignored && (
-                          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                            Ignored
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        S{episode.season.toString().padStart(2, '0')}E{episode.number.toString().padStart(2, '0')}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        {episode.name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                        {episode.runtime ? `${episode.runtime} min` : 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <button
-                          onClick={() => onToggleWatched(episode.id)}
-                          className={`inline-flex items-center justify-center p-2 rounded-full transition-colors ${
-                            episode.watched
-                              ? 'text-green-600 bg-green-100 hover:bg-green-200'
-                              : 'text-gray-400 bg-gray-100 hover:bg-gray-200'
-                          }`}
-                        >
-                          {episode.watched ? (
-                            <CheckCircle className="h-5 w-5" />
-                          ) : (
-                            <Circle className="h-5 w-5" />
+                <AnimatePresence>
+                  {paginatedEpisodes.map((episode) => {
+                    const show = shows.find(s => s.tvMazeId === episode.showId);
+                    const released = isReleased(episode);
+                    return (
+                      <motion.tr
+                        key={episode.id}
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.4 }}
+                        className={`${
+                          episode.watched
+                            ? 'bg-green-50'
+                            : released
+                              ? 'bg-yellow-50'
+                              : 'bg-blue-50'
+                        } hover:bg-gray-50 transition-colors`}
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <div className="flex items-center">
+                            <Calendar className="h-4 w-4 mr-2 text-gray-400" />
+                            {episode.airdate}
+                            <Clock className="h-4 w-4 mx-2 text-gray-400" />
+                            {episode.airtime}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {episode.showName}
+                          {show?.ignored && (
+                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                              Ignored
+                            </span>
                           )}
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          S{episode.season.toString().padStart(2, '0')}E{episode.number.toString().padStart(2, '0')}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {episode.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                          {episode.runtime ? `${episode.runtime} min` : 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <button
+                            onClick={() => onToggleWatched(episode.id)}
+                            className={`inline-flex items-center justify-center p-2 rounded-full transition-colors ${
+                              episode.watched
+                                ? 'text-green-600 bg-green-100 hover:bg-green-200'
+                                : 'text-gray-400 bg-gray-100 hover:bg-gray-200'
+                            }`}
+                          >
+                            {episode.watched ? (
+                              <CheckCircle className="h-5 w-5" />
+                            ) : (
+                              <Circle className="h-5 w-5" />
+                            )}
+                          </button>
+                        </td>
+                      </motion.tr>
+                    );
+                  })}
+                </AnimatePresence>
               </tbody>
             </table>
           </div>

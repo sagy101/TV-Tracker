@@ -40,9 +40,10 @@ All features, from initial setup to the latest enhancements, were implemented th
     - Premiere year and language
     - Genre list
   - Single-click show addition from search results
-- Smooth page transitions between views
-  - Slide animations between Episodes and Shows pages
-  - Animated search drawer
+- Row animations for better user experience:
+  - Smooth fade and height transitions when adding/removing rows
+  - 0.4 second animation duration for clear visibility
+  - Consistent animations across both Episodes and Shows views
 - Track episodes for multiple shows
 - Mark episodes as watched/unwatched
 - Show management:
