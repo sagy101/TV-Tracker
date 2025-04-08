@@ -152,6 +152,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Optional fields for show status, classification, and more
   - Example format provided in import dialog
   - Dedicated import dialog component
+- Enhanced cancellation handling:
+  - Backend support for client disconnections using AbortController
+  - Frontend cancellation handling for search operations
+  - Special 499 status code for client-initiated cancellations
+  - Improved error handling to differentiate cancellations from other errors
+  - Logging of search cancellations in both frontend and backend
+  - Clean state management for cancelled operations
 
 ### Changed
 - Updated application name in browser tab and tooltips to "TrackTV"
