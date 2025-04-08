@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const showSchema = new mongoose.Schema({
   tvMazeId: { type: String, required: true, unique: true },
   name: { type: String, required: true },
+  searchName: { type: String },
   image: { type: String },
   status: { type: String, default: 'Unknown' },
   ignored: { type: Boolean, default: false }

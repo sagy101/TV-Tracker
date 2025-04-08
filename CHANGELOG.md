@@ -176,6 +176,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Persists current sort column and direction
   - Smooth animations during re-sorting
   - Hover effects on sortable headers
+- Reusable UI components for better maintainability:
+  - StatusList component for displaying success/failure lists with expandable details
+  - ProgressBar component with status text, counters, and visual progress
+  - Consistent styling and behavior across components
+  - Improved code reusability and maintainability
+  - Better user feedback during operations
 
 ### Changed
 - Updated application name in browser tab and tooltips to "TrackTV"
@@ -272,6 +278,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added visual feedback for sortable columns
   - Optimized sorting performance for large datasets
   - Maintained consistent styling with existing UI
+- Improved import workflow:
+  - Fixed dialog chain behavior when canceling import operations
+  - Reduced Import Search Results dialog height for better UX
+  - Enhanced progress display with detailed status messages
+  - Added success/fail counters to progress bars
+  - Better visual organization of import dialogs
 
 ### Fixed
 - Fixed show deletion functionality

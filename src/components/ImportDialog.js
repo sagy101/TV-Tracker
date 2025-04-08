@@ -201,7 +201,7 @@ function ImportDialog({ isOpen, onClose, onImport }) {
             {isSearching && (
               <div className="mt-4">
                 <div className="flex justify-between text-sm text-gray-500 mb-2">
-                  <span>Progress: {progress.current} of {progress.total}</span>
+                  <span>Search Progress: {progress.current} of {progress.total}</span>
                   <span>Success: {progress.success} | Failed: {progress.failed}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -234,7 +234,7 @@ function ImportDialog({ isOpen, onClose, onImport }) {
                 disabled={!selectedFile || isSearching}
                 className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Start Import
+                Start Searching
               </button>
               <button
                 type="button"
@@ -250,7 +250,10 @@ function ImportDialog({ isOpen, onClose, onImport }) {
 
       <ImportSearchResultsDialog
         isOpen={showResultsDialog}
-        onClose={() => setShowResultsDialog(false)}
+        onClose={() => {
+          setShowResultsDialog(false);
+          onClose();
+        }}
         onNext={(shows) => {
           onImport(shows);
           onClose();

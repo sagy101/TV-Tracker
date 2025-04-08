@@ -298,19 +298,53 @@ function App() {
     }
   };
 
-  const handleImportShows = async (shows) => {
+  const handleImportShows = async (shows, episodes = []) => {
     try {
-      setLoading(true);
-      setError(null);
-      
-      // After all shows are imported, refresh the shows list
-      await fetchAllShows();
-      setShowImportDialog(false);
-    } catch (error) {
-      console.error('Error importing shows:', error);
-      setError(error.message);
-    } finally {
-      setLoading(false);
+      // Add shows to the database
+      const showPromises = shows.map(show => 
+        fetch(`${API_BASE_URL}/shows`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tvMazeId: show.id,
+            name: show.name,
+            image: show.image,
+            status: show.status,
+            ignored: false
+          })
+        })
+      );
+      await Promise.all(showPromises);
+
+      // If episodes are provided, add them to the database
+      if (episodes.length > 0) {
+        const episodePromises = episodes.map(episode => {
+          const show = shows.find(s => s.name === episode.showname);
+          if (!show) return null;
+
+          return fetch(`${API_BASE_URL}/shows/${show.id}/episodes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              season: episode.season,
+              episode: episode.episode,
+              name: episode.name,
+              status: episode.status,
+              runtime: episode.runtime,
+              date: episode.date,
+              airtime: episode.airtime,
+              airdate: episode.airdate
+            })
+          });
+        }).filter(promise => promise !== null);
+
+        await Promise.all(episodePromises);
+      }
+
+      // Refresh the shows list
+      await handleRefreshShows();
+    } catch (err) {
+      console.error('Error importing shows and episodes:', err);
     }
   };
 

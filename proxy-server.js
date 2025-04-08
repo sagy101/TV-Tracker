@@ -217,7 +217,7 @@ app.get('/api/shows/:id/episodes', async (req, res, next) => {
 app.post('/api/shows/:id', async (req, res, next) => {
   try {
     const showId = req.params.id;
-    const { ignored } = req.body;
+    const { ignored, searchName } = req.body;
     console.log(`Adding show with ID: ${showId}`);
 
     // Check if show already exists
@@ -234,6 +234,7 @@ app.post('/api/shows/:id', async (req, res, next) => {
     const newShow = new Show({
       tvMazeId: showId,
       name: showData.name,
+      searchName: searchName || showData.name,
       image: showData.image?.medium || null,
       status: showData.status || 'Unknown',
       ignored: ignored || false

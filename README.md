@@ -32,7 +32,11 @@ All features, from initial setup to the latest enhancements, were implemented th
 
 - Track your watched episodes across multiple TV shows
 - Import shows by name or TVMaze ID
-- Bulk import shows from CSV files
+- Bulk import shows from CSV files:
+  - Interactive progress tracking
+  - Real-time success/failure counters
+  - Detailed import status feedback
+  - Expandable success/failure lists
 - Filter and sort shows and episodes:
   - Sort shows by name, ID, seasons, episodes, watched count, time spent, and status
   - Filter by watched/unwatched episodes
@@ -44,7 +48,7 @@ All features, from initial setup to the latest enhancements, were implemented th
   - Time spent watching
   - Progress tracking
 - Data persistence with MongoDB
-- Responsive design
+- Responsive design with reusable components
 - Dark mode UI
 
 ## Screenshots
