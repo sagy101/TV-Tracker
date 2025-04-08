@@ -6,7 +6,26 @@ The name "TrackTV" reflects the app's core functionality of keeping your TV show
 
 ## Development
 
+### Development Environment
+
+- **Cursor IDE** - Primary development environment with integrated AI capabilities
+  - Code editing and navigation
+  - Terminal commands
+  - Git operations
+  - File management
+  - AI-powered code completion and suggestions
+
+- **Codeium Windsurf** - Advanced UX development
+  - Real-time UI preview with Cascade
+  - Component-level hot reloading
+  - Visual CSS editing with instant feedback
+  - Responsive design testing
+  - Design system integration
+
+### AI Assistance
+
 This project was intended to test new AI tools and hence was developed entirely using AI assistance through:
+
 - **Claude 3.7 Sonnet** (Anthropic) - Primary development agent
   - Architecture design
   - Feature implementation
@@ -14,17 +33,22 @@ This project was intended to test new AI tools and hence was developed entirely 
   - Documentation
   - Bug fixes and improvements
   - Complex UI animations and transitions
+
+- **OpenAI O1 Model** - Advanced debugging and optimization
+  - Complex bug resolution
+  - Performance optimization
+  - State management improvements
+  - Memory leak detection
+  - Runtime analysis and suggestions
+  - Code quality enhancement
+
 - **Claude 3.5 Sonnet** (Anthropic) - Initial development
   - Core feature implementation
+
 - **ChatGPT 4** (OpenAI) - Branding and design
   - Application name
   - Logo design
   - Visual identity
-- **Cursor IDE** - Development environment with integrated AI capabilities
-  - Code editing and navigation
-  - Terminal commands
-  - Git operations
-  - File management
 
 All features, from initial setup to the latest enhancements, were implemented through AI pair programming, demonstrating the capabilities of modern AI assistants in full-stack development.
 
