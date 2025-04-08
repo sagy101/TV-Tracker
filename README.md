@@ -32,11 +32,13 @@ All features, from initial setup to the latest enhancements, were implemented th
 
 - Track your watched episodes across multiple TV shows
 - Import shows by name or TVMaze ID
-- Bulk import shows from CSV files:
-  - Interactive progress tracking
-  - Real-time success/failure counters
-  - Detailed import status feedback
-  - Expandable success/failure lists
+- Enhanced bulk import functionality:
+  - Import shows from CSV files with flexible field mapping
+  - Real-time progress tracking with success/failure/skipped counters
+  - Detailed import summary with expandable lists
+  - Smart handling of duplicate shows
+  - Batch processing with rate limiting
+  - Clear visual feedback throughout the process
 - Filter and sort shows and episodes:
   - Sort shows by name, ID, seasons, episodes, watched count, time spent, and status
   - Filter by watched/unwatched episodes
@@ -169,9 +171,19 @@ npm start
 
 ### Adding Shows
 1. Click the "Add Show" button in the navigation bar
-2. Enter a TVMaze Show ID or search by name
-3. Select a show from the search results
-4. The show and its episodes will be added to your tracker
+2. Either:
+   - Enter a TVMaze Show ID for direct import
+   - Search by show name and select from results
+   - Import multiple shows using CSV file:
+     ```csv
+     showname,ignored,status,classification,country,network,runtime,airtime,timezone
+     "Show Name",0,Running,Scripted,US,NBC,60,20:00,America/New_York
+     ```
+3. For CSV imports:
+   - Progress is shown in real-time
+   - Already imported shows are automatically skipped
+   - Summary dialog shows success/failure/skipped counts
+   - Expandable lists show details of processed shows
 
 ### Managing Shows
 - Toggle show visibility using the eye icon

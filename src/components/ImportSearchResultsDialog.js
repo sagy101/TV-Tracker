@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Eye, EyeOff, CheckCircle2, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import PaginationControls from './PaginationControls';
 import ImportEpisodesDialog from './ImportEpisodesDialog';
+import ImportSummaryDialog from './ImportSummaryDialog';
 import StatusList from './StatusList';
 import ProgressBar from './ProgressBar';
 
@@ -15,13 +16,16 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
     total: 0, 
     message: '',
     success: 0,
-    failed: 0 
+    failed: 0,
+    skipped: 0
   });
   const [error, setError] = useState(null);
   const [showSuccessList, setShowSuccessList] = useState(false);
   const [showFailedList, setShowFailedList] = useState(false);
   const [showEpisodesDialog, setShowEpisodesDialog] = useState(false);
+  const [showSummaryDialog, setShowSummaryDialog] = useState(false);
   const [importedShows, setImportedShows] = useState([]);
+  const [importResults, setImportResults] = useState([]);
 
   if (!isOpen) return null;
 
@@ -44,7 +48,7 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
       if (!response.ok) throw new Error(`Failed to add show: ${show.name}`);
       const data = await response.json();
       if (data.error) throw new Error(data.error);
-      return show;
+      return data; // Return the server response directly which includes { show, skipped }
     } catch (err) {
       console.error(`Error adding show ${show.name}:`, err);
       return null;
@@ -52,9 +56,9 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
   };
 
   const processShow = async ({ show, ignored }) => {
-    const addedShow = await addShow(show, ignored);
-    if (addedShow) {
-      return { success: true, show: addedShow };
+    const result = await addShow(show, ignored);
+    if (result) {
+      return { success: true, show: result.show, skipped: result.skipped };
     }
     return { success: false };
   };
@@ -76,7 +80,8 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
       total: results.length, 
       message: 'Starting import...', 
       success: 0,
-      failed: 0 
+      failed: 0,
+      skipped: 0
     });
 
     try {
@@ -84,6 +89,8 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
       const addedShows = [];
       let successCount = 0;
       let failedCount = 0;
+      let skippedCount = 0;
+      const importResults = [];
 
       for (let i = 0; i < results.length; i += batchSize) {
         const batch = results.slice(i, i + batchSize);
@@ -92,18 +99,24 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
           current: i,
           message: `Processing in batches of ${batchSize} shows to respect API rate limits... (Batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(results.length/batchSize)})`,
           success: successCount,
-          failed: failedCount
+          failed: failedCount,
+          skipped: skippedCount
         }));
         
         const batchResults = await processBatch(batch);
         
         batchResults.forEach(result => {
           if (result.success) {
-            addedShows.push(result.show);
-            successCount++;
+            if (result.skipped) {
+              skippedCount++;
+            } else {
+              addedShows.push(result.show);
+              successCount++;
+            }
           } else {
             failedCount++;
           }
+          importResults.push(result);
         });
       }
 
@@ -112,16 +125,17 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
         current: results.length,
         message: 'Import completed!',
         success: successCount,
-        failed: failedCount
+        failed: failedCount,
+        skipped: skippedCount
       }));
 
       if (failedCount > 0) {
         setError(`${failedCount} shows could not be added. Check the console for details.`);
       }
 
+      setImportResults(importResults);
       setImportedShows(addedShows);
-      setShowEpisodesDialog(true);
-      onClose();
+      setShowSummaryDialog(true);
     } catch (err) {
       setError('Error importing shows. Some shows may not have been added.');
       console.error('Import error:', err);
@@ -258,6 +272,7 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
                 message={importProgress.message}
                 success={importProgress.success}
                 failed={importProgress.failed}
+                skipped={importProgress.skipped}
               />
             )}
             {error && (
@@ -287,6 +302,16 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
         </div>
       </div>
 
+      <ImportSummaryDialog
+        isOpen={showSummaryDialog}
+        onClose={() => {
+          setShowSummaryDialog(false);
+          onNext(importedShows);
+          onClose();
+          setShowEpisodesDialog(true);
+        }}
+        results={importResults}
+      />
       <ImportEpisodesDialog
         isOpen={showEpisodesDialog}
         onClose={() => {

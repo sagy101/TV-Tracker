@@ -220,48 +220,54 @@ app.post('/api/shows/:id', async (req, res, next) => {
     const { ignored, searchName } = req.body;
     console.log(`Adding show with ID: ${showId}`);
 
-    // Check if show already exists
+    // Check if show already exists in our database
     let existingShow = await Show.findOne({ tvMazeId: showId });
     if (existingShow) {
-      console.log(`Show ${showId} already exists`);
-      return res.json(existingShow);
+      console.log(`Show ${showId} already exists in database`);
+      return res.json({ show: existingShow, skipped: true });
     }
 
-    // Fetch show details from TVMaze
-    const showData = await fetchFromTVMaze(`https://api.tvmaze.com/shows/${showId}`);
-    
-    // Create new show in database
-    const newShow = new Show({
-      tvMazeId: showId,
-      name: showData.name,
-      searchName: searchName || showData.name,
-      image: showData.image?.medium || null,
-      status: showData.status || 'Unknown',
-      ignored: ignored || false
-    });
+    try {
+      // Fetch show details from TVMaze
+      const showData = await fetchFromTVMaze(`https://api.tvmaze.com/shows/${showId}`);
+      
+      // Create new show in database
+      const newShow = new Show({
+        tvMazeId: showId,
+        name: showData.name,
+        searchName: searchName || showData.name,
+        image: showData.image?.medium || null,
+        status: showData.status || 'Unknown',
+        ignored: ignored || false
+      });
 
-    await newShow.save();
-    console.log(`✅ Added new show: ${showData.name} (${showId}) with status: ${showData.status}, ignored: ${ignored}`);
+      await newShow.save();
+      console.log(`✅ Added new show: ${showData.name} (${showId}) with status: ${showData.status}, ignored: ${ignored}`);
 
-    // Fetch and save episodes
-    const episodes = await fetchFromTVMaze(`https://api.tvmaze.com/shows/${showId}/episodes`);
-    
-    const episodeDocs = episodes.map(ep => ({
-      tvMazeId: ep.id.toString(),
-      showId: showId,
-      season: ep.season,
-      number: ep.number,
-      name: ep.name,
-      airdate: ep.airdate || 'TBA',
-      airtime: ep.airtime || 'TBA',
-      runtime: ep.runtime || null,
-      watched: false
-    }));
+      // Fetch and save episodes
+      const episodes = await fetchFromTVMaze(`https://api.tvmaze.com/shows/${showId}/episodes`);
+      
+      const episodeDocs = episodes.map(ep => ({
+        tvMazeId: ep.id.toString(),
+        showId: showId,
+        season: ep.season,
+        number: ep.number,
+        name: ep.name,
+        airdate: ep.airdate || 'TBA',
+        airtime: ep.airtime || 'TBA',
+        runtime: ep.runtime || null,
+        watched: false
+      }));
 
-    await Episode.insertMany(episodeDocs);
-    console.log(`✅ Added ${episodeDocs.length} episodes for show ${showId}`);
+      await Episode.insertMany(episodeDocs);
+      console.log(`✅ Added ${episodeDocs.length} episodes for show ${showId}`);
 
-    res.json(newShow);
+      res.json({ show: newShow, skipped: false });
+    } catch (tvMazeError) {
+      // If TVMaze API returns an error, treat it as a skipped show
+      console.log(`Show ${showId} not found in TVMaze API`);
+      return res.json({ show: null, skipped: true });
+    }
   } catch (error) {
     console.error('Error adding show:', error);
     next(error);

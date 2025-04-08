@@ -182,6 +182,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Consistent styling and behavior across components
   - Improved code reusability and maintainability
   - Better user feedback during operations
+- Enhanced bulk show import functionality:
+  - Interactive import dialog with progress tracking
+  - Real-time success/failure/skipped counters
+  - Detailed import summary with expandable lists
+  - Skips shows that are already in the database
+  - Clear visual feedback during import process
+  - Batch processing with progress indicators
+  - Proper error handling and status messages
+  - Smooth transition between import steps
 
 ### Changed
 - Updated application name in browser tab and tooltips to "TrackTV"

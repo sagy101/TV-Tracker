@@ -7,20 +7,27 @@ function ProgressBar({
   message = '', 
   success = null, 
   failed = null,
+  skipped = null,
   height = 'h-2',
   showCount = true
 }) {
   const progress = total > 0 ? (current / total) * 100 : 0;
 
+  const renderStatusCounters = () => {
+    const counters = [];
+    if (success !== null) counters.push(`Success: ${success}`);
+    if (failed !== null) counters.push(`Failed: ${failed}`);
+    if (skipped !== null) counters.push(`Skipped: ${skipped}`);
+    return counters.join(' | ');
+  };
+
   return (
     <div className="bg-gray-50 px-4 py-3">
       <div className="flex justify-between items-center mb-2">
         <span className="text-sm text-gray-600">{message}</span>
-        {(success !== null || failed !== null) && (
+        {(success !== null || failed !== null || skipped !== null) && (
           <span className="text-sm text-gray-600">
-            {success !== null && `Success: ${success}`}
-            {success !== null && failed !== null && ' | '}
-            {failed !== null && `Failed: ${failed}`}
+            {renderStatusCounters()}
           </span>
         )}
       </div>
@@ -47,6 +54,7 @@ ProgressBar.propTypes = {
   message: PropTypes.string,
   success: PropTypes.number,
   failed: PropTypes.number,
+  skipped: PropTypes.number,
   height: PropTypes.string,
   showCount: PropTypes.bool
 };
