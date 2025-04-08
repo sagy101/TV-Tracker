@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Download } from 'lucide-react';
 import ImportSearchResultsDialog from './ImportSearchResultsDialog';
+import ProgressBar from './ProgressBar';
 
 function ImportDialog({ isOpen, onClose, onImport }) {
   const [searchResults, setSearchResults] = useState([]);
@@ -200,16 +201,14 @@ function ImportDialog({ isOpen, onClose, onImport }) {
 
             {isSearching && (
               <div className="mt-4">
-                <div className="flex justify-between text-sm text-gray-500 mb-2">
-                  <span>Search Progress: {progress.current} of {progress.total}</span>
-                  <span>Success: {progress.success} | Failed: {progress.failed}</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div
-                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-                    style={{ width: `${(progress.current / progress.total) * 100}%` }}
-                  ></div>
-                </div>
+                <ProgressBar
+                  current={progress.current}
+                  total={progress.total}
+                  message={`Search Progress: ${progress.current} of ${progress.total}`}
+                  success={progress.success}
+                  failed={progress.failed}
+                  height="h-2.5"
+                />
                 <div className="h-[52px] flex items-center justify-center">
                   {delayTimer ? (
                     <div className="bg-yellow-50 border border-yellow-200 rounded-md px-3 py-2">

@@ -252,23 +252,13 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
               </div>
             </div>
             {isImporting && (
-              <div className="bg-gray-50 px-4 py-3">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-gray-600">{importProgress.message}</span>
-                  <span className="text-sm text-gray-600">Success: {importProgress.success} | Failed: {importProgress.failed}</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${(importProgress.current / importProgress.total) * 100}%` }}
-                  ></div>
-                </div>
-                <div className="flex justify-end mt-1">
-                  <span className="text-sm text-gray-500">
-                    {importProgress.current} of {importProgress.total}
-                  </span>
-                </div>
-              </div>
+              <ProgressBar
+                current={importProgress.current}
+                total={importProgress.total}
+                message={importProgress.message}
+                success={importProgress.success}
+                failed={importProgress.failed}
+              />
             )}
             {error && (
               <div className="bg-red-50 px-4 py-3">
