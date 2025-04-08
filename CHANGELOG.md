@@ -168,6 +168,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Improved visual feedback during import process
   - Real-time tracking of import progress
   - Detailed view of search results and failures
+- Shows table sorting functionality:
+  - Clickable column headers for sorting
+  - Sort by Series Name, TVMaze ID, Seasons, Episodes, Watched, Time Spent, and Status
+  - Visual indicators (arrows) showing sort direction
+  - Automatic re-sorting when data changes
+  - Persists current sort column and direction
+  - Smooth animations during re-sorting
+  - Hover effects on sortable headers
 
 ### Changed
 - Updated application name in browser tab and tooltips to "TrackTV"
@@ -258,6 +266,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed page transition animations for simpler navigation
 - Increased row animation duration from 0.2 to 0.4 seconds for better visibility
 - Refactored import dialog into separate component for better maintainability
+- Enhanced Shows table with sorting functionality:
+  - Added clickable column headers with sort indicators
+  - Improved table header styling with hover effects
+  - Added visual feedback for sortable columns
+  - Optimized sorting performance for large datasets
+  - Maintained consistent styling with existing UI
 
 ### Fixed
 - Fixed show deletion functionality

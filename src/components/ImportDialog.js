@@ -14,9 +14,7 @@ function ImportDialog({ isOpen, onClose, onImport }) {
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file);
-    }
+    setSelectedFile(file || null);
   };
 
   const processSearchResults = (data, showName) => {

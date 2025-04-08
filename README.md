@@ -30,94 +30,22 @@ All features, from initial setup to the latest enhancements, were implemented th
 
 ## Features
 
-- Add TV shows using:
-  - Unified search interface for both TVMaze ID and show name
-  - Instant search results with show details
-  - Year filter for search results
-  - Top 8 matching results with:
-    - Show name and status badge (Running/Ended)
-    - Network and country information
-    - Premiere year and language
-    - Genre list
-  - Single-click show addition from search results
-  - Graceful cancellation handling for long-running searches
-- Import shows in bulk:
-  - CSV file import support
-  - Flexible field mapping through header row
-  - Support for show names and TVMaze IDs
-  - Optional fields for show status, classification, and more
-  - Example format provided in import dialog
-  - Real-time progress tracking during import
-  - Interactive success/failure counts with dropdown lists
-  - Visual indicators for successful and failed imports
-  - Expandable lists showing all found and failed shows
-  - Color-coded success (green) and failure (red) sections
-  - Empty state messages when no shows are found/failed
-  - Improved visual feedback during import process
-  - Automatic UI refresh after import completion
-  - Error handling for failed imports
-- Row animations for better user experience:
-  - Smooth fade and height transitions when adding/removing rows
-  - 0.4 second animation duration for clear visibility
-  - Consistent animations across both Episodes and Shows views
-- Track episodes for multiple shows
-- Mark episodes as watched/unwatched
-- Show management:
-  - Track show status (Running/Ended)
-  - Toggle show visibility in Episodes view
-  - Visual indicators for ignored shows
-  - Filter shows by ignored/unignored status
-- Episode filtering:
-  - Simple "Watched" toggle to show unwatched episodes
-  - Filter by show ignored/unignored status
-  - Clear visual feedback for active filters
-- Data management:
-  - Clear all data with one click
-  - Confirmation dialog for dangerous actions
-  - Immediate UI feedback
-- View episode air dates and times
-- Track time spent watching shows
-- Responsive pagination with adaptive controls:
-  - Smart page selector showing current page when closed
-  - Full page list with scrolling when opened
-  - Browser-native dropdown behavior for optimal performance
-  - Consistent styling across all states
-- Persistent data storage using MongoDB
-- Responsive design with Tailwind CSS
-- Configurable table pagination (10, 20, or 100 items per page)
-- Navigation controls for browsing through episodes
-- View show details and episode lists
-- Track time spent watching shows
-- Filter episodes by watched/unwatched status with dynamic icon and label changes
-- Filter shows by ignored status and completion status with dynamic icon and label changes
-  - Toggle between all shows and ignored shows
-  - Toggle between all shows and incomplete shows (not 100% watched)
-  - Active filters highlighted in green/indigo
-
-### Episodes View
-- Filter episodes by watched/unwatched status (icon and label change to Circle/Unwatched when showing unwatched)
-- Filter shows by ignored status (icon and label change to Eye/All Shows when showing all shows)
-- Dynamic filter icons and labels provide clear visual feedback of current state
-- Active filters highlighted in green
-- Automatic chronological sorting:
-  - Episodes sorted by air date and time
-  - Same-day episodes ordered by air time
-  - TBA episodes grouped at the end
-  - Real-time sorting as new episodes are added
-- Visual episode status indicators:
-  - Green background for watched episodes
-  - Yellow background for unwatched aired episodes
-  - Light blue background for upcoming episodes
-  - Instant visual feedback on episode status
-  - Intuitive color coding for quick scanning
-
-### Shows View
-- Track show progress with visual indicators:
-  - Green background for fully watched shows
-  - Gray background for ignored shows
-  - Progress percentage for each show
-  - Total time spent watching
-  - Number of seasons and episodes
+- Track your watched episodes across multiple TV shows
+- Import shows by name or TVMaze ID
+- Bulk import shows from CSV files
+- Filter and sort shows and episodes:
+  - Sort shows by name, ID, seasons, episodes, watched count, time spent, and status
+  - Filter by watched/unwatched episodes
+  - Filter by show completion status
+  - Filter ignored/unignored shows
+- Pagination with configurable items per page
+- Show statistics:
+  - Total episodes watched
+  - Time spent watching
+  - Progress tracking
+- Data persistence with MongoDB
+- Responsive design
+- Dark mode UI
 
 ## Screenshots
 

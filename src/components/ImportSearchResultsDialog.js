@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Eye, EyeOff, CheckCircle2, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import PaginationControls from './PaginationControls';
 
 function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress }) {
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
@@ -102,7 +103,7 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
   };
 
   return (
-    <div className="fixed z-20 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div className="fixed z-[100] inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
@@ -185,12 +186,12 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
                       }}
                       className="border rounded px-3 py-1 text-sm"
                     >
+                      <option value={5}>5 per page</option>
                       <option value={10}>10 per page</option>
-                      <option value={20}>20 per page</option>
-                      <option value={50}>50 per page</option>
+                      <option value={15}>15 per page</option>
                     </select>
                   </div>
-                  <div className="max-h-[60vh] overflow-y-auto">
+                  <div className="max-h-[45vh] overflow-y-auto">
                     {paginatedResults.map(({ show, searchName, ignored }) => (
                       <div
                         key={show.id}
@@ -240,24 +241,13 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
                       </div>
                     ))}
                   </div>
-                  <div className="mt-4 flex items-center justify-center gap-2">
-                    <button
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                    <span className="text-sm text-gray-600">
-                      Page {currentPage} of {totalPages}
-                    </span>
-                    <button
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                      className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
+                  <div className="mt-4 mb-6">
+                    <PaginationControls
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                      transparent={true}
+                    />
                   </div>
                 </div>
               </div>
