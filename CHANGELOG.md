@@ -159,6 +159,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Improved error handling to differentiate cancellations from other errors
   - Logging of search cancellations in both frontend and backend
   - Clean state management for cancelled operations
+- Enhanced import functionality:
+  - Interactive success/failure counts with dropdown lists
+  - Visual indicators for successful and failed imports
+  - Expandable lists showing all found and failed shows
+  - Color-coded success (green) and failure (red) sections
+  - Empty state messages when no shows are found/failed
+  - Improved visual feedback during import process
+  - Real-time tracking of import progress
+  - Detailed view of search results and failures
 
 ### Changed
 - Updated application name in browser tab and tooltips to "TrackTV"

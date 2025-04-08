@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, CheckCircle2, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
 
-function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
+function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress }) {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
   const [error, setError] = useState(null);
+  const [showSuccessList, setShowSuccessList] = useState(false);
+  const [showFailedList, setShowFailedList] = useState(false);
 
   if (!isOpen) return null;
 
@@ -54,7 +56,7 @@ function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
     return results;
   };
 
-  const handleConfirm = async () => {
+  const handleNext = async () => {
     setIsImporting(true);
     setError(null);
     setImportProgress({ current: 0, total: results.length });
@@ -83,7 +85,7 @@ function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
         setError('Some shows could not be added. Check the console for details.');
       }
 
-      onConfirm(addedShows);
+      onNext(addedShows);
       onClose();
     } catch (err) {
       setError('Error importing shows. Some shows may not have been added.');
@@ -111,6 +113,65 @@ function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
                 <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
                   Import Search Results
                 </h3>
+                <div className="mt-2 flex flex-col gap-4">
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowSuccessList(!showSuccessList)}
+                      className="flex items-center gap-2 text-sm border border-green-200 rounded-lg px-3 py-2 hover:bg-green-50 transition-colors w-full"
+                    >
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <span className="text-gray-600">Successfully found:</span>
+                      <span className="font-medium text-green-600">{progress?.success || results.length}</span>
+                      {showSuccessList ? <ChevronUp className="h-4 w-4 text-gray-500 ml-auto" /> : <ChevronDown className="h-4 w-4 text-gray-500 ml-auto" />}
+                    </button>
+                    {showSuccessList && (
+                      <div className="absolute z-10 w-full mt-1 border border-green-200 rounded-lg bg-green-50 shadow-lg">
+                        <div className="p-3 max-h-60 overflow-y-auto">
+                          <div className="space-y-2">
+                            {results.length > 0 ? (
+                              results.map(({ show, searchName }) => (
+                                <div key={show.id} className="text-sm text-gray-700">
+                                  {show.name} <span className="text-gray-500">(Searched as: {searchName})</span>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="text-sm text-gray-500 italic">No shows successfully found</div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowFailedList(!showFailedList)}
+                      className="flex items-center gap-2 text-sm border border-red-200 rounded-lg px-3 py-2 hover:bg-red-50 transition-colors w-full"
+                    >
+                      <XCircle className="h-4 w-4 text-red-500" />
+                      <span className="text-gray-600">Failed:</span>
+                      <span className="font-medium text-red-600">{progress?.failed || 0}</span>
+                      {showFailedList ? <ChevronUp className="h-4 w-4 text-gray-500 ml-auto" /> : <ChevronDown className="h-4 w-4 text-gray-500 ml-auto" />}
+                    </button>
+                    {showFailedList && (
+                      <div className="absolute z-10 w-full mt-1 border border-red-200 rounded-lg bg-red-50 shadow-lg">
+                        <div className="p-3 max-h-60 overflow-y-auto">
+                          <div className="space-y-2">
+                            {progress?.failedNames?.length > 0 ? (
+                              progress.failedNames.map((name, index) => (
+                                <div key={index} className="text-sm text-gray-700">
+                                  {name}
+                                </div>
+                              ))
+                            ) : (
+                              <div className="text-sm text-gray-500 italic">No shows failed</div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <div className="mt-4">
                   <div className="flex items-center justify-between mb-4">
                     <div className="text-sm text-gray-500">
@@ -224,11 +285,11 @@ function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
           <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             <button
               type="button"
-              onClick={handleConfirm}
+              onClick={handleNext}
               disabled={isImporting}
               className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isImporting ? 'Importing...' : 'Confirm'}
+              {isImporting ? 'Importing...' : 'Next'}
             </button>
             <button
               type="button"
@@ -248,11 +309,16 @@ function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
 ImportSearchResultsDialog.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  onConfirm: PropTypes.func.isRequired,
+  onNext: PropTypes.func.isRequired,
   results: PropTypes.arrayOf(PropTypes.shape({
     show: PropTypes.object.isRequired,
     searchName: PropTypes.string
-  })).isRequired
+  })).isRequired,
+  progress: PropTypes.shape({
+    total: PropTypes.number.isRequired,
+    success: PropTypes.number.isRequired,
+    failed: PropTypes.number.isRequired
+  })
 };
 
 export default ImportSearchResultsDialog; 

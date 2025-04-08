@@ -7,7 +7,7 @@ function ImportDialog({ isOpen, onClose, onImport }) {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResultsDialog, setShowResultsDialog] = useState(false);
-  const [progress, setProgress] = useState({ total: 0, current: 0, success: 0, failed: 0 });
+  const [progress, setProgress] = useState({ total: 0, current: 0, success: 0, failed: 0, failedNames: [] });
   const [selectedFile, setSelectedFile] = useState(null);
   const [delayTimer, setDelayTimer] = useState(null);
   const abortControllerRef = useRef(null);
@@ -62,9 +62,11 @@ function ImportDialog({ isOpen, onClose, onImport }) {
         if (result) {
           results.push({ ...result, ignored });
           setProgress(prev => ({ ...prev, success: prev.success + 1 }));
+        } else {
+          setProgress(prev => ({ ...prev, failed: prev.failed + 1, failedNames: [...prev.failedNames, name] }));
         }
       } else {
-        setProgress(prev => ({ ...prev, failed: prev.failed + 1 }));
+        setProgress(prev => ({ ...prev, failed: prev.failed + 1, failedNames: [...prev.failedNames, name] }));
       }
       setProgress(prev => ({ ...prev, current: prev.current + 1 }));
     }
@@ -100,7 +102,7 @@ function ImportDialog({ isOpen, onClose, onImport }) {
     
     setIsSearching(true);
     setSearchResults([]);
-    setProgress({ total: 0, current: 0, success: 0, failed: 0 });
+    setProgress({ total: 0, current: 0, success: 0, failed: 0, failedNames: [] });
     abortControllerRef.current = new AbortController();
     
     try {
@@ -251,11 +253,12 @@ function ImportDialog({ isOpen, onClose, onImport }) {
       <ImportSearchResultsDialog
         isOpen={showResultsDialog}
         onClose={() => setShowResultsDialog(false)}
-        onConfirm={(shows) => {
+        onNext={(shows) => {
           onImport(shows);
           onClose();
         }}
         results={searchResults}
+        progress={progress}
       />
     </>
   );

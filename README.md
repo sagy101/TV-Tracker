@@ -48,6 +48,12 @@ All features, from initial setup to the latest enhancements, were implemented th
   - Optional fields for show status, classification, and more
   - Example format provided in import dialog
   - Real-time progress tracking during import
+  - Interactive success/failure counts with dropdown lists
+  - Visual indicators for successful and failed imports
+  - Expandable lists showing all found and failed shows
+  - Color-coded success (green) and failure (red) sections
+  - Empty state messages when no shows are found/failed
+  - Improved visual feedback during import process
   - Automatic UI refresh after import completion
   - Error handling for failed imports
 - Row animations for better user experience:
