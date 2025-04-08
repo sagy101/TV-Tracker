@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import PropTypes from 'prop-types';
 import { Download } from 'lucide-react';
 import ImportSearchResultsDialog from './ImportSearchResultsDialog';
 
@@ -18,91 +19,105 @@ function ImportDialog({ isOpen, onClose, onImport }) {
     }
   };
 
+  const processSearchResults = (data, showName) => {
+    if (Array.isArray(data) && data.length > 0) {
+      return { show: data[0].show, searchName: showName };
+    } else if (data.id) {
+      return { show: data, searchName: showName };
+    }
+    return null;
+  };
+
+  const searchForShow = async (showName) => {
+    try {
+      const response = await fetch(`/api/shows/search?q=${encodeURIComponent(showName)}`, {
+        signal: abortControllerRef.current.signal
+      });
+      if (!response.ok) {
+        if (response.status === 499) {
+          console.log('Search cancelled by user');
+          return null;
+        }
+        throw new Error('Search failed');
+      }
+      return await response.json();
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        console.log('Search cancelled by user');
+        return null;
+      }
+      console.error(`Error searching for show: ${showName}`, err);
+      return null;
+    }
+  };
+
+  const processBatch = async (batch) => {
+    const results = [];
+    for (const showName of batch) {
+      if (abortControllerRef.current.signal.aborted) break;
+      
+      const data = await searchForShow(showName);
+      if (data) {
+        const result = processSearchResults(data, showName);
+        if (result) {
+          results.push(result);
+          setProgress(prev => ({ ...prev, success: prev.success + 1 }));
+        }
+      } else {
+        setProgress(prev => ({ ...prev, failed: prev.failed + 1 }));
+      }
+      setProgress(prev => ({ ...prev, current: prev.current + 1 }));
+    }
+    return results;
+  };
+
+  const processFile = async (file) => {
+    const text = await file.text();
+    const lines = text.split('\n').slice(1);
+    return lines
+      .filter(line => line.trim())
+      .map(line => line.split(',')[0])
+      .filter(name => name);
+  };
+
+  const waitForRateLimit = async () => {
+    for (let seconds = 10; seconds > 0; seconds--) {
+      if (abortControllerRef.current.signal.aborted) break;
+      setDelayTimer(seconds);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    setDelayTimer(null);
+  };
+
   const handleConfirm = async (file) => {
     if (!file) return;
     
     setIsSearching(true);
     setSearchResults([]);
     setProgress({ total: 0, current: 0, success: 0, failed: 0 });
-    
-    // Create a new AbortController for this search
     abortControllerRef.current = new AbortController();
     
     try {
-      const text = await file.text();
-      const lines = text.split('\n').slice(1); // Skip header
-      const results = [];
-      const searchNames = lines
-        .filter(line => line.trim())
-        .map(line => line.split(',')[0])
-        .filter(name => name);
-      
+      const searchNames = await processFile(file);
       setProgress(prev => ({ ...prev, total: searchNames.length }));
       
-      // Process in batches of 20 with 10 second delay between batches
       const batchSize = 20;
-      const delayBetweenBatches = 10000; // 10 seconds
+      let allResults = [];
       
       for (let i = 0; i < searchNames.length; i += batchSize) {
-        // Check if search was cancelled
-        if (abortControllerRef.current.signal.aborted) {
-          break;
-        }
-
+        if (abortControllerRef.current.signal.aborted) break;
+        
         const batch = searchNames.slice(i, i + batchSize);
+        const batchResults = await processBatch(batch);
+        allResults = [...allResults, ...batchResults];
         
-        // Process current batch
-        for (const showName of batch) {
-          // Check if search was cancelled
-          if (abortControllerRef.current.signal.aborted) {
-            break;
-          }
-
-          try {
-            const response = await fetch(`/api/shows/search?q=${encodeURIComponent(showName)}`, {
-              signal: abortControllerRef.current.signal
-            });
-            if (!response.ok) {
-              if (response.status === 499) {
-                console.log('Search cancelled by user');
-                break;
-              }
-              throw new Error('Search failed');
-            }
-            const data = await response.json();
-            
-            if (Array.isArray(data) && data.length > 0) {
-              results.push({ show: data[0].show, searchName: showName });
-              setProgress(prev => ({ ...prev, success: prev.success + 1 }));
-            } else if (data.id) {
-              results.push({ show: data, searchName: showName });
-              setProgress(prev => ({ ...prev, success: prev.success + 1 }));
-            }
-          } catch (err) {
-            if (err.name === 'AbortError') {
-              console.log('Search cancelled by user');
-              break;
-            }
-            console.error(`Error searching for show: ${showName}`, err);
-            setProgress(prev => ({ ...prev, failed: prev.failed + 1 }));
-          }
-          setProgress(prev => ({ ...prev, current: prev.current + 1 }));
-        }
-        
-        // If there are more batches and search wasn't cancelled, wait before processing the next one
         if (i + batchSize < searchNames.length && !abortControllerRef.current.signal.aborted) {
-          // Start the countdown timer
-          for (let seconds = 10; seconds > 0; seconds--) {
-            if (abortControllerRef.current.signal.aborted) break;
-            setDelayTimer(seconds);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-          setDelayTimer(null);
+          await waitForRateLimit();
         }
       }
       
       if (!abortControllerRef.current.signal.aborted) {
-        setSearchResults(results);
+        setSearchResults(allResults);
         setShowResultsDialog(true);
       }
     } catch (err) {
@@ -239,5 +254,11 @@ function ImportDialog({ isOpen, onClose, onImport }) {
     </>
   );
 }
+
+ImportDialog.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onImport: PropTypes.func.isRequired
+};
 
 export default ImportDialog; 

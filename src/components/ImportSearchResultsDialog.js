@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 
 function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -18,50 +19,68 @@ function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
     setCurrentPage(newPage);
   };
 
+  const addShow = async (show) => {
+    try {
+      const response = await fetch(`/api/shows/${show.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) throw new Error(`Failed to add show: ${show.name}`);
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+      return show;
+    } catch (err) {
+      console.error(`Error adding show ${show.name}:`, err);
+      return null;
+    }
+  };
+
+  const processShow = async (show) => {
+    const addedShow = await addShow(show);
+    if (addedShow) {
+      return { success: true, show: addedShow };
+    }
+    return { success: false };
+  };
+
+  const processBatch = async (batch) => {
+    const results = [];
+    for (const { show } of batch) {
+      const result = await processShow(show);
+      results.push(result);
+    }
+    return results;
+  };
+
   const handleConfirm = async () => {
     setIsImporting(true);
     setError(null);
     setImportProgress({ current: 0, total: results.length });
 
     try {
-      // Add shows one by one
+      const batchSize = 5;
       const addedShows = [];
       let hasErrors = false;
 
-      for (let i = 0; i < results.length; i++) {
-        const { show } = results[i];
-        try {
-          // Add show using the API endpoint that SearchDrawer uses
-          const response = await fetch(`/api/shows/${show.id}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            }
-          });
-
-          if (!response.ok) {
-            throw new Error(`Failed to add show: ${show.name}`);
+      for (let i = 0; i < results.length; i += batchSize) {
+        const batch = results.slice(i, i + batchSize);
+        const batchResults = await processBatch(batch);
+        
+        batchResults.forEach(result => {
+          if (result.success) {
+            addedShows.push(result.show);
+          } else {
+            hasErrors = true;
           }
+        });
 
-          const data = await response.json();
-          if (data.error) {
-            throw new Error(data.error);
-          }
-          
-          addedShows.push(show);
-        } catch (err) {
-          console.error(`Error adding show ${show.name}:`, err);
-          hasErrors = true;
-        }
-
-        setImportProgress(prev => ({ ...prev, current: i + 1 }));
+        setImportProgress(prev => ({ ...prev, current: i + batch.length }));
       }
 
       if (hasErrors) {
         setError('Some shows could not be added. Check the console for details.');
       }
 
-      // Call onConfirm with the successfully added shows to trigger a refresh
       onConfirm(addedShows);
       onClose();
     } catch (err) {
@@ -70,6 +89,12 @@ function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
     } finally {
       setIsImporting(false);
     }
+  };
+
+  const getStatusClass = (status) => {
+    if (status === 'Running') return 'bg-green-100 text-green-800';
+    if (status === 'Ended') return 'bg-gray-100 text-gray-800';
+    return 'bg-yellow-100 text-yellow-800';
   };
 
   return (
@@ -114,11 +139,7 @@ function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
                             <div className="text-xs text-gray-500">Search Name: {searchName}</div>
                           </div>
                           {show.status && (
-                            <span className={`text-xs px-2 py-0.5 rounded ${
-                              show.status === 'Running' ? 'bg-green-100 text-green-800' :
-                              show.status === 'Ended' ? 'bg-gray-100 text-gray-800' :
-                              'bg-yellow-100 text-yellow-800'
-                            }`}>
+                            <span className={`text-xs px-2 py-0.5 rounded ${getStatusClass(show.status)}`}>
                               {show.status}
                             </span>
                           )}
@@ -214,5 +235,15 @@ function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
     </div>
   );
 }
+
+ImportSearchResultsDialog.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  results: PropTypes.arrayOf(PropTypes.shape({
+    show: PropTypes.object.isRequired,
+    searchName: PropTypes.string
+  })).isRequired
+};
 
 export default ImportSearchResultsDialog; 

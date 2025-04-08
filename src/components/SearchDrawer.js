@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import PropTypes from 'prop-types';
 
 const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
   const [searchInput, setSearchInput] = useState('');
@@ -231,6 +232,12 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
       </div>
     </div>
   );
+};
+
+SearchDrawer.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onSelectShow: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired
 };
 
 export default SearchDrawer; 

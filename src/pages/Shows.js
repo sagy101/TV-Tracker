@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { X, Clock, Trash2, Plus, Search, EyeOff, Eye, CheckCircle, Circle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { Clock, Trash2, EyeOff, Eye, CheckCircle, Circle } from 'lucide-react';
 import SearchDrawer from '../components/SearchDrawer';
 import { motion, AnimatePresence } from 'framer-motion';
 
-function Shows({ shows, episodes, onRemoveShow, onDeleteShow, onAddShow, onToggleIgnore }) {
+function Shows({ shows, episodes, onDeleteShow, onAddShow, onToggleIgnore }) {
   const [itemsPerPage, setItemsPerPage] = useState(() => 
     parseInt(localStorage.getItem('shows_itemsPerPage')) || 10
   );
@@ -20,7 +21,6 @@ function Shows({ shows, episodes, onRemoveShow, onDeleteShow, onAddShow, onToggl
     localStorage.getItem('shows_watchedFilter') || 'all'
   );
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const searchTimeoutRef = useRef(null);
 
   // Save items per page to localStorage whenever it changes
   useEffect(() => {
@@ -52,67 +52,6 @@ function Shows({ shows, episodes, onRemoveShow, onDeleteShow, onAddShow, onToggl
       watchedEpisodes: watchedEpisodes.length,
       timeWatched: `${hours}h ${minutes}m`
     };
-  };
-
-  const handleInputChange = async (e) => {
-    const query = e.target.value;
-    setNewShowId(query);
-    setError('');
-
-    // Clear previous timeout
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    // If it's a number, don't show the drawer
-    if (/^\d+$/.test(query)) {
-      setSearchResults([]);
-      setIsDrawerOpen(false);
-      return;
-    }
-
-    // For text search, wait 300ms before searching
-    if (query.length >= 2) {
-      searchTimeoutRef.current = setTimeout(async () => {
-        try {
-          const response = await fetch(`/api/shows/search?q=${encodeURIComponent(query)}`);
-          if (!response.ok) throw new Error('Search failed');
-          const data = await response.json();
-          setSearchResults(data);
-          setIsDrawerOpen(true);
-        } catch (err) {
-          setError('Error searching for shows');
-          setSearchResults([]);
-          setIsDrawerOpen(false);
-        }
-      }, 300);
-    } else {
-      setSearchResults([]);
-      setIsDrawerOpen(false);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    if (/^\d+$/.test(newShowId)) {
-      try {
-        const response = await fetch(`/api/shows/search?q=${newShowId}`);
-        if (!response.ok) throw new Error('Show not found');
-        const data = await response.json();
-        
-        if (Array.isArray(data) && data.length > 0) {
-          await handleSelectShow(data[0].show);
-        } else if (data.id) {
-          await handleSelectShow(data);
-        } else {
-          throw new Error('Show not found');
-        }
-      } catch (err) {
-        setError('Error adding show. Please check the ID and try again.');
-      }
-    }
   };
 
   const handleSelectShow = async (show) => {
@@ -159,10 +98,7 @@ function Shows({ shows, episodes, onRemoveShow, onDeleteShow, onAddShow, onToggl
       const headerContent = document.getElementById('header-content');
       if (!tableContainer || !headerContent) return;
 
-      const tableHeight = tableContainer.getBoundingClientRect().height;
-      const headerHeight = headerContent.getBoundingClientRect().height;
       const viewportHeight = window.innerHeight;
-      const contentHeight = tableHeight + headerHeight;
       const minTableRows = 5; // Minimum number of table rows to show
       const estimatedRowHeight = 53; // Height of one table row including padding
       const minTableHeight = estimatedRowHeight * minTableRows; // Minimum table height needed
@@ -183,6 +119,12 @@ function Shows({ shows, episodes, onRemoveShow, onDeleteShow, onAddShow, onToggl
     window.addEventListener('resize', checkSticky);
     return () => window.removeEventListener('resize', checkSticky);
   }, [paginatedShows.length]);
+
+  const getStatusClass = (status) => {
+    if (status === 'Ended') return 'bg-gray-100 text-gray-800';
+    if (status === 'Running') return 'bg-green-100 text-green-800';
+    return 'bg-yellow-100 text-yellow-800';
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 relative">
@@ -334,13 +276,7 @@ function Shows({ shows, episodes, onRemoveShow, onDeleteShow, onAddShow, onToggl
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            show.status === 'Ended' 
-                              ? 'bg-gray-100 text-gray-800'
-                              : show.status === 'Running' 
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-yellow-100 text-yellow-800'
-                          }`}>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass(show.status)}`}>
                             {show.status || 'Unknown'}
                           </span>
                         </td>
@@ -434,5 +370,25 @@ function Shows({ shows, episodes, onRemoveShow, onDeleteShow, onAddShow, onToggl
     </div>
   );
 }
+
+Shows.propTypes = {
+  shows: PropTypes.arrayOf(PropTypes.shape({
+    tvMazeId: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    status: PropTypes.string,
+    ignored: PropTypes.bool
+  })).isRequired,
+  episodes: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    showId: PropTypes.string.isRequired,
+    season: PropTypes.number.isRequired,
+    number: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    watched: PropTypes.bool.isRequired
+  })).isRequired,
+  onDeleteShow: PropTypes.func.isRequired,
+  onAddShow: PropTypes.func.isRequired,
+  onToggleIgnore: PropTypes.func.isRequired
+};
 
 export default Shows; 

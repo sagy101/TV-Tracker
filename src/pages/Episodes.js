@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Filter, CheckCircle, Info, Calendar, Clock, Eye, EyeOff, Circle } from 'lucide-react';
+import PropTypes from 'prop-types';
+import { CheckCircle, Calendar, Clock, Eye, EyeOff, Circle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function Episodes({ 
   shows,
   episodes,
   loading,
-  error,
   onToggleWatched,
   isReleased
 }) {
@@ -45,9 +45,7 @@ function Episodes({
     if (showIgnoredFilter === 'all' && show?.ignored) return false;
 
     // Filter by watched status
-    if (watchedFilter === 'unwatched' && episode.watched) return false;
-
-    return true;
+    return !(watchedFilter === 'unwatched' && episode.watched);
   });
 
   // Sort episodes by date and time
@@ -372,5 +370,27 @@ function Episodes({
     </div>
   );
 }
+
+Episodes.propTypes = {
+  shows: PropTypes.arrayOf(PropTypes.shape({
+    tvMazeId: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    ignored: PropTypes.bool
+  })).isRequired,
+  episodes: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    showId: PropTypes.string.isRequired,
+    season: PropTypes.number.isRequired,
+    number: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    watched: PropTypes.bool.isRequired,
+    airdate: PropTypes.string.isRequired,
+    airtime: PropTypes.string.isRequired,
+    runtime: PropTypes.number
+  })).isRequired,
+  loading: PropTypes.bool.isRequired,
+  onToggleWatched: PropTypes.func.isRequired,
+  isReleased: PropTypes.func.isRequired
+};
 
 export default Episodes; 
