@@ -298,20 +298,12 @@ function App() {
     }
   };
 
-  const handleImportShows = async (file) => {
+  const handleImportShows = async (shows) => {
     try {
       setLoading(true);
       setError(null);
       
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const response = await fetch(`${API_BASE_URL}/shows/import`, {
-        method: 'POST',
-        body: formData
-      });
-      
-      await handleApiResponse(response);
+      // After all shows are imported, refresh the shows list
       await fetchAllShows();
       setShowImportDialog(false);
     } catch (error) {

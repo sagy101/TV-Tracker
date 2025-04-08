@@ -7,10 +7,10 @@ const Show = require('./models/Show');
 const Episode = require('./models/Episode');
 
 // Helper function to fetch from TVMaze API
-async function fetchFromTVMaze(url) {
+async function fetchFromTVMaze(url, options = {}) {
   try {
     console.log('Fetching from TVMaze:', url);
-    const response = await fetch(url);
+    const response = await fetch(url, options);
     
     if (!response.ok) {
       console.error('TVMaze API error:', {
@@ -90,6 +90,23 @@ app.use((err, req, res, next) => {
 
 // Routes
 app.get('/api/shows/search', async (req, res) => {
+  const abortController = new AbortController();
+  const signal = abortController.signal;
+
+  // Set up cleanup on client disconnect
+  let isClientDisconnected = false;
+  let isCancelled = false;
+  
+  req.on('close', () => {
+    // Only consider it a cancellation if the response hasn't been sent yet
+    if (!res.headersSent) {
+      isClientDisconnected = true;
+      isCancelled = true;
+      console.log('Client disconnected, cancelling search for:', req.query.q);
+      abortController.abort();
+    }
+  });
+
   try {
     const query = req.query.q;
     if (!query) {
@@ -99,10 +116,14 @@ app.get('/api/shows/search', async (req, res) => {
     // First try to parse as ID
     if (/^\d+$/.test(query)) {
       try {
-        const show = await fetchFromTVMaze(`https://api.tvmaze.com/shows/${query}`);
+        const show = await fetchFromTVMaze(`https://api.tvmaze.com/shows/${query}`, { signal });
         console.log('Found show by ID:', show.name);
         return res.json([{ show }]);
       } catch (error) {
+        if (error.name === 'AbortError' && isCancelled) {
+          console.log('Search cancelled by client for ID:', query);
+          return res.status(499).json({ error: 'Search cancelled by client' });
+        }
         console.log('Show not found by ID, searching by name...');
       }
     }
@@ -110,7 +131,7 @@ app.get('/api/shows/search', async (req, res) => {
     // Search by name
     console.log(`Searching for show by name: ${query}`);
     const searchUrl = `https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`;
-    const results = await fetchFromTVMaze(searchUrl);
+    const results = await fetchFromTVMaze(searchUrl, { signal });
     
     if (!Array.isArray(results)) {
       console.error('Invalid response format:', results);
@@ -120,6 +141,10 @@ app.get('/api/shows/search', async (req, res) => {
     console.log(`Found ${results.length} results for "${query}"`);
     return res.json(results);
   } catch (error) {
+    if (error.name === 'AbortError' && isCancelled) {
+      console.log('Search cancelled by client for query:', req.query.q);
+      return res.status(499).json({ error: 'Search cancelled by client' });
+    }
     console.error('Error searching shows:', error);
     return res.status(500).json({ 
       error: 'Failed to search shows',
