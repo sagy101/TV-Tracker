@@ -77,40 +77,6 @@ function Episodes({
     window.scrollTo(0, 0);
   };
 
-  // Helper function to get page options
-  const getPageOptions = () => {
-    if (totalPages <= 7) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
-
-    let pages = [];
-    const currentPageInt = parseInt(currentPage);
-
-    // Always include first and last page
-    pages.push(1);
-    
-    // Calculate range around current page
-    let start = Math.max(2, currentPageInt - 2);
-    let end = Math.min(totalPages - 1, currentPageInt + 2);
-
-    // Adjust range if at edges
-    if (currentPageInt <= 4) {
-      end = Math.min(6, totalPages - 1);
-    } else if (currentPageInt >= totalPages - 3) {
-      start = Math.max(2, totalPages - 5);
-    }
-
-    // Add ellipsis and pages
-    if (start > 2) pages.push('...');
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-    if (end < totalPages - 1) pages.push('...');
-    pages.push(totalPages);
-
-    return pages;
-  };
-
   // Check if pagination controls should be sticky
   useEffect(() => {
     const checkSticky = () => {
@@ -118,10 +84,7 @@ function Episodes({
       const headerContent = document.getElementById('header-content');
       if (!tableContainer || !headerContent) return;
 
-      const tableHeight = tableContainer.getBoundingClientRect().height;
-      const headerHeight = headerContent.getBoundingClientRect().height;
       const viewportHeight = window.innerHeight;
-      const contentHeight = tableHeight + headerHeight;
       const minTableRows = 5; // Minimum number of table rows to show
       const estimatedRowHeight = 53; // Height of one table row including padding
       const minTableHeight = estimatedRowHeight * minTableRows; // Minimum table height needed

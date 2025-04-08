@@ -217,6 +217,7 @@ app.get('/api/shows/:id/episodes', async (req, res, next) => {
 app.post('/api/shows/:id', async (req, res, next) => {
   try {
     const showId = req.params.id;
+    const { ignored } = req.body;
     console.log(`Adding show with ID: ${showId}`);
 
     // Check if show already exists
@@ -235,11 +236,11 @@ app.post('/api/shows/:id', async (req, res, next) => {
       name: showData.name,
       image: showData.image?.medium || null,
       status: showData.status || 'Unknown',
-      ignored: false
+      ignored: ignored || false
     });
 
     await newShow.save();
-    console.log(`✅ Added new show: ${showData.name} (${showId}) with status: ${showData.status}`);
+    console.log(`✅ Added new show: ${showData.name} (${showId}) with status: ${showData.status}, ignored: ${ignored}`);
 
     // Fetch and save episodes
     const episodes = await fetchFromTVMaze(`https://api.tvmaze.com/shows/${showId}/episodes`);

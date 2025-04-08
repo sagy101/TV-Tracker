@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { Eye, EyeOff } from 'lucide-react';
 
 function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -19,11 +20,12 @@ function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
     setCurrentPage(newPage);
   };
 
-  const addShow = async (show) => {
+  const addShow = async (show, ignored) => {
     try {
       const response = await fetch(`/api/shows/${show.id}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ignored })
       });
       if (!response.ok) throw new Error(`Failed to add show: ${show.name}`);
       const data = await response.json();
@@ -35,8 +37,8 @@ function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
     }
   };
 
-  const processShow = async (show) => {
-    const addedShow = await addShow(show);
+  const processShow = async ({ show, ignored }) => {
+    const addedShow = await addShow(show, ignored);
     if (addedShow) {
       return { success: true, show: addedShow };
     }
@@ -45,8 +47,8 @@ function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
 
   const processBatch = async (batch) => {
     const results = [];
-    for (const { show } of batch) {
-      const result = await processShow(show);
+    for (const { show, ignored } of batch) {
+      const result = await processShow({ show, ignored });
       results.push(result);
     }
     return results;
@@ -128,7 +130,7 @@ function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
                     </select>
                   </div>
                   <div className="max-h-[60vh] overflow-y-auto">
-                    {paginatedResults.map(({ show, searchName }) => (
+                    {paginatedResults.map(({ show, searchName, ignored }) => (
                       <div
                         key={show.id}
                         className="w-full text-left px-4 py-2 border border-gray-200 rounded-md hover:bg-gray-50 mb-2"
@@ -138,11 +140,18 @@ function ImportSearchResultsDialog({ isOpen, onClose, onConfirm, results }) {
                             <div className="font-medium">{show.name}</div>
                             <div className="text-xs text-gray-500">Search Name: {searchName}</div>
                           </div>
-                          {show.status && (
-                            <span className={`text-xs px-2 py-0.5 rounded ${getStatusClass(show.status)}`}>
-                              {show.status}
-                            </span>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {show.status && (
+                              <span className={`text-xs px-2 py-0.5 rounded ${getStatusClass(show.status)}`}>
+                                {show.status}
+                              </span>
+                            )}
+                            <div className={`inline-flex items-center p-1 rounded-full ${
+                              ignored ? 'text-gray-600 bg-gray-100' : 'text-gray-400'
+                            }`}>
+                              {ignored ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                            </div>
+                          </div>
                         </div>
                         <div className="mt-1">
                           <div className="flex items-center gap-2 text-sm text-gray-600">

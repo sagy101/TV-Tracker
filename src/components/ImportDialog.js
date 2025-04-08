@@ -53,14 +53,14 @@ function ImportDialog({ isOpen, onClose, onImport }) {
 
   const processBatch = async (batch) => {
     const results = [];
-    for (const showName of batch) {
+    for (const { name, ignored } of batch) {
       if (abortControllerRef.current.signal.aborted) break;
       
-      const data = await searchForShow(showName);
+      const data = await searchForShow(name);
       if (data) {
-        const result = processSearchResults(data, showName);
+        const result = processSearchResults(data, name);
         if (result) {
-          results.push(result);
+          results.push({ ...result, ignored });
           setProgress(prev => ({ ...prev, success: prev.success + 1 }));
         }
       } else {
@@ -76,8 +76,14 @@ function ImportDialog({ isOpen, onClose, onImport }) {
     const lines = text.split('\n').slice(1);
     return lines
       .filter(line => line.trim())
-      .map(line => line.split(',')[0])
-      .filter(name => name);
+      .map(line => {
+        const [name, ignored = '0'] = line.split(',');
+        return {
+          name: name.trim(),
+          ignored: ignored.trim() === '1' || ignored.trim().toLowerCase() === 'true'
+        };
+      })
+      .filter(({ name }) => name);
   };
 
   const waitForRateLimit = async () => {
