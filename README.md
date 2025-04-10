@@ -24,7 +24,7 @@ The name "TrackTV" reflects the app's core functionality of keeping your TV show
 ## Features & Usage
 
 ### Show Management
-![Shows Management](ReadmeScreenshots/shows.png)
+![Shows Management](docs/images/shows.png)
 - Track and manage your TV shows with comprehensive details:
   - Show status and progress tracking
   - Time spent watching statistics
@@ -40,7 +40,7 @@ The name "TrackTV" reflects the app's core functionality of keeping your TV show
   - Use pagination controls to navigate through shows
 
 ### Episode Tracking
-![Episodes View](ReadmeScreenshots/episodes.png)
+![Episodes View](docs/images/episodes.png)
 - View and manage episodes in chronological order:
   - Color-coded status indicators:
     - Green: Watched episodes
@@ -57,8 +57,8 @@ The name "TrackTV" reflects the app's core functionality of keeping your TV show
   - Track your watching progress and time spent
 
 ### Show Search & Import
-![Show Search](ReadmeScreenshots/search.png)
-![Show ID Search](ReadmeScreenshots/showId.png)
+![Show Search](docs/images/search.png)
+![Show ID Search](docs/images/showId.png)
 - Multiple ways to add shows to your collection:
   1. **Search by Name:**
      - Real-time search results with detailed information
@@ -239,7 +239,7 @@ Detailed documentation is available in the `docs` directory:
 
 ## Roadmap
 
-<img src="ReadmeScreenshots/roadmap.png" alt="Roadmap" width="350">
+<img src="docs/images/roadmap.png" alt="Roadmap" width="350">
 
 For detailed roadmap information, please see the [Roadmap](ROADMAP.md).
 
