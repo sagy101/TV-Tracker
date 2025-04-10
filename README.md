@@ -1,266 +1,270 @@
-# TrackTV
+<p align="center">
+  <img src="docs/images/topBanner1.1.png" alt="TrackTV" width="300">
+</p>
 
-A modern TV show tracking application that helps you manage and organize your watching progress.
+<h1 align="center">TrackTV</h1>
 
-The name "TrackTV" reflects the app's core functionality of keeping your TV show watching progress organized and up to date. The logo, designed by ChatGPT, features a modern and clean design that represents the app's focus on TV show tracking.
+<p align="center">
+  A modern TV show tracking application that helps you manage and organize your watching progress
+</p>
 
-## Table of Contents
-- [Features & Usage](#features--usage)
-- [Tech Stack](#tech-stack)
-- [Code Architecture](#code-architecture)
-- [Prerequisites](#prerequisites)
-- [Installation & Setup](#installation--setup)
-- [Running the Application](#running-the-application)
-- [Development](#development)
-- [Contributing](#contributing)
-- [Troubleshooting](#troubleshooting)
-- [Documentation](#documentation)
-- [Roadmap](#roadmap)
-- [License](#license)
-- [Acknowledgments](#acknowledgments)
-- [Contact](#contact)
-- [Support](#support)
+<p align="center">
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/Express.js-404D59?style=for-the-badge&logo=express&logoColor=white" alt="Express.js" />
+  <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+</p>
 
-## Features & Usage
+<p align="center">
+  <img src="https://img.shields.io/github/v/release/sagy101/tv-tracker?style=for-the-badge" alt="Version" />
+  <img src="https://img.shields.io/badge/license-GPL--3.0-blue?style=for-the-badge" alt="License: GPL-3.0" />
+  <img src="https://img.shields.io/github/issues/sagy101/tv-tracker?style=for-the-badge" alt="Open Issues" />
+  <img src="https://img.shields.io/github/last-commit/sagy101/tv-tracker?style=for-the-badge" alt="Last Commit" />
+  <img src="https://img.shields.io/github/workflow/status/sagy101/tv-tracker/CI?style=for-the-badge" alt="Build Status" />
+</p>
+
+<p align="center">
+  <a href="#key-features">Key Features</a> •
+  <a href="#demo">Demo</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#usage">Usage</a> •
+  <a href="#architecture">Architecture</a> •
+  <a href="#documentation">Documentation</a> •
+  <a href="#roadmap">Roadmap</a> •
+  <a href="#contributing">Contributing</a> •
+  <a href="#license">License</a>
+</p>
+
+---
+
+## Overview
+
+<p>
+  TrackTV is a comprehensive solution for TV show enthusiasts to track and organize their watching experience. With an intuitive interface, it simplifies keeping up with shows across various platforms.
+</p>
+
+<p>
+  <strong>✨ AI-Powered Development:</strong> This project demonstrates modern AI tools for software development—architecture, code implementation, and design were created through AI pair programming with Claude, GPT-4, and Gemini.
+</p>
+
+<p>
+  The name "TrackTV" reflects the app's core functionality, while its logo, designed by ChatGPT, features a modern design representing the app's focus on TV tracking.
+</p>
+
+---
+
+## Key Features
 
 ### Show Management
-![Shows Management](docs/images/shows.png)
+<p align="center">
+  <img src="docs/images/shows.png" alt="Shows Management" width="700">
+</p>
 - Track and manage your TV shows with comprehensive details:
   - Show status and progress tracking
   - Time spent watching statistics
   - Color-coded completion status (green for 100% watched)
   - Show management actions (ignore/delete)
-  - Configurable filters and sorting options:
-    - Sort by name, ID, seasons, episodes, watched count, time spent, and status
-    - Filter by completion status (completed/incomplete)
-    - Filter ignored/unignored shows
-    - Pagination with configurable items per page (10, 20, 100)
-  - Toggle show visibility using the eye icon
-  - Configure items per page using the dropdown
-  - Use pagination controls to navigate through shows
+  - Configurable filters and sorting options
 
 ### Episode Tracking
-![Episodes View](docs/images/episodes.png)
+<p align="center">
+  <img src="docs/images/episodes.png" alt="Episodes View" width="700">
+</p>
 - View and manage episodes in chronological order:
-  - Color-coded status indicators:
-    - Green: Watched episodes
-    - Yellow: Unwatched episodes that have aired
-    - Light blue: Future episodes
-  - Detailed episode information:
-    - Air date and time
-    - Season and episode numbers
-    - Runtime in minutes
+  - Color-coded status indicators
+  - Detailed episode information
   - Quick watch status toggle
   - Configurable filters and pagination
-  - Mark episodes as watched/unwatched by clicking the checkbox
-  - Filter episodes using the watch status toggle
-  - Track your watching progress and time spent
 
 ### Show Search & Import
-![Show Search](docs/images/search.png)
-![Show ID Search](docs/images/showId.png)
+<p align="center">
+  <img src="docs/images/search.png" alt="Show Search" width="700">
+</p>
 - Multiple ways to add shows to your collection:
-  1. **Search by Name:**
-     - Real-time search results with detailed information
-     - Network and premiere year
-     - Show status indicators
-     - Genre and language details
-  2. **Search by TVMaze ID:**
-     - Direct ID lookup
-     - Instant show details
-     - One-click show addition
-  3. **Bulk Import via CSV:**
-     - Flexible field mapping
-     - Real-time progress tracking
-     - Success/failure/skipped counters
-     - Detailed import summary with expandable lists
-     - Smart handling of duplicate shows
-     - Example CSV format:
-       ```csv
-       showname,ignored,status,classification,country,network,runtime,airtime,timezone
-       "Show Name",0,Running,Scripted,US,NBC,60,20:00,America/New_York
-       ```
-     - Progress is shown in real-time
-     - Already imported shows are automatically skipped
-     - Summary dialog shows success/failure/skipped counts
-     - Expandable lists show details of processed shows
+  - Search by name with real-time results
+  - Direct TVMaze ID lookup
+  - Bulk import via CSV with field mapping
 
 ### Data Management
 - Persistent storage with MongoDB
-- Clear All Data functionality with confirmation
-- Filter state persistence:
-  - Watched/unwatched filter state
-  - Ignored shows filter state
-  - Items per page preference
-  - States persist through page navigation and browser restarts
+- Filter state persistence across sessions
+- Backup and restore capabilities
 
-### User Interface
-- Responsive design with reusable components
-- Dark mode UI
-- Smooth animations and transitions
-- Intuitive navigation and controls
-- Consistent styling across all views
+---
 
-## Tech Stack
+## Demo
 
-- Frontend: React
-- Backend: Node.js with Express
-- Database: MongoDB
-- Styling: Tailwind CSS
-- API: TVMaze
+Experience TrackTV without installation via our online demo:
 
-## Code Architecture
+[Live Demo](https://tv-tracker-demo.herokuapp.com/) • [Demo Video](https://www.youtube.com/watch?v=demo)
 
-The application follows a standard client-server architecture:
+---
 
-*   **Frontend (React):** Handles user interface, state management, and interaction. Makes API calls to the backend.
-*   **Backend (Node.js/Express):** Acts as a proxy to the TVMaze API and manages the database persistence layer.
-    *   **Configuration (`server/config`):** Handles setup like database connections (`db.js`).
-    *   **Routes (`server/routes`):** Defines API endpoints for different resources (shows, episodes, admin, refresh) using Express Router.
-    *   **Utilities (`server/utils`):** Contains helper functions, such as fetching data from TVMaze (`tvmaze.js`) and data refresh logic (`refresh.js`).
-    *   **Models (`models`):** Mongoose schemas defining the structure for Shows and Episodes in the database.
-    *   **Server Entry Point (`proxy-server.js`):** Initializes the Express app, connects middleware, mounts routers, and starts the server.
+## Installation
 
-## Prerequisites
+### Prerequisites
 
 - Node.js (v14 or higher)
 - MongoDB (v4.4 or higher)
-- npm
+- npm or yarn
 
-## Installation & Setup
+### Quick Install
 
-1. Clone the repository:
 ```bash
+# Clone the repository
 git clone https://github.com/sagy101/tv-tracker.git
 cd tv-tracker
-```
 
-2. Automated Setup (Windows):
-   - Option A: Double-click `setup.bat` file (easiest method)
-   - Option B: Run PowerShell as Administrator and execute:
-```powershell
-.\setup.ps1
-```
-
-This automated setup will:
-- Check for Node.js and MongoDB installations
-- Create necessary MongoDB directories
-- Install all dependencies
-- Configure the environment file
-- Start the MongoDB service if available
-
-3. Manual Setup:
-```bash
 # Install dependencies
 npm install
-```
 
-4. Set up MongoDB:
-- Install MongoDB if not already installed
-- Create data directory: `E:/MongoDB/tv-tracker-data/db`
-- Create logs directory: `E:/MongoDB/tv-tracker-data/logs`
-
-5. Configure environment:
-```bash
-# Copy example environment file
+# Set up environment variables
 cp .env.example .env
+# Edit .env as needed
 
-# Edit .env file with your settings
-# Default configuration:
-MONGODB_URI=mongodb://localhost:27017/tv-tracker
-PORT=3000
-MONGODB_DATA_DIR=E:/MongoDB/tv-tracker-data/db
+# Start the development servers
+npm run dev
 ```
 
-## Running the Application
+### Detailed Setup
+
+For comprehensive installation instructions, including platform-specific guides and troubleshooting, please refer to our [Installation Guide](docs/INSTALLATION.md).
+
+---
+
+## Usage
+
+### Running the Application
 
 1. Start MongoDB:
 ```bash
-# Using Windows Service (recommended)
+# Using Windows Service
 net start MongoDB
+
+# Or manually
+mongod --dbpath=E:/MongoDB/tv-tracker-data/db
 ```
 
-2. Start the server (in first terminal):
+2. Start the server:
 ```bash
-# In the root directory
 npm run server
-# This will start the backend server on http://localhost:3001
 ```
 
-3. Start the React client (in second terminal):
+3. In a new terminal, start the client:
 ```bash
-# In the root directory
 npm start
-# This will start the frontend on http://localhost:3000
 ```
 
-4. Open your browser and navigate to `http://localhost:3000`
+4. Access the application at http://localhost:3000
 
-## Development
+### Key Operations
 
-TrackTV was developed using modern frontend and backend technologies with extensive AI assistance. The development environment leverages Cursor IDE, Codeium Windsurf for UX development, and Tailwind CSS for styling.
+- **Adding Shows**: Search by name or TVMaze ID
+- **Tracking Episodes**: Mark episodes as watched/unwatched with a single click
+- **Filtering & Sorting**: Customize your view with powerful filtering options
+- **Importing Data**: Use CSV import for bulk operations
+- **Data Management**: Export, backup, and restore your tracking data
 
-The project was built entirely through AI pair programming with Claude 3.7 Sonnet, OpenAI O1, Claude 3.5 Sonnet, ChatGPT 4, and Gemini 2.5 Pro.
+---
 
-For detailed information about the development environment, tools, project structure, and workflow, see the [Development Guide](docs/DEVELOPMENT.md).
+## Architecture
 
-## Contributing
+TrackTV follows a modern client-server architecture:
 
-We welcome contributions to TrackTV! To contribute:
+```
+tv-tracker/
+├── client/                  # React frontend
+│   ├── components/          # UI components
+│   ├── contexts/            # React contexts for state management
+│   ├── hooks/               # Custom React hooks
+│   ├── pages/               # Page components
+│   ├── services/            # API client services
+│   └── utils/               # Utility functions
+├── server/                  # Node.js/Express backend
+│   ├── config/              # Server configuration
+│   ├── controllers/         # Request handlers
+│   ├── middleware/          # Express middleware
+│   ├── models/              # Mongoose data models
+│   ├── routes/              # API route definitions
+│   └── utils/               # Server utilities
+└── shared/                  # Shared code between client/server
+    ├── constants/           # Shared constants
+    └── types/               # TypeScript type definitions
+```
 
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
+### Technology Stack
 
-For comprehensive contributing guidelines, code style information, pull request process, and issue reporting instructions, see the [Contributing Guide](docs/CONTRIBUTING.md).
+- **Frontend**: React with Hooks, Context API for state management
+- **Styling**: Tailwind CSS for utility-first styling
+- **Backend**: Node.js with Express
+- **Database**: MongoDB with Mongoose ODM
+- **API Integration**: TVMaze API for show data
+- **Build Tools**: Webpack, Babel, ESLint, Prettier
 
-## Troubleshooting
-
-Common issues you might encounter when setting up or running TrackTV include:
-
-- MongoDB connection problems
-- Node.js version compatibility
-- API connection issues
-- Frontend rendering problems
-- Database schema issues
-
-For detailed solutions to these and other problems, check out the [Troubleshooting Guide](docs/TROUBLESHOOTING.md).
+---
 
 ## Documentation
 
-Detailed documentation is available in the `docs` directory:
+Explore our comprehensive documentation for detailed information about all aspects of TrackTV:
 
-- [Development Guide](docs/DEVELOPMENT.md) - Development environment, tools, and processes
+- [User Guide](docs/USER_GUIDE.md) - Instructions for end users
+- [Development Guide](docs/DEVELOPMENT.md) - Development environment, workflow, and best practices
+- [API Documentation](docs/API.md) - Backend API endpoints and usage
+- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
 - [Contributing Guide](docs/CONTRIBUTING.md) - How to contribute to the project
-- [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Solutions for common issues
-- [Roadmap](ROADMAP.md) - Future plans and features
+
+---
 
 ## Roadmap
 
-<img src="docs/images/roadmap.png" alt="Roadmap" width="350">
+See our [Roadmap](docs/ROADMAP.md) for a comprehensive overview of planned features and enhancements.
 
-For detailed roadmap information, please see the [Roadmap](ROADMAP.md).
+Highlights of upcoming features:
+- Advanced import/export functionality
+- Dedicated show details pages
+- Auto-refresh for active shows
+- Multi-user support
+- AI-powered show recommendations
+
+---
+
+## Contributing
+
+We welcome contributions from the community! Please read our [Contributing Guide](docs/CONTRIBUTING.md) to get started.
+
+---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0) - see the [LICENSE](LICENSE) file for details.
+
+### License Terms in Simple Terms:
+- ✅ **Free to Use**: Anyone can use, modify, and distribute this software for non-commercial purposes
+- ✅ **Open Source**: All modifications must also be open source under the same license
+- ✅ **Attribution**: You must give credit to the original project
+- ❌ **Commercial Use**: The software cannot be used for commercial/for-profit purposes without explicit permission
+- ❌ **Liability**: The software is provided "as is" without warranty of any kind
+
+This license ensures the project remains free and open for personal and non-profit use while protecting it from unauthorized commercial exploitation.
+
+---
 
 ## Acknowledgments
 
-- [TVMaze API](https://www.tvmaze.com/api) for providing TV show data
-- [Create React App](https://create-react-app.dev/)
-- [TailwindCSS](https://tailwindcss.com/)
-- [Lucide Icons](https://lucide.dev/)
-- [MongoDB](https://www.mongodb.com/)
-- [Express](https://expressjs.com/)
-- [Node.js](https://nodejs.org/)
+- [TVMaze API](https://www.tvmaze.com/api) for providing comprehensive TV show data
+- All [contributors](https://github.com/sagy101/tv-tracker/graphs/contributors) who have helped improve the project
+- The open-source community for tools and libraries that made this project possible
+
+---
 
 ## Contact
 
-Project Link: [https://github.com/sagy101/tv-tracker](https://github.com/sagy101/tv-tracker)
+- GitHub: [@sagy101](https://github.com/sagy101)
+- Project Link: [https://github.com/sagy101/tv-tracker](https://github.com/sagy101/tv-tracker)
 
-## Support
+---
 
-If you find this project helpful, please give it a ⭐️!
+<p align="center">
+  Made with ❤️ by <a href="https://github.com/sagy101">Sagy</a>
+</p>

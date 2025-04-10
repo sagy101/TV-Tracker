@@ -1,10 +1,22 @@
 # Troubleshooting Guide
 
+<p align="center">
+  <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/Express.js-404D59?style=for-the-badge&logo=express&logoColor=white" alt="Express.js" />
+</p>
+
 This guide provides solutions for common issues you might encounter when setting up or running the TrackTV application.
+
+---
 
 ## MongoDB Issues
 
-### Connection Problems
+<img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+
+<details>
+<summary><strong>Connection Problems</strong> (click to expand)</summary>
 
 **Symptom**: Server fails to start with MongoDB connection errors
 
@@ -48,8 +60,10 @@ This guide provides solutions for common issues you might encounter when setting
    ```
    MONGODB_URI=mongodb://localhost:27017/tv-tracker
    ```
+</details>
 
-### Data Import/Export Issues
+<details>
+<summary><strong>Data Import/Export Issues</strong> (click to expand)</summary>
 
 **Symptom**: Problems importing or exporting data
 
@@ -67,8 +81,17 @@ This guide provides solutions for common issues you might encounter when setting
    ```bash
    mongoexport --db tv-tracker --collection shows --out shows.json
    ```
+</details>
+
+---
 
 ## Node.js Issues
+
+<img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
+<img src="https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white" alt="npm" />
+
+<details>
+<summary><strong>Application Startup and Runtime Issues</strong> (click to expand)</summary>
 
 **Symptom**: Application fails to start or crashes unexpectedly
 
@@ -101,8 +124,17 @@ This guide provides solutions for common issues you might encounter when setting
    npm ls
    ```
    Look for any dependency conflicts or errors.
+</details>
+
+---
 
 ## API Connection Issues
+
+<img src="https://img.shields.io/badge/API-TVMaze-007ACC?style=for-the-badge" alt="TVMaze API" />
+<img src="https://img.shields.io/badge/HTTP-Requests-0769AD?style=for-the-badge&logo=http&logoColor=white" alt="HTTP" />
+
+<details>
+<summary><strong>TVMaze API Connectivity Issues</strong> (click to expand)</summary>
 
 **Symptom**: Unable to fetch show data or search results
 
@@ -122,8 +154,17 @@ This guide provides solutions for common issues you might encounter when setting
 
 4. **Check for API rate limiting**:
    The TVMaze API has rate limits that might be causing issues.
+</details>
+
+---
 
 ## Frontend Issues
+
+<img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+<img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+
+<details>
+<summary><strong>React and UI Rendering Issues</strong> (click to expand)</summary>
 
 **Symptom**: UI doesn't render correctly or is unresponsive
 
@@ -140,8 +181,16 @@ This guide provides solutions for common issues you might encounter when setting
 
 4. **Check for JavaScript errors**:
    Look for any JavaScript errors in the browser console.
+</details>
+
+---
 
 ## Database Schema Issues
+
+<img src="https://img.shields.io/badge/MongoDB-Schema-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB Schema" />
+
+<details>
+<summary><strong>Data Structure and Schema Problems</strong> (click to expand)</summary>
 
 **Symptom**: Data doesn't save or appears incorrectly
 
@@ -161,8 +210,16 @@ This guide provides solutions for common issues you might encounter when setting
    db.shows.createIndex({ "name": 1 })
    db.episodes.createIndex({ "show_id": 1 })
    ```
+</details>
+
+---
 
 ## Performance Issues
+
+<img src="https://img.shields.io/badge/Performance-Optimization-FF5733?style=for-the-badge" alt="Performance" />
+
+<details>
+<summary><strong>Slow Application Performance</strong> (click to expand)</summary>
 
 **Symptom**: Application is slow or unresponsive
 
@@ -179,8 +236,17 @@ This guide provides solutions for common issues you might encounter when setting
 
 3. **Increase server resources**:
    If possible, allocate more memory/CPU to the application server.
+</details>
+
+---
 
 ## Setup Script Issues
+
+<img src="https://img.shields.io/badge/PowerShell-5391FE?style=for-the-badge&logo=powershell&logoColor=white" alt="PowerShell" />
+<img src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows" />
+
+<details>
+<summary><strong>Setup Automation Problems</strong> (click to expand)</summary>
 
 **Symptom**: The setup.ps1 or setup.bat script fails
 
@@ -198,8 +264,13 @@ This guide provides solutions for common issues you might encounter when setting
 
 3. **Manually perform setup steps**:
    If automation fails, follow the manual setup steps in the README.
+</details>
+
+---
 
 ## Still Having Issues?
+
+<img src="https://img.shields.io/badge/GitHub-Issues-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Issues" />
 
 If you've tried the solutions above and are still experiencing problems, please:
 

@@ -357,7 +357,7 @@ function App() {
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center mr-6">
                 <div className="flex items-center">
-                  <img src="/ChatGPT-Logo.png" alt="TrackTV Logo" className="h-8 w-auto object-contain" />
+                  <img src="/logo2.1.png" alt="TrackTV Logo" className="h-8 w-auto object-contain" />
                 </div>
               </div>
               <NavLink
@@ -387,7 +387,7 @@ function App() {
                 Shows
               </NavLink>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center space-x-2">
               <button
                 onClick={() => setIsDrawerOpen(true)}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
