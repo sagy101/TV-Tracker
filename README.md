@@ -149,13 +149,8 @@ cd tv-tracker
 
 2. Install dependencies:
 ```bash
-# Install backend dependencies
+# Install dependencies
 npm install
-
-# Install frontend dependencies
-cd client
-npm install
-cd ..
 ```
 
 3. Set up MongoDB:
@@ -171,7 +166,7 @@ cp .env.example .env
 # Edit .env file with your settings
 # Default configuration:
 MONGODB_URI=mongodb://localhost:27017/tv-tracker
-PORT=3001
+PORT=3000
 MONGODB_DATA_DIR=E:/MongoDB/tv-tracker-data/db
 ```
 
@@ -181,15 +176,12 @@ MONGODB_DATA_DIR=E:/MongoDB/tv-tracker-data/db
 ```bash
 # Using Windows Service (recommended)
 net start MongoDB
-
-# OR using command line
-mongod --config mongod.cfg
 ```
 
 2. Start the server (in first terminal):
 ```bash
 # In the root directory
-npn server start
+npn run server
 # This will start the backend server on http://localhost:3001
 ```
 

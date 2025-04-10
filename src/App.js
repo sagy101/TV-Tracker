@@ -5,6 +5,7 @@ import Episodes from './pages/Episodes';
 import Shows from './pages/Shows';
 import SearchDrawer from './components/SearchDrawer';
 import ImportDialog from './components/ImportDialog';
+import ActionsMenu from './components/ActionsMenu';
 
 const API_BASE_URL = 'http://localhost:3001/api';
 
@@ -386,28 +387,7 @@ function App() {
                 Shows
               </NavLink>
             </div>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setShowImportDialog(true)}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                title="Import shows from file"
-              >
-                <Download className="h-5 w-5 mr-2" />
-                Import Shows
-              </button>
-              <button
-                onClick={handleRefreshShows}
-                disabled={isRefreshing}
-                className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${
-                  isRefreshing
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-green-600 hover:bg-green-700'
-                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
-                title="Refresh active shows"
-              >
-                <RefreshCw className={`h-5 w-5 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-                Refresh Shows
-              </button>
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsDrawerOpen(true)}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -415,13 +395,12 @@ function App() {
                 <Plus className="h-5 w-5 mr-2" />
                 Add Show
               </button>
-              <button
-                onClick={() => setShowClearConfirm(true)}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              >
-                <Trash2 className="h-5 w-5 mr-2" />
-                Clear All Data
-              </button>
+              <ActionsMenu
+                onRefresh={handleRefreshShows}
+                onImport={() => setShowImportDialog(true)}
+                onClear={() => setShowClearConfirm(true)}
+                isRefreshing={isRefreshing}
+              />
             </div>
           </div>
         </div>
