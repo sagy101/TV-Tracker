@@ -27,6 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated frontend API calls in `src/App.js` to use the new backend endpoint paths (`/api/admin/clear-all`, `/api/refresh/shows`).
 - Fixed backend server port configuration to prevent conflicts with the frontend development server.
 - Improved separation of concerns and code organization in the backend.
+- Enhanced ActionsMenu UI:
+  - Increased menu width and size for better readability
+  - Added proper spacing between icons and text
+  - Improved alignment and positioning of menu items
+  - Added subtle circle around three dots button that changes color based on menu state
+  - Enhanced dropdown shadow for better visibility
+  - Optimized overall menu layout for improved usability
 
 ### Removed
 - N/A
