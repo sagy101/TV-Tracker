@@ -18,9 +18,12 @@ The name "TrackTV" reflects the app's core functionality of keeping your TV show
 - **Codeium Windsurf** - Advanced UX development
   - Real-time UI preview with Cascade
   - Component-level hot reloading
-  - Visual CSS editing with instant feedback
-  - Responsive design testing
-  - Design system integration
+
+### Styling
+- **Tailwind CSS** - Utility-first CSS framework
+  - Configured with PostCSS for optimal build process
+  - Automatic style rebuilding on file changes
+  - Compiled styles are imported from `src/output.css`
 
 ### AI Assistance
 
