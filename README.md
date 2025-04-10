@@ -28,10 +28,6 @@ This project was intended to test new AI tools and hence was developed entirely 
 
 - **Claude 3.7 Sonnet** (Anthropic) - Primary development agent
   - Architecture design
-  - Feature implementation
-  - Code generation
-  - Documentation
-  - Bug fixes and improvements
   - Complex UI animations and transitions
 
 - **OpenAI O1 Model** - Advanced debugging and optimization
@@ -40,10 +36,10 @@ This project was intended to test new AI tools and hence was developed entirely 
   - State management improvements
   - Memory leak detection
   - Runtime analysis and suggestions
-  - Code quality enhancement
 
 - **Claude 3.5 Sonnet** (Anthropic) - Initial development
   - Core feature implementation
+  - Good balace of good coding and quick generation.
 
 - **ChatGPT 4** (OpenAI) - Branding and design
   - Application name
