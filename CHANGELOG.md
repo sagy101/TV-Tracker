@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added Table of Contents to README for easier navigation
   - Reorganized README sections in a more logical order
   - Kept concise section summaries in main README with links to detailed docs
+  - Moved all images to `docs/images` directory for better organization
 - Automated setup scripts:
   - Created `setup.ps1` PowerShell script for Windows installation
   - Created `setup.bat` wrapper file with admin elevation for easier use
