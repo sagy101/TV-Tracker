@@ -239,7 +239,7 @@ Detailed documentation is available in the `docs` directory:
 
 ## Roadmap
 
-<img src="ReadmeScreenshots/roadmap.png" alt="Roadmap" width="700">
+<img src="ReadmeScreenshots/roadmap.png" alt="Roadmap" width="350">
 
 For detailed roadmap information, please see the [Roadmap](ROADMAP.md).
 
