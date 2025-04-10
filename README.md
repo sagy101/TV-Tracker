@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/topBanner1.1.png" alt="TrackTV" width="300">
+  <img src="docs/images/topBanner1.2.png" alt="TrackTV" width="600">
 </p>
 
 <h1 align="center">TrackTV</h1>
