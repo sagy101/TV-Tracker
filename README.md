@@ -50,69 +50,81 @@ This project was intended to test new AI tools and hence was developed entirely 
   - Logo design
   - Visual identity
 
+- **Gemini 2.5 Pro** - Major backend refactoring and debugging
+  - Refactoring of `proxy-server.js` into a modular structure and reorganizing project
+  - Large context window for understanding the entire project scope during the complex refactoring process
+
 All features, from initial setup to the latest enhancements, were implemented through AI pair programming, demonstrating the capabilities of modern AI assistants in full-stack development.
 
-## Features
+## Features & Usage
 
-- Track your watched episodes across multiple TV shows
-- Import shows by name or TVMaze ID
-- Enhanced bulk import functionality:
-  - Import shows from CSV files with flexible field mapping
-  - Real-time progress tracking with success/failure/skipped counters
-  - Detailed import summary with expandable lists
-  - Smart handling of duplicate shows
-  - Batch processing with rate limiting
-  - Clear visual feedback throughout the process
-- Filter and sort shows and episodes:
-  - Sort shows by name, ID, seasons, episodes, watched count, time spent, and status
-  - Filter by watched/unwatched episodes
-  - Filter by show completion status
-  - Filter ignored/unignored shows
-- Pagination with configurable items per page
-- Show statistics:
-  - Total episodes watched
-  - Time spent watching
-  - Progress tracking
-- Data persistence with MongoDB
+### Show Management
+![Shows Management](ReadmeScreenshots/shows.png)
+- Track and manage your TV shows with comprehensive details:
+  - Show status and progress tracking
+  - Time spent watching statistics
+  - Color-coded completion status (green for 100% watched)
+  - Show management actions (ignore/delete)
+  - Configurable filters and sorting options:
+    - Sort by name, ID, seasons, episodes, watched count, time spent, and status
+    - Filter by completion status (completed/incomplete)
+    - Filter ignored/unignored shows
+    - Pagination with configurable items per page (10, 20, 100)
+
+### Episode Tracking
+![Episodes View](ReadmeScreenshots/episodes.png)
+- View and manage episodes in chronological order:
+  - Color-coded status indicators:
+    - Green: Watched episodes
+    - Yellow: Unwatched episodes that have aired
+    - Light blue: Future episodes
+  - Detailed episode information:
+    - Air date and time
+    - Season and episode numbers
+    - Runtime in minutes
+  - Quick watch status toggle
+  - Configurable filters and pagination
+
+### Show Search & Import
+![Show Search](ReadmeScreenshots/search.png)
+![Show ID Search](ReadmeScreenshots/showId.png)
+- Multiple ways to add shows to your collection:
+  1. **Search by Name:**
+     - Real-time search results with detailed information
+     - Network and premiere year
+     - Show status indicators
+     - Genre and language details
+  2. **Search by TVMaze ID:**
+     - Direct ID lookup
+     - Instant show details
+     - One-click show addition
+  3. **Bulk Import via CSV:**
+     - Flexible field mapping
+     - Real-time progress tracking
+     - Success/failure/skipped counters
+     - Detailed import summary with expandable lists
+     - Smart handling of duplicate shows
+     - Example CSV format:
+       ```csv
+       showname,ignored,status,classification,country,network,runtime,airtime,timezone
+       "Show Name",0,Running,Scripted,US,NBC,60,20:00,America/New_York
+       ```
+
+### Data Management
+- Persistent storage with MongoDB
+- Clear All Data functionality with confirmation
+- Filter state persistence:
+  - Watched/unwatched filter state
+  - Ignored shows filter state
+  - Items per page preference
+  - States persist through page navigation and browser restarts
+
+### User Interface
 - Responsive design with reusable components
 - Dark mode UI
-
-## Screenshots
-
-### Episodes View
-![Episodes View](ReadmeScreenshots/episodes.png)
-The Episodes view displays your TV show episodes in chronological order. It features:
-- Color-coded episode status (green for watched, yellow for unwatched aired, blue for upcoming)
-- Air date and time information
-- Episode details including season, number, and runtime
-- Quick watch status toggle
-- Configurable filters and pagination
-
-### Shows Management
-![Shows Management](ReadmeScreenshots/shows.png)
-The Shows page provides a comprehensive overview of your TV shows:
-- Show details including status and progress
-- Time spent watching statistics
-- Show management actions (ignore/delete)
-- Color-coded completion status
-- Configurable filters and sorting options
-
-### Show Search
-![Show Search](ReadmeScreenshots/search.png)
-The search interface allows you to find shows easily:
-- Real-time search results
-- Detailed show information
-- Network and premiere year
-- Show status indicators
-- Genre and language details
-
-### Show ID Search
-![Show ID Search](ReadmeScreenshots/showId.png)
-Direct ID search provides a quick way to add shows:
-- Support for TVMaze ID lookup
-- Instant show details
-- One-click show addition
-- Clear error handling
+- Smooth animations and transitions
+- Intuitive navigation and controls
+- Consistent styling across all views
 
 ## Tech Stack
 
@@ -175,10 +187,10 @@ net start MongoDB
 mongod --config mongod.cfg
 ```
 
-2. Start the proxy server (in first terminal):
+2. Start the server (in first terminal):
 ```bash
 # In the root directory
-node proxy-server.js
+npn server start
 # This will start the backend server on http://localhost:3001
 ```
 
@@ -249,15 +261,9 @@ mongo --eval "db.serverStatus()"
 # Verify MongoDB data directory exists and has correct permissions
 ls -l E:/MongoDB/tv-tracker-data/db
 ```
-
-2. Port Conflicts
-```bash
-# Check if ports are in use
-netstat -ano | findstr :3000
-netstat -ano | findstr :3001
 ```
 
-3. Node.js Version Issues
+2. Node.js Version Issues
 ```bash
 # Check Node.js version
 node --version
@@ -321,11 +327,6 @@ nvm use 14
    - Batch show adding
    - Cross-platform sync
 
-## Known Issues
-
-1. Page Transition Animation
-   - When navigating from Episodes to Shows page, there's occasionally a brief content shift before the animation completes. This will be addressed in a future update.
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -347,3 +348,15 @@ Project Link: [https://github.com/sagy101/tv-tracker](https://github.com/sagy101
 ## Support
 
 If you find this project helpful, please give it a ⭐️!
+
+## Code Architecture
+
+The application follows a standard client-server architecture:
+
+*   **Frontend (React):** Handles user interface, state management, and interaction. Makes API calls to the backend.
+*   **Backend (Node.js/Express):** Acts as a proxy to the TVMaze API and manages the database persistence layer.
+    *   **Configuration (`server/config`):** Handles setup like database connections (`db.js`).
+    *   **Routes (`server/routes`):** Defines API endpoints for different resources (shows, episodes, admin, refresh) using Express Router.
+    *   **Utilities (`server/utils`):** Contains helper functions, such as fetching data from TVMaze (`tvmaze.js`) and data refresh logic (`refresh.js`).
+    *   **Models (`models`):** Mongoose schemas defining the structure for Shows and Episodes in the database.
+    *   **Server Entry Point (`proxy-server.js`):** Initializes the Express app, connects middleware, mounts routers, and starts the server.

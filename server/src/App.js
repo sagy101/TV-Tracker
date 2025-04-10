@@ -254,7 +254,7 @@ function App() {
 
   const handleClearAllData = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/clear-all`, {
+      const response = await fetch(`${API_BASE_URL}/clear-all`, {
         method: 'DELETE'
       });
 
@@ -277,7 +277,7 @@ function App() {
       setIsRefreshing(true);
       setRefreshError(null);
       
-      const response = await fetch(`${API_BASE_URL}/refresh/shows`, {
+      const response = await fetch(`${API_BASE_URL}/shows/refresh`, {
         method: 'PUT',
       });
       

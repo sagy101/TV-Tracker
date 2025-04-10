@@ -5,7 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [Unreleased] - YYYY-MM-DD
+
+### Added
+- N/A
+
+### Changed
+- **Major Refactor:** Split the monolithic `proxy-server.js` into a modular backend structure:
+  - Created `server/config/db.js` for database connection logic.
+  - Created `server/utils/tvmaze.js` for the TVMaze API fetch helper.
+  - Created `server/utils/refresh.js` for show/episode update logic and helpers.
+  - Created `server/routes/shows.js` for all show-related API endpoints.
+  - Created `server/routes/episodes.js` for all episode-related API endpoints.
+  - Created `server/routes/refresh.js` for the show refresh endpoint (`PUT /api/refresh/shows`).
+  - Created `server/routes/admin.js` for administrative endpoints (`DELETE /api/admin/clear-all`).
+  - Updated `proxy-server.js` (main server file) to import modules, define middleware (CORS, JSON), mount routers, and include centralized error handling.
+- Updated frontend API calls in `src/App.js` to use the new backend endpoint paths (`/api/admin/clear-all`, `/api/refresh/shows`).
+- Fixed backend server port configuration to prevent conflicts with the frontend development server.
+- Improved separation of concerns and code organization in the backend.
+
+### Removed
+- N/A
+
+### Fixed
+- Resolved `ECONNREFUSED` errors caused by server startup conflicts (port usage) and incorrect backend structure after initial refactor attempt.
+- Fixed `404 Not Found` errors for "Clear All Data" and "Refresh Shows" buttons by correcting the API paths called by the frontend.
+
+## [1.1.0] - 2024-04-09
 
 ### Added
 - Application rebranding:
