@@ -92,6 +92,20 @@ This document outlines the planned features and improvements for TrackTV. The ro
     <td><img src="https://img.shields.io/badge/Status-Planned-lightgrey?style=flat-square" alt="Status: Planned" /></td>
   </tr>
   <tr>
+    <td><b>Calendar View</b></td>
+    <td>
+      <ul>
+        <li>Visual calendar display of upcoming episode air dates</li>
+        <li>Month, week, and day view options</li>
+        <li>Filtering by show or status</li>
+        <li>Integration with show details and episode tracking</li>
+        <li>Customizable reminders or notifications (optional)</li>
+      </ul>
+    </td>
+    <td><img src="https://img.shields.io/badge/Priority-Medium-yellow?style=flat-square" alt="Priority: Medium" /></td>
+    <td><img src="https://img.shields.io/badge/Status-Planned-lightgrey?style=flat-square" alt="Status: Planned" /></td>
+  </tr>
+  <tr>
     <td><b>Cross-Platform Setup Support</b></td>
     <td>
       <ul>
