@@ -12,9 +12,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configured Tailwind CSS build process to watch for changes and automatically rebuild styles
 
 ### Added
-- N/A
+- Improved documentation structure:
+  - Created separate markdown files in the `docs` directory for better organization
+  - Added comprehensive `CONTRIBUTING.md` with guidelines, code style, PR process
+  - Added detailed `DEVELOPMENT.md` with environment info, project structure, workflow
+  - Added extensive `TROUBLESHOOTING.md` with solutions for common issues
+  - Added Table of Contents to README for easier navigation
+  - Reorganized README sections in a more logical order
+  - Kept concise section summaries in main README with links to detailed docs
+- Automated setup scripts:
+  - Created `setup.ps1` PowerShell script for Windows installation
+  - Created `setup.bat` wrapper file with admin elevation for easier use
+  - Added automated MongoDB directory creation and configuration
+  - Added Node.js and MongoDB version checking
+  - Added environment file configuration
+  - Added smart handling of prerequisites and dependencies
+- Cross-platform support roadmap (marked as ongoing)
+- Reordered and prioritized roadmap items
+- Added roadmap visualization
 
 ### Changed
+- **Major Documentation Update:**
+  - Reorganized README structure for better clarity and navigation
+  - Consolidated duplicated content between Features & Usage and Usage sections
+  - Moved detailed development information to dedicated files
+  - Improved installation instructions with automated setup options
+  - Enhanced roadmap with clearer priorities and visual representation
 - **Major Refactor:** Split the monolithic `proxy-server.js` into a modular backend structure:
   - Created `server/config/db.js` for database connection logic.
   - Created `server/utils/tvmaze.js` for the TVMaze API fetch helper.

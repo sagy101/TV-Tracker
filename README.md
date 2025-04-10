@@ -4,56 +4,22 @@ A modern TV show tracking application that helps you manage and organize your wa
 
 The name "TrackTV" reflects the app's core functionality of keeping your TV show watching progress organized and up to date. The logo, designed by ChatGPT, features a modern and clean design that represents the app's focus on TV show tracking.
 
-## Development
-
-### Development Environment
-
-- **Cursor IDE** - Primary development environment with integrated AI capabilities
-  - Code editing and navigation
-  - Terminal commands
-  - Git operations
-  - File management
-  - AI-powered code completion and suggestions
-
-- **Codeium Windsurf** - Advanced UX development
-  - Real-time UI preview with Cascade
-  - Component-level hot reloading
-
-### Styling
-- **Tailwind CSS** - Utility-first CSS framework
-  - Configured with PostCSS for optimal build process
-  - Automatic style rebuilding on file changes
-  - Compiled styles are imported from `src/output.css`
-
-### AI Assistance
-
-This project was intended to test new AI tools and hence was developed entirely using AI assistance through:
-
-- **Claude 3.7 Sonnet** (Anthropic) - Primary development agent
-  - Architecture design
-  - Complex UI animations and transitions
-
-- **OpenAI O1 Model** - Advanced debugging and optimization
-  - Complex bug resolution
-  - Performance optimization
-  - State management improvements
-  - Memory leak detection
-  - Runtime analysis and suggestions
-
-- **Claude 3.5 Sonnet** (Anthropic) - Initial development
-  - Core feature implementation
-  - Good balace of good coding and quick generation.
-
-- **ChatGPT 4** (OpenAI) - Branding and design
-  - Application name
-  - Logo design
-  - Visual identity
-
-- **Gemini 2.5 Pro** - Major backend refactoring and debugging
-  - Refactoring of `proxy-server.js` into a modular structure and reorganizing project
-  - Large context window for understanding the entire project scope during the complex refactoring process
-
-All features, from initial setup to the latest enhancements, were implemented through AI pair programming, demonstrating the capabilities of modern AI assistants in full-stack development.
+## Table of Contents
+- [Features & Usage](#features--usage)
+- [Tech Stack](#tech-stack)
+- [Code Architecture](#code-architecture)
+- [Prerequisites](#prerequisites)
+- [Installation & Setup](#installation--setup)
+- [Running the Application](#running-the-application)
+- [Development](#development)
+- [Contributing](#contributing)
+- [Troubleshooting](#troubleshooting)
+- [Documentation](#documentation)
+- [Roadmap](#roadmap)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+- [Contact](#contact)
+- [Support](#support)
 
 ## Features & Usage
 
@@ -69,6 +35,9 @@ All features, from initial setup to the latest enhancements, were implemented th
     - Filter by completion status (completed/incomplete)
     - Filter ignored/unignored shows
     - Pagination with configurable items per page (10, 20, 100)
+  - Toggle show visibility using the eye icon
+  - Configure items per page using the dropdown
+  - Use pagination controls to navigate through shows
 
 ### Episode Tracking
 ![Episodes View](ReadmeScreenshots/episodes.png)
@@ -83,6 +52,9 @@ All features, from initial setup to the latest enhancements, were implemented th
     - Runtime in minutes
   - Quick watch status toggle
   - Configurable filters and pagination
+  - Mark episodes as watched/unwatched by clicking the checkbox
+  - Filter episodes using the watch status toggle
+  - Track your watching progress and time spent
 
 ### Show Search & Import
 ![Show Search](ReadmeScreenshots/search.png)
@@ -108,6 +80,10 @@ All features, from initial setup to the latest enhancements, were implemented th
        showname,ignored,status,classification,country,network,runtime,airtime,timezone
        "Show Name",0,Running,Scripted,US,NBC,60,20:00,America/New_York
        ```
+     - Progress is shown in real-time
+     - Already imported shows are automatically skipped
+     - Summary dialog shows success/failure/skipped counts
+     - Expandable lists show details of processed shows
 
 ### Data Management
 - Persistent storage with MongoDB
@@ -133,11 +109,23 @@ All features, from initial setup to the latest enhancements, were implemented th
 - Styling: Tailwind CSS
 - API: TVMaze
 
+## Code Architecture
+
+The application follows a standard client-server architecture:
+
+*   **Frontend (React):** Handles user interface, state management, and interaction. Makes API calls to the backend.
+*   **Backend (Node.js/Express):** Acts as a proxy to the TVMaze API and manages the database persistence layer.
+    *   **Configuration (`server/config`):** Handles setup like database connections (`db.js`).
+    *   **Routes (`server/routes`):** Defines API endpoints for different resources (shows, episodes, admin, refresh) using Express Router.
+    *   **Utilities (`server/utils`):** Contains helper functions, such as fetching data from TVMaze (`tvmaze.js`) and data refresh logic (`refresh.js`).
+    *   **Models (`models`):** Mongoose schemas defining the structure for Shows and Episodes in the database.
+    *   **Server Entry Point (`proxy-server.js`):** Initializes the Express app, connects middleware, mounts routers, and starts the server.
+
 ## Prerequisites
 
 - Node.js (v14 or higher)
 - MongoDB (v4.4 or higher)
-- npm or yarn
+- npm
 
 ## Installation & Setup
 
@@ -147,18 +135,32 @@ git clone https://github.com/sagy101/tv-tracker.git
 cd tv-tracker
 ```
 
-2. Install dependencies:
+2. Automated Setup (Windows):
+   - Option A: Double-click `setup.bat` file (easiest method)
+   - Option B: Run PowerShell as Administrator and execute:
+```powershell
+.\setup.ps1
+```
+
+This automated setup will:
+- Check for Node.js and MongoDB installations
+- Create necessary MongoDB directories
+- Install all dependencies
+- Configure the environment file
+- Start the MongoDB service if available
+
+3. Manual Setup:
 ```bash
 # Install dependencies
 npm install
 ```
 
-3. Set up MongoDB:
+4. Set up MongoDB:
 - Install MongoDB if not already installed
 - Create data directory: `E:/MongoDB/tv-tracker-data/db`
 - Create logs directory: `E:/MongoDB/tv-tracker-data/logs`
 
-4. Configure environment:
+5. Configure environment:
 ```bash
 # Copy example environment file
 cp .env.example .env
@@ -181,7 +183,7 @@ net start MongoDB
 2. Start the server (in first terminal):
 ```bash
 # In the root directory
-npn run server
+npm run server
 # This will start the backend server on http://localhost:3001
 ```
 
@@ -194,129 +196,52 @@ npm start
 
 4. Open your browser and navigate to `http://localhost:3000`
 
-## Usage
+## Development
 
-### Adding Shows
-1. Click the "Add Show" button in the navigation bar
-2. Either:
-   - Enter a TVMaze Show ID for direct import
-   - Search by show name and select from results
-   - Import multiple shows using CSV file:
-     ```csv
-     showname,ignored,status,classification,country,network,runtime,airtime,timezone
-     "Show Name",0,Running,Scripted,US,NBC,60,20:00,America/New_York
-     ```
-3. For CSV imports:
-   - Progress is shown in real-time
-   - Already imported shows are automatically skipped
-   - Summary dialog shows success/failure/skipped counts
-   - Expandable lists show details of processed shows
+TrackTV was developed using modern frontend and backend technologies with extensive AI assistance. The development environment leverages Cursor IDE, Codeium Windsurf for UX development, and Tailwind CSS for styling.
 
-### Managing Shows
-- Toggle show visibility using the eye icon
-- Filter shows using the status toggles
-- Configure items per page using the dropdown
-- Use pagination controls to navigate through shows
+The project was built entirely through AI pair programming with Claude 3.7 Sonnet, OpenAI O1, Claude 3.5 Sonnet, ChatGPT 4, and Gemini 2.5 Pro.
 
-### Tracking Episodes
-- Mark episodes as watched/unwatched by clicking the checkbox
-- Filter episodes using the watch status toggle
-- View episode details including air dates and runtime
-- Track your watching progress and time spent
+For detailed information about the development environment, tools, project structure, and workflow, see the [Development Guide](docs/DEVELOPMENT.md).
 
 ## Contributing
 
+We welcome contributions to TrackTV! To contribute:
+
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
 5. Open a Pull Request
 
-## Development Guidelines
-
-- Follow the existing code style and conventions
-- Use meaningful commit messages following [Conventional Commits](https://www.conventionalcommits.org/)
-- Add appropriate documentation for new features
-- Update the CHANGELOG.md file with your changes
-- Test your changes thoroughly before submitting a PR
+For comprehensive contributing guidelines, code style information, pull request process, and issue reporting instructions, see the [Contributing Guide](docs/CONTRIBUTING.md).
 
 ## Troubleshooting
 
-### Common Issues
+Common issues you might encounter when setting up or running TrackTV include:
 
-1. MongoDB Connection Issues
-```bash
-# Check if MongoDB is running
-mongo --eval "db.serverStatus()"
+- MongoDB connection problems
+- Node.js version compatibility
+- API connection issues
+- Frontend rendering problems
+- Database schema issues
 
-# Verify MongoDB data directory exists and has correct permissions
-ls -l E:/MongoDB/tv-tracker-data/db
-```
-```
+For detailed solutions to these and other problems, check out the [Troubleshooting Guide](docs/TROUBLESHOOTING.md).
 
-2. Node.js Version Issues
-```bash
-# Check Node.js version
-node --version
+## Documentation
 
-# Use nvm to switch versions if needed
-nvm use 14
-```
+Detailed documentation is available in the `docs` directory:
+
+- [Development Guide](docs/DEVELOPMENT.md) - Development environment, tools, and processes
+- [Contributing Guide](docs/CONTRIBUTING.md) - How to contribute to the project
+- [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Solutions for common issues
+- [Roadmap](ROADMAP.md) - Future plans and features
 
 ## Roadmap
 
-1. Multi-User Support
-   - User authentication and authorization system
-   - Individual user profiles and preferences
-   - Show sharing between users
-   - Social features like show recommendations
-   - Watch history privacy settings
-   - User roles (admin, regular user)
-   - User-specific view customization
+<img src="ReadmeScreenshots/roadmap.png" alt="Roadmap" width="700">
 
-2. Show Details Page
-   - Dedicated page for each show with comprehensive information
-   - Season-by-season breakdown with collapsible sections
-   - Episode details including summaries and guest stars
-   - Show statistics and watching patterns
-   - Cast information and character details
-   - Related shows recommendations
-   - User notes and episode ratings
-   - Progress tracking visualization
-
-3. Code Architecture Improvements
-   - Refactor components for better modularity
-   - Implement atomic design principles
-   - Create reusable UI components library
-   - Improve state management with Redux/Context
-   - Add comprehensive test coverage
-   - Implement proper TypeScript types
-   - Better error handling and logging
-   - Performance optimizations
-
-4. AI Show Assistant
-   - Natural language interface for show queries
-   - Personalized show recommendations based on watching history
-   - Viewing pattern analysis and insights
-   - Watch time predictions and scheduling suggestions
-   - Show similarity analysis
-   - Mood-based recommendations
-   - Automated show categorization
-   - Viewing habit reports and statistics
-
-5. Auto-refresh for Active Shows
-   - Automatically update episode data for shows that aren't marked as "Ended"
-   - Fetch new episodes and air dates
-   - Update show status if changed
-   - Option to set refresh interval
-
-6. Import/Export Features
-   - Support CSV import from MyEpisodes.com
-   - Import from other popular tracking services
-   - Export data in various formats
-   - Backup and restore functionality
-   - Batch show adding
-   - Cross-platform sync
+For detailed roadmap information, please see the [Roadmap](ROADMAP.md).
 
 ## License
 
@@ -339,15 +264,3 @@ Project Link: [https://github.com/sagy101/tv-tracker](https://github.com/sagy101
 ## Support
 
 If you find this project helpful, please give it a ⭐️!
-
-## Code Architecture
-
-The application follows a standard client-server architecture:
-
-*   **Frontend (React):** Handles user interface, state management, and interaction. Makes API calls to the backend.
-*   **Backend (Node.js/Express):** Acts as a proxy to the TVMaze API and manages the database persistence layer.
-    *   **Configuration (`server/config`):** Handles setup like database connections (`db.js`).
-    *   **Routes (`server/routes`):** Defines API endpoints for different resources (shows, episodes, admin, refresh) using Express Router.
-    *   **Utilities (`server/utils`):** Contains helper functions, such as fetching data from TVMaze (`tvmaze.js`) and data refresh logic (`refresh.js`).
-    *   **Models (`models`):** Mongoose schemas defining the structure for Shows and Episodes in the database.
-    *   **Server Entry Point (`proxy-server.js`):** Initializes the Express app, connects middleware, mounts routers, and starts the server.
