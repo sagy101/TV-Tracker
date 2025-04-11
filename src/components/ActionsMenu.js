@@ -31,7 +31,7 @@ function ActionsMenu({
       </button>
 
       {isOpen && (
-        <div className="fixed mt-2 w-[500px] min-w-[500px] max-w-none rounded-lg bg-white shadow-xl py-3 z-[100]" style={{right: '10px', top: '60px', width: '500px !important', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'}}>
+        <div className="absolute right-0 mt-2 rounded-lg bg-white shadow-xl py-3 z-[100]" style={{ width: '200px', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'}}>
           <button
             onClick={() => {
               onRefresh();
