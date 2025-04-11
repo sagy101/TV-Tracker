@@ -53,7 +53,6 @@ This document outlines the planned features and improvements for TrackTV. The ro
         <li>Export data in various formats</li>
         <li>Backup and restore functionality</li>
         <li>Batch show adding</li>
-        <li>Cross-platform sync</li>
       </ul>
     </td>
     <td><img src="https://img.shields.io/badge/Priority-High-green?style=flat-square" alt="Priority: High" /></td>
