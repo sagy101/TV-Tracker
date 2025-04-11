@@ -34,7 +34,7 @@ This document outlines the planned features and improvements for TrackTV. The ro
     <td><b>Testing Implementation</b></td>
     <td>
       <ul>
-        <li>Comprehensive testing strategy implementation</li>
+        <li>Comprehensive testing strategy implementation (Jest, React Testing Library, Supertest, Cypress, Storybook)</li>
         <li>Frontend and backend test coverage</li>
         <li>CI/CD integration for automated testing</li>
         <li>Performance and load testing</li>
@@ -142,7 +142,7 @@ This document outlines the planned features and improvements for TrackTV. The ro
         <li>Refactor components for better modularity</li>
         <li>Implement atomic design principles</li>
         <li>Create reusable UI components library</li>
-        <li>Improve state management with Redux/Context</li>
+        <li>Improve state management with Redux/Context (or Zustand)</li>
         <li>Add comprehensive test coverage</li>
         <li>Implement proper TypeScript types</li>
         <li>Better error handling and logging</li>
@@ -151,6 +151,20 @@ This document outlines the planned features and improvements for TrackTV. The ro
     </td>
     <td><img src="https://img.shields.io/badge/Type-Development-lightgrey?style=flat-square" alt="Type: Development" /></td>
     <td><img src="https://img.shields.io/badge/Status-Ongoing-blue?style=flat-square" alt="Status: Ongoing" /></td>
+  </tr>
+  <tr>
+    <td><b>Security Enhancements</b></td>
+    <td>
+      <ul>
+        <li>Add security headers using `helmet`</li>
+        <li>Implement input validation using `joi` or `express-validator`</li>
+        <li>Set up regular dependency vulnerability audits (`npm audit`, Snyk/Dependabot)</li>
+        <li>Implement rate limiting</li>
+        <li>Review and secure database access</li>
+      </ul>
+    </td>
+    <td><img src="https://img.shields.io/badge/Priority-Medium-yellow?style=flat-square" alt="Priority: Medium" /></td>
+    <td><img src="https://img.shields.io/badge/Status-Planned-lightgrey?style=flat-square" alt="Status: Planned" /></td>
   </tr>
 </table>
 </details>
@@ -217,6 +231,18 @@ This document outlines the planned features and improvements for TrackTV. The ro
       </ul>
     </td>
     <td><img src="https://img.shields.io/badge/Priority-Lowest-lightgrey?style=flat-square" alt="Priority: Lowest" /></td>
+    <td><img src="https://img.shields.io/badge/Status-Planned-lightgrey?style=flat-square" alt="Status: Planned" /></td>
+  </tr>
+  <tr>
+    <td><b>API Documentation</b></td>
+    <td>
+      <ul>
+        <li>Generate interactive API documentation using Swagger/OpenAPI</li>
+        <li>Utilize tools like `swagger-jsdoc` and `swagger-ui-express`</li>
+        <li>Maintain comprehensive JSDoc comments for backend code</li>
+      </ul>
+    </td>
+    <td><img src="https://img.shields.io/badge/Priority-Low-lightgrey?style=flat-square" alt="Priority: Low" /></td>
     <td><img src="https://img.shields.io/badge/Status-Planned-lightgrey?style=flat-square" alt="Status: Planned" /></td>
   </tr>
 </table>

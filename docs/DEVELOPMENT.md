@@ -63,16 +63,16 @@ This project was intended to test new AI tools and hence was developed entirely 
 
 - **Claude 3.5 Sonnet** (Anthropic) <img src="https://img.shields.io/badge/Anthropic-5849BE?style=flat-square&logoColor=white" alt="Anthropic" align="right" /> - Initial development
   - Core feature implementation
-  - Good balace of good coding and quick generation.
+  - Good balance of coding capabilities and quick generation.
 
-- **ChatGPT 4** (OpenAI) <img src="https://img.shields.io/badge/ChatGPT-74aa9c?style=flat-square&logo=openai&logoColor=white" alt="ChatGPT" align="right" /> - Branding and design
+- **ChatGPT 4o** (OpenAI) <img src="https://img.shields.io/badge/ChatGPT-74aa9c?style=flat-square&logo=openai&logoColor=white" alt="ChatGPT" align="right" /> - Branding and design
   - Application name
-  - Logo design
   - Visual identity
+    - Logo design
+    - Github top banner
 
 - **Gemini 2.5 Pro** <img src="https://img.shields.io/badge/Gemini-8E75B2?style=flat-square&logo=google&logoColor=white" alt="Gemini" align="right" /> - Major backend refactoring and debugging
-  - Refactoring of `proxy-server.js` into a modular structure and reorganizing project
-  - Large context window for understanding the entire project scope during the complex refactoring process
+  - Large context window for understanding the entire project scope during the complex refactoring processes
   - Comprehensive review of commit history to verify and update the project changelog
 
 All features, from initial setup to the latest enhancements, were implemented through AI pair programming, demonstrating the capabilities of modern AI assistants in full-stack development.

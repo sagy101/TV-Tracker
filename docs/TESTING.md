@@ -27,9 +27,9 @@ This document outlines the comprehensive testing strategy for TrackTV. The testi
     <td><b>Unit Tests</b></td>
     <td>
       <ul>
-        <li>Component testing for all React components</li>
-        <li>Hook testing for custom hooks</li>
-        <li>Utility function testing</li>
+        <li>Component testing for all React components (Jest, React Testing Library)</li>
+        <li>Hook testing for custom hooks (Jest, React Testing Library)</li>
+        <li>Utility function testing (Jest)</li>
         <li>API client testing with mocks</li>
         <li>State management testing</li>
         <li>Form validation testing</li>
@@ -43,8 +43,8 @@ This document outlines the comprehensive testing strategy for TrackTV. The testi
     <td>
       <ul>
         <li>Storybook for component isolation and development</li>
-        <li>Visual testing and documentation</li>
-        <li>Interactive component playground</li>
+        <li>Visual testing and documentation (Storybook)</li>
+        <li>Interactive component playground (Storybook)</li>
         <li>Accessibility testing</li>
         <li>Responsive design testing</li>
         <li>Component documentation with examples</li>
@@ -56,10 +56,10 @@ This document outlines the comprehensive testing strategy for TrackTV. The testi
     <td><b>Integration Tests</b></td>
     <td>
       <ul>
-        <li>Component interaction testing</li>
-        <li>API integration testing</li>
-        <li>State flow testing</li>
-        <li>User flow testing (e.g., show search, episode tracking)</li>
+        <li>Component interaction testing (React Testing Library)</li>
+        <li>API integration testing (Jest, React Testing Library, Supertest)</li>
+        <li>State flow testing (React Testing Library)</li>
+        <li>User flow testing (e.g., show search, episode tracking) (React Testing Library, Cypress)</li>
       </ul>
     </td>
     <td><img src="https://img.shields.io/badge/Status-Not_Started-lightgrey?style=flat-square" alt="Status: Not Started" /></td>
@@ -68,8 +68,8 @@ This document outlines the comprehensive testing strategy for TrackTV. The testi
     <td><b>End-to-End Tests</b></td>
     <td>
       <ul>
-        <li>Complete user journey testing</li>
-        <li>Cross-browser compatibility testing</li>
+        <li>Complete user journey testing (Cypress)</li>
+        <li>Cross-browser compatibility testing (Cypress)</li>
         <li>Responsive design testing</li>
         <li>Performance testing</li>
       </ul>
@@ -92,12 +92,12 @@ This document outlines the comprehensive testing strategy for TrackTV. The testi
     <td><b>Unit Tests</b></td>
     <td>
       <ul>
-        <li>API route testing</li>
-        <li>Controller testing</li>
-        <li>Model testing</li>
-        <li>Middleware testing</li>
-        <li>Utility function testing</li>
-        <li>Database operation testing</li>
+        <li>API route testing (Jest, Supertest)</li>
+        <li>Controller testing (Jest)</li>
+        <li>Model testing (Jest)</li>
+        <li>Middleware testing (Jest)</li>
+        <li>Utility function testing (Jest)</li>
+        <li>Database operation testing (Jest)</li>
       </ul>
     </td>
     <td><img src="https://img.shields.io/badge/Status-Not_Started-lightgrey?style=flat-square" alt="Status: Not Started" /></td>
@@ -106,10 +106,10 @@ This document outlines the comprehensive testing strategy for TrackTV. The testi
     <td><b>Integration Tests</b></td>
     <td>
       <ul>
-        <li>API endpoint integration testing</li>
-        <li>Database integration testing</li>
-        <li>External API (TVMaze) integration testing</li>
-        <li>Authentication and authorization testing</li>
+        <li>API endpoint integration testing (Jest, Supertest)</li>
+        <li>Database integration testing (Jest)</li>
+        <li>External API (TVMaze) integration testing (Jest)</li>
+        <li>Authentication and authorization testing (Jest, Supertest)</li>
       </ul>
     </td>
     <td><img src="https://img.shields.io/badge/Status-Not_Started-lightgrey?style=flat-square" alt="Status: Not Started" /></td>
@@ -154,10 +154,10 @@ This document outlines the comprehensive testing strategy for TrackTV. The testi
     <td><b>CI/CD Integration</b></td>
     <td>
       <ul>
-        <li>Automated test running on pull requests</li>
-        <li>Test coverage reporting</li>
+        <li>Automated test running on pull requests (e.g., GitHub Actions)</li>
+        <li>Test coverage reporting (Jest)</li>
         <li>Performance benchmark tracking</li>
-        <li>Storybook deployment for component documentation</li>
+        <li>Storybook deployment for component documentation (e.g., GitHub Actions)</li>
       </ul>
     </td>
     <td><img src="https://img.shields.io/badge/Status-Not_Started-lightgrey?style=flat-square" alt="Status: Not Started" /></td>
