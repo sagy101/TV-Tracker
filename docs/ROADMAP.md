@@ -1,12 +1,12 @@
 # 🗺️ Roadmap
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Project_Status-Active-brightgreen?style=for-the-badge" alt="Project Status" />
-  <img src="https://img.shields.io/badge/Version-1.1.0-orange?style=for-the-badge" alt="Version" />
+  <img src="images/roadmap.png" alt="Roadmap" width="400">
 </p>
 
 <p align="center">
-  <img src="images/roadmap.png" alt="Roadmap" width="400">
+  <img src="https://img.shields.io/badge/Project_Status-Active-brightgreen?style=for-the-badge" alt="Project Status" />
+  <img src="https://img.shields.io/badge/Version-1.1.0-orange?style=for-the-badge" alt="Version" />
 </p>
 
 ---
@@ -19,7 +19,7 @@ This document outlines the planned features and improvements for TrackTV. The ro
 
 ---
 
-## Feature Roadmap
+## Roadmap
 
 ### Short-term Goals
 
@@ -29,6 +29,20 @@ This document outlines the planned features and improvements for TrackTV. The ro
     <th>Description</th>
     <th>Priority</th>
     <th>Status</th>
+  </tr>
+  <tr>
+    <td><b>Testing Implementation</b></td>
+    <td>
+      <ul>
+        <li>Comprehensive testing strategy implementation</li>
+        <li>Frontend and backend test coverage</li>
+        <li>CI/CD integration for automated testing</li>
+        <li>Performance and load testing</li>
+        <li>See <a href="TESTING.md">detailed testing requirements</a> for more information</li>
+      </ul>
+    </td>
+    <td><img src="https://img.shields.io/badge/Priority-High-green?style=flat-square" alt="Priority: High" /></td>
+    <td><img src="https://img.shields.io/badge/Status-In_Progress-blue?style=flat-square" alt="Status: In Progress" /></td>
   </tr>
   <tr>
     <td><b>Import/Export Features</b></td>
@@ -221,4 +235,4 @@ We welcome input from our community on feature prioritization! Please submit you
 
 ## Milestone Progress
 
-Progress toward our roadmap goals can be tracked on the [project board](https://github.com/sagy101/tv-tracker/projects). 
+Progress toward our roadmap goals can be tracked on the [project board TBD](https://github.com/sagy101/tv-tracker/projects). 
