@@ -98,7 +98,7 @@
 
 ## Demo
 
-Experience TrackTV without installation via our online demo:
+Experience TrackTV without installation via my online demo:
 
 [Live Demo TBD](https://tv-tracker-demo.herokuapp.com/) • [Demo Video TBD](https://www.youtube.com/watch?v=demo)
 
@@ -132,7 +132,7 @@ npm run dev
 
 ### Detailed Setup
 
-For comprehensive installation instructions, including platform-specific guides and troubleshooting, please refer to our [Installation Guide TBD](docs/INSTALLATION.md).
+For comprehensive installation instructions, including platform-specific guides and troubleshooting, please refer to my [Installation Guide TBD](docs/INSTALLATION.md).
 
 ---
 
@@ -209,7 +209,7 @@ tv-tracker/
 
 ## Development
 
-For detailed information about the development environment, tools, and processes, please refer to our [Development Guide](docs/DEVELOPMENT.md). This includes:
+For detailed information about the development environment, tools, and processes, please refer to my [Development Guide](docs/DEVELOPMENT.md). This includes:
 
 - Development environment setup
 - AI tools and assistance
@@ -222,7 +222,7 @@ For detailed information about the development environment, tools, and processes
 
 ## Roadmap
 
-See our [Roadmap](docs/ROADMAP.md) for a comprehensive overview of planned features and enhancements.
+See my [Roadmap](docs/ROADMAP.md) for a comprehensive overview of planned features and enhancements.
 
 Highlights of upcoming features:
 - Advanced import/export functionality
@@ -235,7 +235,7 @@ Highlights of upcoming features:
 
 ## Contributing
 
-We welcome contributions from the community! Please read our [Contributing Guide](docs/CONTRIBUTING.md) to get started.
+I welcome contributions from the community! Please read my [Contributing Guide](docs/CONTRIBUTING.md) to get started.
 
 ---
 

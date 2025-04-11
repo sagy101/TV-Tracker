@@ -89,7 +89,7 @@ All features, from initial setup to the latest enhancements, were implemented th
   <img src="https://img.shields.io/badge/mabl-5849BE?style=for-the-badge&logoColor=white" alt="mabl" />
 </p>
 
-The following AI-powered tools are recommended for enhancing development workflow:
+The following AI-powered tools are recommended for enhancing my development workflow:
 
 #### Testing and Quality Assurance
 - **Keploy/Functionize** - AI-powered testing platform
