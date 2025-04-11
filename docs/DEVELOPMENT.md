@@ -85,10 +85,13 @@ All features, from initial setup to the latest enhancements, were implemented th
   <img src="https://img.shields.io/badge/Dependabot-412991?style=for-the-badge&logo=github&logoColor=white" alt="Dependabot" />
   <img src="https://img.shields.io/badge/CodeQL-74aa9c?style=for-the-badge&logo=github&logoColor=white" alt="CodeQL" />
   <img src="https://img.shields.io/badge/Mintlify-8E75B2?style=for-the-badge&logoColor=white" alt="Mintlify" />
+  <img src="https://img.shields.io/badge/testRigor-00A0E4?style=for-the-badge&logoColor=white" alt="testRigor" />
+  <img src="https://img.shields.io/badge/mabl-5849BE?style=for-the-badge&logoColor=white" alt="mabl" />
 </p>
 
 The following AI-powered tools are recommended for enhancing development workflow:
 
+#### Testing and Quality Assurance
 - **Keploy/Functionize** - AI-powered testing platform
   - Automated test generation
   - API testing automation
@@ -99,17 +102,32 @@ The following AI-powered tools are recommended for enhancing development workflo
   - Generates Jest tests using GPT-4
   - Automates integration testing
 
-- **Dependabot** - Automated dependency management
-  - Creates PRs for version updates
-  - Keeps libraries up-to-date
-  - Security vulnerability alerts
+- **testRigor** - AI-powered end-to-end testing
+  - Natural language test creation
+  - Cross-browser testing
+  - Mobile testing automation
+  - Self-healing tests
 
+- **mabl** - Intelligent test automation
+  - AI-driven test creation
+  - Automated regression testing
+  - Performance monitoring
+  - Visual testing
+
+#### Code Analysis and Security
 - **CodeQL** - Advanced code analysis
   - Semantic code analysis engine
   - Security vulnerability detection
   - Bug finding capabilities
   - Free for open-source repositories
 
+#### Dependency Management
+- **Dependabot** - Automated dependency management
+  - Creates PRs for version updates
+  - Keeps libraries up-to-date
+  - Security vulnerability alerts
+
+#### Documentation
 - **Mintlify** - Documentation automation
   - AI-powered documentation generation
   - Maintains docs from code

@@ -25,15 +25,18 @@
 </p>
 
 <p align="center">
+  <a href="#overview">Overview</a> •
   <a href="#key-features">Key Features</a> •
   <a href="#demo">Demo</a> •
   <a href="#installation">Installation</a> •
   <a href="#usage">Usage</a> •
   <a href="#architecture">Architecture</a> •
-  <a href="#documentation">Documentation</a> •
+  <a href="#development">Development</a> •
   <a href="#roadmap">Roadmap</a> •
   <a href="#contributing">Contributing</a> •
-  <a href="#license">License</a>
+  <a href="#license">License</a> •
+  <a href="#acknowledgments">Acknowledgments</a> •
+  <a href="#contact">Contact</a>
 </p>
 
 ---
@@ -201,6 +204,19 @@ tv-tracker/
 - **Database**: MongoDB with Mongoose ODM
 - **API Integration**: TVMaze API for show data
 - **Build Tools**: Webpack, Babel, ESLint, Prettier
+
+---
+
+## Development
+
+For detailed information about the development environment, tools, and processes, please refer to our [Development Guide](docs/DEVELOPMENT.md). This includes:
+
+- Development environment setup
+- AI tools and assistance
+- Project structure
+- Development workflow
+- Testing and debugging
+- Code quality and security tools
 
 ---
 
