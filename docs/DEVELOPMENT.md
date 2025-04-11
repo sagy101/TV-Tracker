@@ -76,6 +76,45 @@ This project was intended to test new AI tools and hence was developed entirely 
   - Comprehensive review of commit history to verify and update the project changelog
 
 All features, from initial setup to the latest enhancements, were implemented through AI pair programming, demonstrating the capabilities of modern AI assistants in full-stack development.
+
+### Additional AI Tools for Consideration
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Keploy-00A0E4?style=for-the-badge&logoColor=white" alt="Keploy" />
+  <img src="https://img.shields.io/badge/Pythagora-5849BE?style=for-the-badge&logoColor=white" alt="Pythagora" />
+  <img src="https://img.shields.io/badge/Dependabot-412991?style=for-the-badge&logo=github&logoColor=white" alt="Dependabot" />
+  <img src="https://img.shields.io/badge/CodeQL-74aa9c?style=for-the-badge&logo=github&logoColor=white" alt="CodeQL" />
+  <img src="https://img.shields.io/badge/Mintlify-8E75B2?style=for-the-badge&logoColor=white" alt="Mintlify" />
+</p>
+
+The following AI-powered tools are recommended for enhancing development workflow:
+
+- **Keploy/Functionize** - AI-powered testing platform
+  - Automated test generation
+  - API testing automation
+  - Integration testing
+
+- **Pythagora** - CLI tool for automated testing
+  - Records server activity
+  - Generates Jest tests using GPT-4
+  - Automates integration testing
+
+- **Dependabot** - Automated dependency management
+  - Creates PRs for version updates
+  - Keeps libraries up-to-date
+  - Security vulnerability alerts
+
+- **CodeQL** - Advanced code analysis
+  - Semantic code analysis engine
+  - Security vulnerability detection
+  - Bug finding capabilities
+  - Free for open-source repositories
+
+- **Mintlify** - Documentation automation
+  - AI-powered documentation generation
+  - Maintains docs from code
+  - Interactive documentation site
+  - Out-of-the-box documentation hosting
 </details>
 
 ---
