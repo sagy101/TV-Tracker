@@ -44,16 +44,16 @@ This guide provides solutions for common issues you might encounter when setting
 
 3. **Verify MongoDB data directory exists and has correct permissions**:
    ```bash
-   ls -l E:/MongoDB/tv-tracker-data/db
+   ls -l %MONGODB_DATA_DIR%
    ```
    If the directory doesn't exist, create it:
    ```bash
-   mkdir -p E:/MongoDB/tv-tracker-data/db
-   mkdir -p E:/MongoDB/tv-tracker-data/logs
+   mkdir -p %MONGODB_DATA_DIR%
+   mkdir -p %MONGODB_DATA_DIR%/../logs
    ```
 
 4. **Check MongoDB logs for errors**:
-   Look for error messages in the MongoDB log file at `E:/MongoDB/tv-tracker-data/logs/mongodb.log`
+   Look for error messages in the MongoDB log file at `%MONGODB_DATA_DIR%/../logs/mongodb.log`
 
 5. **Confirm MongoDB connection string**:
    Make sure your `.env` file has the correct MongoDB URI:

@@ -356,7 +356,7 @@ function App() {
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center mr-6">
                 <div className="flex items-center">
-                  <img src="/logo2.1.png" alt="TrackTV Logo" className="h-8 w-auto object-contain" />
+                  <img src="/logo2.2.png" alt="TrackTV Logo" className="h-8 w-auto object-contain" />
                 </div>
               </div>
               <NavLink

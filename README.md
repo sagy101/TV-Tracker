@@ -97,7 +97,7 @@
 
 Experience TrackTV without installation via our online demo:
 
-[Live Demo](https://tv-tracker-demo.herokuapp.com/) • [Demo Video](https://www.youtube.com/watch?v=demo)
+[Live Demo TBD](https://tv-tracker-demo.herokuapp.com/) • [Demo Video TBD](https://www.youtube.com/watch?v=demo)
 
 ---
 
@@ -129,7 +129,7 @@ npm run dev
 
 ### Detailed Setup
 
-For comprehensive installation instructions, including platform-specific guides and troubleshooting, please refer to our [Installation Guide](docs/INSTALLATION.md).
+For comprehensive installation instructions, including platform-specific guides and troubleshooting, please refer to our [Installation Guide TBD](docs/INSTALLATION.md).
 
 ---
 
@@ -143,7 +143,7 @@ For comprehensive installation instructions, including platform-specific guides 
 net start MongoDB
 
 # Or manually
-mongod --dbpath=E:/MongoDB/tv-tracker-data/db
+mongod --dbpath %MONGODB_DATA_DIR%
 ```
 
 2. Start the server:
@@ -201,18 +201,6 @@ tv-tracker/
 - **Database**: MongoDB with Mongoose ODM
 - **API Integration**: TVMaze API for show data
 - **Build Tools**: Webpack, Babel, ESLint, Prettier
-
----
-
-## Documentation
-
-Explore our comprehensive documentation for detailed information about all aspects of TrackTV:
-
-- [User Guide](docs/USER_GUIDE.md) - Instructions for end users
-- [Development Guide](docs/DEVELOPMENT.md) - Development environment, workflow, and best practices
-- [API Documentation](docs/API.md) - Backend API endpoints and usage
-- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
-- [Contributing Guide](docs/CONTRIBUTING.md) - How to contribute to the project
 
 ---
 

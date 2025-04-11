@@ -11,17 +11,34 @@ if (-not $isAdmin) {
 
 # Create MongoDB directories
 Write-Host "`n[1/5] Setting up MongoDB directories..." -ForegroundColor Green
-$mongoDataDir = "E:\MongoDB\tv-tracker-data\db"
-$mongoLogsDir = "E:\MongoDB\tv-tracker-data\logs"
 
+# Ask for MongoDB data directory
+$defaultDataDir = "E:\MongoDB\tv-tracker-data\db"
+Write-Host "`nMongoDB Data Directory Configuration" -ForegroundColor Yellow
+Write-Host "Default path: $defaultDataDir" -ForegroundColor White
+$customDataDir = Read-Host "Enter custom path for MongoDB data directory (press Enter to use default)"
+$mongoDataDir = if ($customDataDir) { $customDataDir } else { $defaultDataDir }
+
+# Ask for MongoDB logs directory
+$defaultLogsDir = "E:\MongoDB\tv-tracker-data\logs"
+Write-Host "`nMongoDB Logs Directory Configuration" -ForegroundColor Yellow
+Write-Host "Default path: $defaultLogsDir" -ForegroundColor White
+$customLogsDir = Read-Host "Enter custom path for MongoDB logs directory (press Enter to use default)"
+$mongoLogsDir = if ($customLogsDir) { $customLogsDir } else { $defaultLogsDir }
+
+# Create directories
 if (-not (Test-Path $mongoDataDir)) {
     New-Item -ItemType Directory -Path $mongoDataDir -Force
     Write-Host "Created MongoDB data directory: $mongoDataDir" -ForegroundColor Yellow
+} else {
+    Write-Host "MongoDB data directory already exists: $mongoDataDir" -ForegroundColor Yellow
 }
 
 if (-not (Test-Path $mongoLogsDir)) {
     New-Item -ItemType Directory -Path $mongoLogsDir -Force
     Write-Host "Created MongoDB logs directory: $mongoLogsDir" -ForegroundColor Yellow
+} else {
+    Write-Host "MongoDB logs directory already exists: $mongoLogsDir" -ForegroundColor Yellow
 }
 
 # Check if Node.js is installed
@@ -78,14 +95,40 @@ Write-Host "`n[5/5] Creating .env file..." -ForegroundColor Green
 $envFile = ".\.env"
 if (Test-Path $envFile) {
     Write-Host ".env file already exists" -ForegroundColor Yellow
+    $overwrite = Read-Host "Do you want to overwrite the existing .env file? (y/n)"
+    if ($overwrite -eq "y") {
+        $envContent = @"
+# MongoDB Configuration
+MONGODB_URI=mongodb://localhost:27017/tv-tracker
+MONGODB_DATA_DIR=$mongoDataDir
+MONGODB_LOG_DIR=$mongoLogsDir
+
+# Server Configuration
+PORT=3000
+
+# Optional: MongoDB Authentication (uncomment if needed)
+# MONGODB_USERNAME=your_username
+# MONGODB_PASSWORD=your_password
+"@
+        Set-Content -Path $envFile -Value $envContent
+        Write-Host ".env file updated with new configuration" -ForegroundColor Yellow
+    }
 } else {
     $envContent = @"
+# MongoDB Configuration
 MONGODB_URI=mongodb://localhost:27017/tv-tracker
-PORT=3000
 MONGODB_DATA_DIR=$mongoDataDir
+MONGODB_LOG_DIR=$mongoLogsDir
+
+# Server Configuration
+PORT=3000
+
+# Optional: MongoDB Authentication (uncomment if needed)
+# MONGODB_USERNAME=your_username
+# MONGODB_PASSWORD=your_password
 "@
     Set-Content -Path $envFile -Value $envContent
-    Write-Host ".env file created with default configuration" -ForegroundColor Yellow
+    Write-Host ".env file created with configuration" -ForegroundColor Yellow
 }
 
 # Check if MongoDB service is installed and running
