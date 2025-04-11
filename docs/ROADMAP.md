@@ -252,13 +252,13 @@ This document outlines the planned features and improvements for TrackTV. The ro
 
 ## Community Feedback
 
-We welcome input from our community on feature prioritization! Please submit your feature requests and feedback through:
+I welcome input from my community on feature prioritization! Please submit your feature requests and feedback through:
 
 - [GitHub Issues](https://github.com/sagy101/tv-tracker/issues)
-- [Discussions](https://github.com/sagy101/tv-tracker/discussions)
+- [GitHub Discussions](https://github.com/sagy101/tv-tracker/discussions)
 
 ---
 
 ## Milestone Progress
 
-Progress toward our roadmap goals can be tracked on the [project board TBD](https://github.com/sagy101/tv-tracker/projects). 
+Progress toward my roadmap goals can be tracked on the [project board TBD](https://github.com/sagy101/tv-tracker/projects). 

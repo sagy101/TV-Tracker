@@ -38,7 +38,7 @@ Thank you for considering contributing to TrackTV! This document provides guidel
 
 ## Code of Conduct
 
-We are committed to providing a welcoming and inclusive experience for everyone. By participating in this project, you agree to abide by our Code of Conduct.
+I am committed to providing a welcoming and inclusive experience for everyone. By participating in this project, you agree to abide by my Code of Conduct.
 
 In short: Be respectful, considerate, and constructive in all interactions. Harassment, discrimination, and disruptive behavior are not tolerated.
 
@@ -80,7 +80,7 @@ Example: `feature/import-export`
 <details>
 <summary><strong>Commit Message Guidelines</strong> (click to expand)</summary>
 
-We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+I follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
 
 ```
 <type>(<scope>): <description>

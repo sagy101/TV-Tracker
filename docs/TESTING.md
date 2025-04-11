@@ -233,4 +233,4 @@ Testing progress can be tracked on the [project board TBD](https://github.com/sa
 
 ## Contributing
 
-We welcome contributions to our testing efforts! Please refer to our [Contributing Guide](CONTRIBUTING.md) for details on how to get involved. 
+I welcome contributions to my testing efforts! Please refer to my [Contributing Guide](CONTRIBUTING.md) for details on how to get involved. 
