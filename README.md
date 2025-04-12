@@ -132,26 +132,6 @@ npm install
 # Create your local .env file by copying the example
 cp .env.example .env 
 
-# Edit the .env file with your specific details.
-# <details>
-# <summary>Click for .env variable details</summary>
-# 
-# ---- REQUIRED ----
-# - MONGODB_URI: Your full MongoDB connection string.
-# - EMAIL_USER: Username for your email sending service (e.g., Mailtrap).
-# - EMAIL_PASS: Password for your email sending service.
-# - JWT_SECRET: A long, random, secure string for signing tokens.
-#   (Generate one via: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))" )
-#
-# ---- Optional / Defaults ----
-# - EMAIL_HOST / EMAIL_PORT: Defaults are set for Mailtrap (check .env.example).
-# - JWT_EXPIRES_IN: Token lifetime (defaults to 90d).
-# - NODE_ENV: Set to 'development' or 'production'.
-#
-# -> For EMAIL_* variables during development, using Mailtrap is recommended.
-# -> See Mailtrap's Getting Started Guide: https://help.mailtrap.io/article/10-getting-started-with-mailtrap-email-sandbox
-# </details>
-
 # Start the development servers (in separate terminals)
 
 # Terminal 1: Start the backend server
@@ -160,6 +140,24 @@ npm run server
 # Terminal 2: Start the frontend client
 npm start
 ```
+
+<details>
+<summary>Click for .env variable details</summary>
+
+*   **Edit the `.env` file** created in the previous step.
+*   **REQUIRED:**
+    *   `MONGODB_URI`: Your full MongoDB connection string.
+    *   `EMAIL_USER`: Username for your email sending service (e.g., Mailtrap).
+    *   `EMAIL_PASS`: Password for your email sending service.
+    *   `JWT_SECRET`: A long, random, secure string for signing tokens. (Generate one via: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` )
+*   **Optional / Defaults:**
+    *   `EMAIL_HOST` / `EMAIL_PORT`: Defaults are set for Mailtrap (check `.env.example`).
+    *   `JWT_EXPIRES_IN`: Token lifetime (defaults to `90d`).
+    *   `NODE_ENV`: Set to `development` or `production`.
+*   **Recommendation:** For `EMAIL_*` variables during development, using Mailtrap is recommended.
+    *   See Mailtrap's Getting Started Guide: [https://help.mailtrap.io/article/10-getting-started-with-mailtrap-email-sandbox](https://help.mailtrap.io/article/10-getting-started-with-mailtrap-email-sandbox)
+
+</details>
 
 ### Detailed Setup
 
