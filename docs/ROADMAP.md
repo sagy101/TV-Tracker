@@ -31,18 +31,25 @@ This document outlines the planned features and improvements for TrackTV. The ro
     <th>Status</th>
   </tr>
   <tr>
-    <td><b>Testing Implementation</b></td>
+    <td><b>Multi-User Support</b> 🚀</td>
     <td>
+      <b>Foundation Implemented:</b>
       <ul>
-        <li>Comprehensive testing strategy implementation (Jest, React Testing Library, Supertest, Cypress, Storybook)</li>
-        <li>Frontend and backend test coverage</li>
-        <li>CI/CD integration for automated testing</li>
-        <li>Performance and load testing</li>
-        <li>See <a href="TESTING.md">detailed testing requirements</a> for more information</li>
+        <li>✅ User Signup (Email/Password)</li>
+        <li>✅ Email Verification Flow</li>
+        <li>✅ Secure Login & JWT Sessions</li>
+      </ul>
+      <b>Next Steps / Remaining:</b>
+      <ul>
+        <li>🚧 **Separate User Data:** Critical step to associate shows, episodes, watched status, etc., with individual users. (Currently shared globally).</li>
+        <li>👤 User Profiles & Preferences</li>
+        <li>🔐 Authorization/Roles (Admin vs User)</li>
+        <li>🎨 UI/UX improvements for user management</li>
+        <li>🤝 Show Sharing (Optional Future Feature)</li>
       </ul>
     </td>
     <td><img src="https://img.shields.io/badge/Priority-High-green?style=flat-square" alt="Priority: High" /></td>
-    <td><img src="https://img.shields.io/badge/Status-In_Progress-blue?style=flat-square" alt="Status: In Progress" /></td>
+    <td><img src="https://img.shields.io/badge/Status-Partially_Complete-blue?style=flat-square" alt="Status: Partially Complete" /></td>
   </tr>
   <tr>
     <td><b>Import/Export Features</b></td>
@@ -183,19 +190,17 @@ This document outlines the planned features and improvements for TrackTV. The ro
     <th>Status</th>
   </tr>
   <tr>
-    <td><b>Multi-User Support</b></td>
+    <td><b>Testing Implementation</b> 🧪</td>
     <td>
       <ul>
-        <li>User authentication and authorization system</li>
-        <li>Individual user profiles and preferences</li>
-        <li>Show sharing between users</li>
-        <li>Social features like show recommendations</li>
-        <li>Watch history privacy settings</li>
-        <li>User roles (admin, regular user)</li>
-        <li>User-specific view customization</li>
+        <li>Comprehensive testing strategy implementation (Jest, React Testing Library, Supertest, Cypress, Storybook)</li>
+        <li>Frontend and backend test coverage</li>
+        <li>CI/CD integration for automated testing</li>
+        <li>Performance and load testing</li>
+        <li>See <a href="TESTING.md">detailed testing requirements</a> for more information</li>
       </ul>
     </td>
-    <td><img src="https://img.shields.io/badge/Priority-Low-lightgrey?style=flat-square" alt="Priority: Low" /></td>
+    <td><img src="https://img.shields.io/badge/Priority-Lowest-lightgrey?style=flat-square" alt="Priority: Lowest" /></td>
     <td><img src="https://img.shields.io/badge/Status-Planned-lightgrey?style=flat-square" alt="Status: Planned" /></td>
   </tr>
   <tr>

@@ -59,6 +59,11 @@
 
 ## Key Features
 
+### User Authentication
+- Secure user signup with email verification.
+- User login with password.
+- JWT-based session management.
+
 ### Show Management
 <p align="center">
   <img src="docs/images/shows.png" alt="Shows Management" width="700">
@@ -111,6 +116,7 @@ Experience TrackTV without installation via my online demo:
 - Node.js (v14 or higher)
 - MongoDB (v4.4 or higher)
 - npm or yarn
+- An email sending service (e.g., Mailtrap for testing, SendGrid/Gmail for production)
 
 ### Quick Install
 
@@ -123,11 +129,36 @@ cd tv-tracker
 npm install
 
 # Set up environment variables
-cp .env.example .env
-# Edit .env as needed
+# Create your local .env file by copying the example
+cp .env.example .env 
 
-# Start the development servers
-npm run dev
+# Edit the .env file with your specific details.
+# <details>
+# <summary>Click for .env variable details</summary>
+# 
+# ---- REQUIRED ----
+# - MONGODB_URI: Your full MongoDB connection string.
+# - EMAIL_USER: Username for your email sending service (e.g., Mailtrap).
+# - EMAIL_PASS: Password for your email sending service.
+# - JWT_SECRET: A long, random, secure string for signing tokens.
+#   (Generate one via: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))" )
+#
+# ---- Optional / Defaults ----
+# - EMAIL_HOST / EMAIL_PORT: Defaults are set for Mailtrap (check .env.example).
+# - JWT_EXPIRES_IN: Token lifetime (defaults to 90d).
+# - NODE_ENV: Set to 'development' or 'production'.
+#
+# -> For EMAIL_* variables during development, using Mailtrap is recommended.
+# -> See Mailtrap's Getting Started Guide: https://help.mailtrap.io/article/10-getting-started-with-mailtrap-email-sandbox
+# </details>
+
+# Start the development servers (in separate terminals)
+
+# Terminal 1: Start the backend server
+npm run server
+
+# Terminal 2: Start the frontend client
+npm start
 ```
 
 ### Detailed Setup
@@ -140,31 +171,17 @@ For comprehensive installation instructions, including platform-specific guides 
 
 ### Running the Application
 
-1. Start MongoDB:
-```bash
-# Using Windows Service
-net start MongoDB
-
-# Or manually
-mongod --dbpath %MONGODB_DATA_DIR%
-```
-
-2. Start the server:
-```bash
-npm run server
-```
-
-3. In a new terminal, start the client:
-```bash
-npm start
-```
-
-4. Access the application at http://localhost:3000
+1.  Ensure your MongoDB server is running.
+2.  Start the backend server: `npm run server`
+3.  In a new terminal, start the client: `npm start`
+4.  Access the application at http://localhost:3000
+5.  Sign up for a new account or log in if you already have one.
 
 ### Key Operations
 
-- **Adding Shows**: Search by name or TVMaze ID
-- **Tracking Episodes**: Mark episodes as watched/unwatched with a single click
+- **Authentication**: Sign up, verify email, log in.
+- **Adding Shows**: Search by name or TVMaze ID (requires login).
+- **Tracking Episodes**: Mark episodes as watched/unwatched with a single click (requires login).
 - **Filtering & Sorting**: Customize your view with powerful filtering options
 - **Importing Data**: Use CSV import for bulk operations
 - **Data Management**: Export, backup, and restore your tracking data
@@ -177,33 +194,42 @@ TrackTV follows a modern client-server architecture:
 
 ```
 tv-tracker/
-├── client/                  # React frontend
-│   ├── components/          # UI components
-│   ├── contexts/            # React contexts for state management
+├── client/                  # React frontend (Now in root `src/`)
+│   ├── components/          # UI components (includes `Auth/`)
+│   ├── contexts/            # React contexts (`AuthContext`)
 │   ├── hooks/               # Custom React hooks
-│   ├── pages/               # Page components
+│   ├── pages/               # Page components (`LoginPage`)
 │   ├── services/            # API client services
 │   └── utils/               # Utility functions
 ├── server/                  # Node.js/Express backend
-│   ├── config/              # Server configuration
-│   ├── controllers/         # Request handlers
+│   ├── config/              # Server configuration (`db.js`)
+│   ├── controllers/         # Request handlers (`authController.js`)
 │   ├── middleware/          # Express middleware
-│   ├── models/              # Mongoose data models
-│   ├── routes/              # API route definitions
-│   └── utils/               # Server utilities
-└── shared/                  # Shared code between client/server
-    ├── constants/           # Shared constants
-    └── types/               # TypeScript type definitions
+│   ├── models/              # Mongoose data models (`User.js`)
+│   ├── routes/              # API route definitions (`authRoutes.js`)
+│   └── utils/               # Server utilities (`email.js`)
+├── models/                  # Mongoose database models (Moved from server/models? Check structure)
+├── public/                  # Static assets for React
+├── src/                     # React frontend code (Consolidated)
+├── .env                     # Local environment variables (!!! IMPORTANT !!!)
+├── .env.example             # Example environment variables
+├── CHANGELOG.md             # Project changes history
+├── LICENSE                  # Project License
+├── package.json             # Dependencies and scripts
+├── proxy-server.js          # Main server entry point
+├── README.md                # This file
+└── tailwind.config.js       # Tailwind CSS configuration
 ```
 
 ### Technology Stack
 
-- **Frontend**: React with Hooks, Context API for state management
-- **Styling**: Tailwind CSS for utility-first styling
-- **Backend**: Node.js with Express
-- **Database**: MongoDB with Mongoose ODM
+- **Frontend**: React with Hooks, Context API (`AuthContext`), React Router
+- **Styling**: Tailwind CSS
+- **Backend**: Node.js with Express, Mongoose ODM
+- **Database**: MongoDB
+- **Authentication**: bcryptjs (hashing), jsonwebtoken (JWT), nodemailer (emails)
 - **API Integration**: TVMaze API for show data
-- **Build Tools**: Webpack, Babel, ESLint, Prettier
+- **Build Tools**: Webpack, Babel, ESLint, Prettier (via react-scripts)
 
 ---
 

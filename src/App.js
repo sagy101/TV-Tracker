@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
-import { Home, List, Trash2, Plus, RefreshCw, Tv, ArrowLeftRight, Play, Circle, CheckCircle, ArrowUpDown, Infinity, Download } from 'lucide-react';
+import { Home, List, Trash2, Plus, RefreshCw, Tv, ArrowLeftRight, Play, Circle, CheckCircle, ArrowUpDown, Infinity, Download, LogIn, LogOut } from 'lucide-react';
 import Episodes from './pages/Episodes';
 import Shows from './pages/Shows';
+import LoginPage from './pages/LoginPage';
 import SearchDrawer from './components/SearchDrawer';
 import ImportDialog from './components/ImportDialog';
 import ActionsMenu from './components/ActionsMenu';
+import { AuthProvider, AuthContext } from './contexts/AuthContext';
 
 const API_BASE_URL = 'http://localhost:3001/api';
 
@@ -45,9 +47,16 @@ function App() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState(null);
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const { isAuthenticated, logout, isLoading: isAuthLoading, user } = useContext(AuthContext);
   
   // Fetch all shows and their episodes from the database
   const fetchAllShows = useCallback(async () => {
+    if (!isAuthenticated) {
+      setShows([]);
+      setEpisodes([]);
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       setError(null);
@@ -83,7 +92,7 @@ function App() {
       setError(err.message);
       setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   const fetchEpisodesForShow = useCallback(async (showId) => {
     try {
@@ -151,29 +160,32 @@ function App() {
     }
   }, []);
   
-  // Load saved data on startup
+  // Load saved data on startup or when auth state changes
   useEffect(() => {
-    fetchAllShows();
-  }, [fetchAllShows]);
+    if (isAuthenticated) {
+      console.log("Authenticated, fetching initial data...");
+      fetchAllShows();
+    } else {
+      console.log("Not authenticated, clearing data...");
+      setShows([]);
+      setEpisodes([]);
+    }
+  }, [isAuthenticated, fetchAllShows]);
   
   const handleAddShow = async (showId) => {
+    if (!isAuthenticated) return;
     try {
-      // Extract numeric ID if an object was passed
       const id = typeof showId === 'object' ? showId.id : showId;
-      
-      // Use our proxy server to fetch show details
       const response = await fetch(`${API_BASE_URL}/shows/${id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         }
       });
-
       if (!response.ok) {
         const error = await response.text();
         throw new Error(error || 'Failed to add show');
       }
-
       await fetchAllShows();
     } catch (error) {
       console.error('Error adding show:', error);
@@ -182,16 +194,14 @@ function App() {
   };
 
   const handleDeleteShow = async (showId) => {
+    if (!isAuthenticated) return;
     try {
       const response = await fetch(`${API_BASE_URL}/shows/${showId}`, {
         method: 'DELETE',
       });
-
       if (!response.ok) {
         throw new Error('Failed to delete show');
       }
-
-      // Fetch updated shows and episodes
       await fetchAllShows();
     } catch (error) {
       console.error('Error deleting show:', error);
@@ -199,18 +209,15 @@ function App() {
   };
 
   const handleToggleIgnore = async (showId) => {
+    if (!isAuthenticated) return;
     try {
-      console.log('Toggling ignore status for show:', showId);
       const response = await fetch(`${API_BASE_URL}/shows/${showId}/ignore`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         }
       });
-
       const updatedShow = await handleApiResponse(response);
-      console.log('Show updated:', updatedShow);
-      
       setShows(shows.map(show => 
         show.tvMazeId === showId.toString()
           ? { ...show, ignored: updatedShow.ignored }
@@ -222,6 +229,7 @@ function App() {
   };
 
   const handleToggleWatched = async (episodeId) => {
+    if (!isAuthenticated) return;
     try {
       const episode = episodes.find(ep => ep.id === episodeId);
       const newWatchedStatus = !episode.watched;
@@ -254,6 +262,7 @@ function App() {
   };
 
   const handleClearAllData = async () => {
+    if (!isAuthenticated) return;
     try {
       const response = await fetch(`${API_BASE_URL}/admin/clear-all`, {
         method: 'DELETE'
@@ -268,12 +277,11 @@ function App() {
       setShowClearConfirm(false);
     } catch (error) {
       console.error('Error clearing data:', error);
-      // Keep the dialog open if there's an error
-      // You might want to show an error message to the user here
     }
   };
 
   const handleRefreshShows = async () => {
+    if (!isAuthenticated) return;
     try {
       setIsRefreshing(true);
       setRefreshError(null);
@@ -300,6 +308,7 @@ function App() {
   };
 
   const handleImportShows = async (shows, episodes = []) => {
+    if (!isAuthenticated) return;
     try {
       // Add shows to the database
       const showPromises = shows.map(show => 
@@ -349,6 +358,10 @@ function App() {
     }
   };
 
+  if (isAuthLoading) {
+    return <div className="flex justify-center items-center h-screen">Loading Authentication...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
       <nav className="bg-white shadow-sm">
@@ -356,74 +369,97 @@ function App() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center mr-6">
-                <div className="flex items-center">
-                  <img src="/logo2.2.png" alt="TrackTV Logo" className="h-8 w-auto object-contain" />
-                </div>
+                <img src="/logo2.2.png" alt="TrackTV Logo" className="h-8 w-auto object-contain" />
               </div>
-              <NavLink
-                to="/"
-                className={({ isActive }) =>
-                  `inline-flex items-center px-4 py-2 border-b-2 text-sm font-medium ${
-                    isActive
-                      ? 'border-indigo-500 text-indigo-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`
-                }
-              >
-                <Home className="h-5 w-5 mr-2" />
-                Episodes
-              </NavLink>
-              <NavLink
-                to="/shows"
-                className={({ isActive }) =>
-                  `ml-8 inline-flex items-center px-4 py-2 border-b-2 text-sm font-medium ${
-                    isActive
-                      ? 'border-indigo-500 text-indigo-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`
-                }
-              >
-                <Tv className="h-5 w-5 mr-2" />
-                Shows
-              </NavLink>
+              {isAuthenticated && (
+                <>
+                  <NavLink
+                    to="/"
+                    className={({ isActive }) =>
+                      `inline-flex items-center px-4 py-2 border-b-2 text-sm font-medium ${
+                        isActive
+                          ? 'border-indigo-500 text-indigo-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`
+                    }
+                  >
+                    <Home className="h-5 w-5 mr-2" />
+                    Episodes
+                  </NavLink>
+                  <NavLink
+                    to="/shows"
+                    className={({ isActive }) =>
+                      `ml-4 inline-flex items-center px-4 py-2 border-b-2 text-sm font-medium ${
+                        isActive
+                          ? 'border-indigo-500 text-indigo-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`
+                    }
+                  >
+                    <Tv className="h-5 w-5 mr-2" />
+                    Shows
+                  </NavLink>
+                </>
+              )}
             </div>
+
             <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setIsDrawerOpen(true)}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                <Plus className="h-5 w-5 mr-2" />
-                Add Show
-              </button>
-              <ActionsMenu
-                onRefresh={handleRefreshShows}
-                onImport={() => setShowImportDialog(true)}
-                onClear={() => setShowClearConfirm(true)}
-                isRefreshing={isRefreshing}
-              />
+              {isAuthenticated ? (
+                <>
+                  <button
+                    onClick={() => setIsDrawerOpen(true)}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    <Plus className="h-5 w-5 mr-2" />
+                    Add Show
+                  </button>
+                  <ActionsMenu
+                    onRefresh={handleRefreshShows}
+                    onImport={() => setShowImportDialog(true)}
+                    onClear={() => setShowClearConfirm(true)}
+                    isRefreshing={isRefreshing}
+                  />
+                  <button
+                    onClick={logout}
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    title="Logout"
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </button>
+                </>
+              ) : (
+                <NavLink
+                  to="/login"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  <LogIn className="h-5 w-5 mr-1" />
+                  Login / Sign Up
+                </NavLink>
+              )}
             </div>
           </div>
         </div>
       </nav>
 
-      <SearchDrawer
-        isOpen={isDrawerOpen}
-        onSelectShow={handleAddShow}
-        onClose={() => setIsDrawerOpen(false)}
-      />
-
+      {isAuthenticated && (
+        <SearchDrawer
+          isOpen={isDrawerOpen}
+          onSelectShow={handleAddShow}
+          onAddShow={handleAddShow}
+          onClose={() => setIsDrawerOpen(false)}
+        />
+      )}
       <ImportDialog
         isOpen={showImportDialog}
         onClose={() => setShowImportDialog(false)}
         onImport={handleImportShows}
       />
-
       {showClearConfirm && (
         <div className="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
             <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full sm:p-6">
+            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
               <div className="sm:flex sm:items-start">
                 <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
                   <Trash2 className="h-6 w-6 text-red-600" />
@@ -475,51 +511,58 @@ function App() {
       )}
 
       <main className="py-10">
-        <div className="min-h-[calc(100vh-12rem)] relative overflow-hidden">
-          <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <Episodes
-                    episodes={episodes}
-                    shows={shows}
-                    loading={loading}
-                    error={error}
-                    showUnwatchedOnly={showUnwatchedOnly}
-                    onAddShow={handleAddShow}
-                    onNewShowIdChange={setNewShowId}
-                    onToggleUnwatched={() => setShowUnwatchedOnly(!showUnwatchedOnly)}
-                    onToggleWatched={handleToggleWatched}
-                    isReleased={isReleased}
-                  />
-                }
-              />
-              <Route
-                path="/shows"
-                element={
-                  <Shows
-                    shows={shows}
-                    episodes={episodes}
-                    onAddShow={handleAddShow}
-                    onDeleteShow={handleDeleteShow}
-                    onToggleIgnore={handleToggleIgnore}
-                  />
-                }
-              />
-            </Routes>
+        {loading && !isAuthLoading && <div className="text-center">Loading Data...</div>}
+        {error && <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">{error}</div>}
+        
+        {!loading && !isAuthLoading && (
+          <div className="min-h-[calc(100vh-12rem)] relative overflow-hidden">
+            <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+              <Routes>
+                <Route 
+                  path="/" 
+                  element={isAuthenticated ? 
+                    <Episodes 
+                      episodes={episodes}
+                      shows={shows}
+                      loading={loading}
+                      error={error}
+                      showUnwatchedOnly={showUnwatchedOnly}
+                      onAddShow={handleAddShow}
+                      onNewShowIdChange={setNewShowId}
+                      onToggleUnwatched={() => setShowUnwatchedOnly(!showUnwatchedOnly)}
+                      onToggleWatched={handleToggleWatched}
+                      isReleased={isReleased}
+                    /> : <LoginPage />
+                  }
+                />
+                <Route 
+                  path="/shows" 
+                  element={isAuthenticated ? 
+                    <Shows 
+                      shows={shows.filter(s => !s.ignored)}
+                      episodes={episodes}
+                      onDeleteShow={handleDeleteShow}
+                      onToggleIgnore={handleToggleIgnore}
+                      onAddShow={handleAddShow}
+                    /> : <LoginPage />
+                  }
+                />
+                <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <div>Already logged in. Go to <Link to="/">Dashboard</Link></div>} />
+              </Routes>
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );
 }
 
-// Wrap App with Router
 function AppWrapper() {
   return (
     <Router>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </Router>
   );
 }

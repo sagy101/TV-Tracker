@@ -149,20 +149,22 @@ The project follows a standard React frontend with Node.js/Express backend struc
 ```
 tv-tracker/
 ├── docs/                    # Documentation files
-├── models/                  # Mongoose database models
+├── models/                  # Mongoose database models (User.js, Show.js, Episode.js)
 ├── public/                  # Static assets for React
 ├── server/                  # Backend server code
-│   ├── config/              # Server configuration
-│   ├── routes/              # API routes
-│   └── utils/               # Utility functions
+│   ├── config/              # Server configuration (db.js)
+│   ├── controllers/         # Request handlers (authController.js, showController.js, etc.)
+│   ├── routes/              # API routes (authRoutes.js, showRoutes.js, etc.)
+│   └── utils/               # Utility functions (email.js)
 ├── src/                     # React frontend code
-│   ├── components/          # Reusable React components
-│   ├── contexts/            # React context providers
+│   ├── components/          # Reusable React components (Auth/, ActionsMenu/, etc.)
+│   ├── contexts/            # React context providers (AuthContext.js)
 │   ├── hooks/               # Custom React hooks
-│   ├── pages/               # Page components
-│   ├── services/            # API service functions
+│   ├── pages/               # Page components (LoginPage.jsx, Shows.jsx, Episodes.jsx)
+│   ├── services/            # API service functions (Optional)
 │   └── utils/               # Utility functions
-├── .env                     # Environment variables
+├── .env                     # Local environment variables (!!! IMPORTANT !!!)
+├── .env.example             # Example environment variables
 ├── package.json             # Dependencies and scripts
 ├── proxy-server.js          # Main server entry point
 └── tailwind.config.js       # Tailwind CSS configuration
@@ -183,7 +185,7 @@ tv-tracker/
    - Clone the repository
    - Install dependencies with `npm install`
    - Set up MongoDB database
-   - Configure environment variables
+   - Configure environment variables (`cp .env.example .env` and edit `.env` with credentials - see README)
 
 2. **Running the Application in Development Mode**
    - Start MongoDB server

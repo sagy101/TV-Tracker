@@ -10,6 +10,7 @@ const showRoutes = require('./server/routes/shows');
 const episodeRoutes = require('./server/routes/episodes');
 const refreshRoutes = require('./server/routes/refresh'); // Import refresh routes
 const adminRoutes = require('./server/routes/admin'); // Import admin routes
+const authRoutes = require('./server/routes/authRoutes'); // Import auth routes
 
 // Connect to Database
 connectDB();
@@ -27,6 +28,7 @@ app.use('/api/shows', showRoutes);
 app.use('/api/episodes', episodeRoutes);
 app.use('/api/refresh', refreshRoutes); // Use the refresh routes
 app.use('/api/admin', adminRoutes); // Use the admin routes
+app.use('/api/auth', authRoutes); // Use the auth routes
 
 // Health check endpoint (kept in main server file)
 app.get('/api/health', (req, res) => {

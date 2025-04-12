@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- User authentication system (Signup/Login) using email and password.
+- Email verification process using 5-digit codes sent via email (using Mailtrap for development testing).
+- Password strength indicator during signup.
+- Secure password hashing using bcryptjs.
+- JSON Web Token (JWT) for session management.
+- Global authentication state management using React Context API.
+- Basic route protection for authenticated pages.
 - Initial TV Show Episode Tracker functionality.
 - Bulk show import via CSV with flexible field mapping and progress tracking.
 - Support for ignoring specific shows during import.
@@ -44,6 +51,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+### Security
+- Implemented secure password hashing and JWT for authentication.
+- Added requirement for essential security-related environment variables (JWT_SECRET).
+
+---
+
 ### Removed
 - Page transition animations (replaced with different animations).
 
@@ -58,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added initial TODO/Roadmap section (now superseded by `ROADMAP.md`).
 - Updated CHANGELOG based on commit history.
 - Removed obsolete `ReadmeScreenshots` directory.
+- Updated README, ROADMAP, and CHANGELOG to reflect authentication features.
 
 ---
 
