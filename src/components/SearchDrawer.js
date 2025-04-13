@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef} from 'react';
 import PropTypes from 'prop-types';
 
 const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
@@ -7,20 +7,35 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
   const [error, setError] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const searchTimeoutRef = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = async (e) => {
-    const query = e.target.value;
+    const query = e.target.value.trim();
     setSearchInput(query);
     setError('');
+  
+
 
     // Clear previous timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
+    
+    
+    if(!isOpen||query.length===0) {
+      setSearchResults([]);
+      setLoading(false);
+      return;
+    }
+
+
 
     // For both ID and text search, wait 300ms before searching
     if (query.length >= 1) {
       searchTimeoutRef.current = setTimeout(async () => {
+        if (query.length === 0) return;
+
+        setLoading(true);
         try {
           const response = await fetch(`/api/shows/search?q=${encodeURIComponent(query)}`);
           if (!response.ok) throw new Error('Search failed');
@@ -35,10 +50,13 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
         } catch (err) {
           setError('Error searching for shows');
           setSearchResults([]);
+        } finally {
+          setLoading(false);
         }
       }, 300);
     } else {
       setSearchResults([]);
+      setLoading(false);
     }
   };
 
@@ -49,9 +67,9 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
     return premiereYear === yearFilter;
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError('');
+    setLoading(true);
 
     if (/^\d+$/.test(searchInput)) {
       try {
@@ -76,7 +94,12 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
         }
       } catch (err) {
         setError('Error adding show. Please check the ID and try again.');
+      } finally {
+        setLoading(false);
       }
+
+    } else {
+      setLoading(false);
     }
   };
 
@@ -164,6 +187,12 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
                       Select a show from the results below to add it
                     </p>
                   )}
+                   {searchInput.trim().length>0 && loading && searchResults.length === 0 && !error &&(
+                    <div className="flex justify-center mt-4">
+                      <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                  )}
+                  
 
                   {error && (
                     <div className="mt-2 text-sm text-red-600">
