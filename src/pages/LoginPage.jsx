@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import SignUpForm from '../components/Auth/SignUpForm';
 import LoginForm from '../components/Auth/LoginForm';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Home } from 'lucide-react';
 
 function LoginPage() {
   const [showLogin, setShowLogin] = useState(true);
@@ -46,9 +48,10 @@ function LoginPage() {
   const direction = showLogin ? -1 : 1;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="p-6">
+          {/* Logo at the top of the sign-in container */}
           <div className="flex justify-center mb-4">
             <div className="flex items-center">
               <svg className="h-8 w-8 text-indigo-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -57,7 +60,7 @@ function LoginPage() {
               <span className="ml-2 text-xl font-bold text-gray-900">TVTracker</span>
             </div>
           </div>
-          
+            
           <motion.h2 
             className="text-center text-2xl font-normal text-gray-900 mb-4"
             key={showLogin ? "login-title" : "signup-title"}
@@ -84,7 +87,7 @@ function LoginPage() {
               </motion.div>
             </AnimatePresence>
           </div>
-          
+            
           <div className="mt-4 text-center text-sm">
             <AnimatePresence>
               <motion.div
@@ -119,7 +122,7 @@ function LoginPage() {
             </AnimatePresence>
           </div>
         </div>
-        
+          
         <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
           <div className="flex items-center justify-between text-xs text-gray-500">
             <a href="https://github.com/sagy101/TV-Tracker/blob/master/docs/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600">Contribute</a>

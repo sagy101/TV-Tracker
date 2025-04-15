@@ -4,6 +4,7 @@ import { Home, List, Trash2, Plus, RefreshCw, Tv, ArrowLeftRight, Play, Circle, 
 import Episodes from './pages/Episodes';
 import Shows from './pages/Shows';
 import LoginPage from './pages/LoginPage';
+import HomePage from './pages/HomePage';
 import SearchDrawer from './components/SearchDrawer';
 import ImportDialog from './components/ImportDialog';
 import ActionsMenu from './components/ActionsMenu';
@@ -428,13 +429,23 @@ function App() {
                   </button>
                 </>
               ) : (
-                <NavLink
-                  to="/login"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  <LogIn className="h-5 w-5 mr-1" />
-                  Login
-                </NavLink>
+                location.pathname === '/login' ? (
+                  <NavLink
+                    to="/home"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    <Home className="h-5 w-5 mr-1" />
+                    Home
+                  </NavLink>
+                ) : (
+                  <NavLink
+                    to="/login"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    <LogIn className="h-5 w-5 mr-1" />
+                    Login
+                  </NavLink>
+                )
               )}
             </div>
           </div>
@@ -518,36 +529,10 @@ function App() {
           <div className="min-h-[calc(100vh-12rem)] relative overflow-hidden">
             <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
               <Routes>
-                <Route 
-                  path="/" 
-                  element={isAuthenticated ? 
-                    <Episodes 
-                      episodes={episodes}
-                      shows={shows}
-                      loading={loading}
-                      error={error}
-                      showUnwatchedOnly={showUnwatchedOnly}
-                      onAddShow={handleAddShow}
-                      onNewShowIdChange={setNewShowId}
-                      onToggleUnwatched={() => setShowUnwatchedOnly(!showUnwatchedOnly)}
-                      onToggleWatched={handleToggleWatched}
-                      isReleased={isReleased}
-                    /> : <LoginPage />
-                  }
-                />
-                <Route 
-                  path="/shows" 
-                  element={isAuthenticated ? 
-                    <Shows 
-                      shows={shows.filter(s => !s.ignored)}
-                      episodes={episodes}
-                      onDeleteShow={handleDeleteShow}
-                      onToggleIgnore={handleToggleIgnore}
-                      onAddShow={handleAddShow}
-                    /> : <LoginPage />
-                  }
-                />
-                <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <div>Already logged in. Go to <Link to="/">Dashboard</Link></div>} />
+                <Route path="/home" element={<HomePage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/" element={isAuthenticated ? <Episodes episodes={episodes} onToggleWatched={handleToggleWatched} showUnwatchedOnly={showUnwatchedOnly} setShowUnwatchedOnly={setShowUnwatchedOnly} loading={loading} /> : <HomePage />} />
+                <Route path="/shows" element={isAuthenticated ? <Shows shows={shows} onDeleteShow={handleDeleteShow} onToggleIgnore={handleToggleIgnore} loading={loading} /> : <HomePage />} />
               </Routes>
             </div>
           </div>

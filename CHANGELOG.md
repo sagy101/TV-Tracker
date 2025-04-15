@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Graceful cancellation support for show searches during import.
 - Page transition animations between Episodes and Shows pages.
 - Enhanced Actions Menu with improved styling and layout.
+- Public-facing Home Page showcasing key features and planned additions.
 
 ---
 
@@ -40,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved code structure by splitting duplicate components.
 - Adjusted project logo aspect ratio.
 - Refactored overall code structure for better modularity and readability (ongoing).
+- Modified Login Page layout: Integrated "Home" button into the main navigation bar (conditional display), removed fixed elements, fixed scrolling issues.
+- Improved styling for "Technology Stack" section on the Home Page.
 
 ---
 
@@ -72,6 +75,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated CHANGELOG based on commit history.
 - Removed obsolete `ReadmeScreenshots` directory.
 - Updated README, ROADMAP, and CHANGELOG to reflect authentication features.
+- Updated `ROADMAP.md` with authentication details and password reset feature.
+- Updated `TESTING.md` with specific authentication testing requirements.
+- Updated `README.md` with Home Page details and screenshot.
+- Updated `CHANGELOG.md` with recent feature additions and layout changes.
 
 ---
 

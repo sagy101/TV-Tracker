@@ -59,9 +59,14 @@
 
 ## Key Features
 
+<p align="center">
+  <img src="docs/images/home_page.png" alt="Home Page" width="700">
+</p>
+- **Homepage**: Attractive landing page showcasing key features and planned additions.
+
 ### User Authentication
 - Secure user signup with email verification
-- Modern Google-style login interface with smooth animations
+- Modern Google-style login interface with smooth animations and integrated navigation.
 - "Stay signed in" functionality for persistent sessions
 - Real-time email validation and password strength indicators
 - JWT-based session management with configurable token expiration
