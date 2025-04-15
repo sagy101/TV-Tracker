@@ -213,7 +213,7 @@ function SignUpForm() {
 
       {/* Password Section */}
       <div>
-        <label htmlFor="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
         <input
           type="password"
           id="password"
@@ -228,9 +228,11 @@ function SignUpForm() {
           <div className="mt-2">
             <div className="h-2 w-full bg-gray-200 rounded">
               <div
-                className={`h-full rounded ${passwordStrength.color}`}
-                style={{ width: `${passwordStrength.score * 20}%` }}
-              ></div>
+                className={`h-2 rounded ${passwordStrength.color}`}
+                style={{ 
+                  width: `${Math.min(passwordStrength.score * 20, 100)}%`,
+                }}
+              ></div> 
             </div>
             <p className="text-xs mt-1 text-gray-500">Strength: {passwordStrength.label}</p>
           </div>
@@ -239,7 +241,7 @@ function SignUpForm() {
 
       {/* Confirm Password Section */}
       <div>
-        <label htmlFor="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
         <input
           type="password"
           id="confirmPassword"
