@@ -62,7 +62,10 @@
 <p align="center">
   <img src="docs/images/home_page.png" alt="Home Page" width="500">
 </p>
-- **Homepage**: Attractive landing page showcasing key features and planned additions.
+
+<p align="center">
+  <strong>Homepage</strong> - Attractive landing page showcasing key features and planned additions.
+</p>
 
 ### User Authentication
 - Secure user signup with email verification
