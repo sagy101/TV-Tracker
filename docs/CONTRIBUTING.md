@@ -10,6 +10,7 @@
   <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
   <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" />
+  <img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion" />
 </p>
 
 Thank you for considering contributing to TrackTV! This document provides guidelines and instructions for contributing to the project.
@@ -142,6 +143,27 @@ All submissions require review before being merged. The review process includes:
 - Write clear, concise comments for complex logic
 - Use React functional components with hooks
 - Follow the project structure established in existing files
+</details>
+
+<details>
+<summary><strong>UI Guidelines</strong> (click to expand)</summary>
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion" />
+</p>
+
+- Ensure all UI components are responsive and mobile-friendly
+- Maintain the modern Google-style form design for all input components
+- Use Framer Motion for smooth transitions and animations
+- Ensure proper error state handling with visual feedback
+- Avoid unnecessary layout shifts when form states change
+- Maintain proper spacing and visual hierarchy
+- Follow accessibility best practices:
+  - Ensure proper contrast ratios
+  - Use semantic HTML elements
+  - Include aria attributes where necessary
+  - Ensure keyboard navigation works correctly
 </details>
 
 ### Testing

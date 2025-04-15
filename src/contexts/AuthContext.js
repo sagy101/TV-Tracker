@@ -6,7 +6,7 @@ export const AuthContext = createContext({
   user: null,
   isAuthenticated: false,
   isLoading: true, // Add loading state for initial check
-  login: (userData, token) => {},
+  login: (userData, token, rememberMe) => {},
   logout: () => {},
 });
 
@@ -18,14 +18,22 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true); // Start loading
 
   // Function to handle login
-  const login = useCallback((userData, receivedToken) => {
+  const login = useCallback((userData, receivedToken, rememberMe = false) => {
     setToken(receivedToken);
     setUser(userData);
     setIsAuthenticated(true);
-    localStorage.setItem('authToken', receivedToken);
-    // Optionally store user data in localStorage too, but be mindful of size/sensitivity
-    localStorage.setItem('authUser', JSON.stringify(userData));
-    console.log('AuthContext: User logged in', userData);
+    
+    if (rememberMe) {
+      // If rememberMe is true, store in localStorage (persists between sessions)
+      localStorage.setItem('authToken', receivedToken);
+      localStorage.setItem('authUser', JSON.stringify(userData));
+      console.log('AuthContext: User logged in with "Remember Me"', userData);
+    } else {
+      // If rememberMe is false, store in sessionStorage (cleared when tab/browser closes)
+      sessionStorage.setItem('authToken', receivedToken);
+      sessionStorage.setItem('authUser', JSON.stringify(userData));
+      console.log('AuthContext: User logged in for this session only', userData);
+    }
   }, []);
 
   // Function to handle logout
@@ -33,8 +41,11 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
+    // Clear both storage types
     localStorage.removeItem('authToken');
     localStorage.removeItem('authUser');
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('authUser');
     console.log('AuthContext: User logged out');
     // TODO: Redirect to login page or home page after logout?
   }, []);
@@ -42,13 +53,22 @@ export const AuthProvider = ({ children }) => {
   // Effect to check for existing token on initial load
   useEffect(() => {
     console.log('AuthContext: Checking for existing token...');
-    const storedToken = localStorage.getItem('authToken');
-    const storedUser = localStorage.getItem('authUser');
+    
+    // First check localStorage (persisted login)
+    let storedToken = localStorage.getItem('authToken');
+    let storedUser = localStorage.getItem('authUser');
+    let isPersisted = true;
+    
+    // If not in localStorage, check sessionStorage (session-only login)
+    if (!storedToken || !storedUser) {
+      storedToken = sessionStorage.getItem('authToken');
+      storedUser = sessionStorage.getItem('authUser');
+      isPersisted = false;
+    }
 
     if (storedToken && storedUser) {
-      console.log('AuthContext: Found token in storage.');
+      console.log(`AuthContext: Found token in ${isPersisted ? 'localStorage' : 'sessionStorage'}.`);
       // TODO: Optionally verify the token with the backend here
-      // For now, assume the stored token is valid if present
       try {
          const parsedUser = JSON.parse(storedUser);
          setToken(storedToken);

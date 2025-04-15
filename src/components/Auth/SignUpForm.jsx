@@ -27,6 +27,21 @@ function SignUpForm() {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
+  // Handle email change with validation
+  const handleEmailChange = (e) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    // Clear any previous errors
+    setError('');
+  };
+
+  // Validate email on blur to ensure validation happens if user tabs away
+  const handleEmailBlur = () => {
+    if (email !== '' && !isEmailValid(email)) {
+      setError('Please enter a valid email address.');
+    }
+  };
+
   // --- Password Strength Calculation ---
   const calculatePasswordStrength = (password) => {
     let score = 0;
@@ -154,85 +169,117 @@ function SignUpForm() {
   };
 
   return (
-    <form onSubmit={handleSignUp} className="space-y-4 max-w-md mx-auto bg-white p-6 rounded shadow-md">
-      <h2 className="text-xl font-semibold mb-4 text-center">Create Account</h2>
-
-      {/* General Error Display */}
-      {error && <p className="text-red-600 text-sm text-center">{error}</p>}
+    <form onSubmit={handleSignUp} className="space-y-4">
+      {error && (
+        <div className="mb-4 bg-red-50 border-l-4 border-red-400 p-3 rounded">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Email Section */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
-        <div className="mt-1 flex rounded-md shadow-sm">
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); setError(''); }}
-            required
-            disabled={isVerificationSent || isLoading}
-            placeholder="you@example.com"
-            className={`flex-1 block w-full min-w-0 rounded-none rounded-l-md sm:text-sm border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed`}
-            aria-describedby="email-verification-status"
-          />
-          {!isVerificationSent && (
-            <button
-              type="button"
-              onClick={handleSendVerification}
-              disabled={!isEmailValid(email) || isLoading}
-              className="relative inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-700 text-sm font-medium hover:bg-gray-100 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-200 disabled:cursor-not-allowed"
-            >
-              {isLoading && !isVerificationSent ? 'Sending...' : 'Verify Email'}
-            </button>
-          )}
-          {isVerificationSent && !isEmailVerified && (
-             <input
-               type="text"
-               maxLength="5"
-               placeholder="_ _ _ _ _"
-               value={verificationCode}
-               onChange={(e) => handleVerifyCode(e.target.value)}
-               disabled={isVerifying || isLoading}
-               className={`w-28 text-center px-2 py-2 border border-l-0 border-gray-300 rounded-r-md bg-white text-gray-900 text-sm focus:ring-indigo-500 focus:border-indigo-500 tracking-[0.3em] font-mono disabled:bg-gray-100 ${verificationError ? 'border-red-500' : ''}`}
-               aria-label="Email verification code"
-               aria-invalid={!!verificationError}
-             />
-          )}
-           {isEmailVerified && (
-             <span id="email-verification-status" className="inline-flex items-center px-3 py-2 border border-l-0 border-green-300 rounded-r-md bg-green-100 text-green-700 text-sm font-medium">
-               Verified ✓
-             </span>
-          )}
+        <div className={`relative rounded-md border ${email && !isEmailValid(email) ? 'border-red-500' : 'border-gray-300'} px-3 py-3 shadow-sm focus-within:border-indigo-600 focus-within:ring-1 focus-within:ring-indigo-600`}>
+          <label htmlFor="email" className={`absolute -top-2 left-2 -mt-px inline-block bg-white px-1 text-xs font-medium ${email && !isEmailValid(email) ? 'text-red-500' : 'text-gray-900'}`}>
+            Email Address
+          </label>
+          <div className="flex">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={email}
+              onChange={handleEmailChange}
+              onBlur={handleEmailBlur}
+              required
+              disabled={isVerificationSent || isLoading}
+              placeholder="you@example.com"
+              className={`block w-full border-0 p-0 ${email && !isEmailValid(email) ? 'text-red-500 placeholder-red-300' : 'text-gray-900 placeholder-gray-400'} focus:ring-0 focus:outline-none sm:text-sm disabled:text-gray-500`}
+            />
+            {!isVerificationSent && (
+              <button
+                type="button"
+                onClick={handleSendVerification}
+                disabled={!isEmailValid(email) || isLoading}
+                className="ml-2 inline-flex items-center px-3 py-1 border border-gray-300 text-xs rounded-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                {isLoading && !isVerificationSent ? 'Sending...' : 'Verify'}
+              </button>
+            )}
+          </div>
         </div>
-         {/* Verification Status/Error */}
-         {isVerificationSent && !isEmailVerified && (
-            <div className="mt-1 text-sm text-red-600">{verificationError}</div>
-         )}
+        
+        {email && !isEmailValid(email) && !error && (
+          <p className="mt-1 text-xs text-red-600">Please enter a valid email address</p>
+        )}
+        
+        {isVerificationSent && !isEmailVerified && (
+          <div className="mt-3">
+            <div className="relative rounded-md border border-gray-300 px-3 py-3 shadow-sm focus-within:border-indigo-600 focus-within:ring-1 focus-within:ring-indigo-600">
+              <label className="absolute -top-2 left-2 -mt-px inline-block bg-white px-1 text-xs font-medium text-gray-900">
+                Verification Code
+              </label>
+              <input
+                type="text"
+                maxLength="5"
+                placeholder="Enter 5-digit code"
+                value={verificationCode}
+                onChange={(e) => handleVerifyCode(e.target.value)}
+                disabled={isVerifying || isLoading}
+                className="block w-full border-0 p-0 text-gray-900 placeholder-gray-400 focus:ring-0 focus:outline-none sm:text-sm tracking-wider font-mono disabled:text-gray-500"
+                aria-label="Email verification code"
+                aria-invalid={!!verificationError}
+              />
+            </div>
+            {verificationError && (
+              <p className="mt-1 text-sm text-red-600">{verificationError}</p>
+            )}
+          </div>
+        )}
+        
+        {isEmailVerified && (
+          <div className="mt-2 flex items-center">
+            <svg className="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span className="ml-2 text-sm text-green-700">Email verified</span>
+          </div>
+        )}
       </div>
 
       {/* Password Section */}
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-        />
+      <div className="mt-4">
+        <div className="relative rounded-md border border-gray-300 px-3 py-3 shadow-sm focus-within:border-indigo-600 focus-within:ring-1 focus-within:ring-indigo-600">
+          <label htmlFor="password" className="absolute -top-2 left-2 -mt-px inline-block bg-white px-1 text-xs font-medium text-gray-900">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="block w-full border-0 p-0 text-gray-900 placeholder-gray-400 focus:ring-0 focus:outline-none sm:text-sm"
+          />
+        </div>
+        
         {/* Password Strength Meter */}
         {password && (
-          <div className="mt-2">
-            <div className="h-2 w-full bg-gray-200 rounded">
+          <div className="mt-1">
+            <div className="h-1.5 w-full bg-gray-200 rounded">
               <div
-                className={`h-2 rounded ${passwordStrength.color}`}
-                style={{ 
-                  width: `${Math.min(passwordStrength.score * 20, 100)}%`,
-                }}
-              ></div> 
+                className={`h-full rounded ${passwordStrength.color}`}
+                style={{ width: `${passwordStrength.score * 20}%` }}
+              ></div>
             </div>
             <p className="text-xs mt-1 text-gray-500">Strength: {passwordStrength.label}</p>
           </div>
@@ -240,30 +287,34 @@ function SignUpForm() {
       </div>
 
       {/* Confirm Password Section */}
-      <div>
-        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
-        <input
-          type="password"
-          id="confirmPassword"
-          name="confirmPassword"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-          className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${!passwordsMatch && confirmPassword ? 'border-red-500' : ''}`}
-        />
+      <div className="mt-4">
+        <div className="relative rounded-md border border-gray-300 px-3 py-3 shadow-sm focus-within:border-indigo-600 focus-within:ring-1 focus-within:ring-indigo-600">
+          <label htmlFor="confirmPassword" className="absolute -top-2 left-2 -mt-px inline-block bg-white px-1 text-xs font-medium text-gray-900">
+            Confirm Password
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            className={`block w-full border-0 p-0 text-gray-900 placeholder-gray-400 focus:ring-0 focus:outline-none sm:text-sm ${!passwordsMatch && confirmPassword ? 'text-red-500' : ''}`}
+          />
+        </div>
         {!passwordsMatch && confirmPassword && (
-          <p className="mt-1 text-sm text-red-600">Passwords do not match.</p>
+          <p className="mt-1 text-sm text-red-600">Passwords do not match</p>
         )}
       </div>
 
       {/* Sign Up Button */}
-      <div>
+      <div className="mt-6">
         <button
           type="submit"
           disabled={isSignUpDisabled || isLoading}
           className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-300 disabled:cursor-not-allowed"
         >
-          {isLoading ? 'Signing Up...' : 'Sign Up'}
+          {isLoading ? 'Creating account...' : 'Create account'}
         </button>
       </div>
     </form>

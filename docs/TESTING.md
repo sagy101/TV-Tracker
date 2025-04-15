@@ -34,6 +34,9 @@ This document outlines the comprehensive testing strategy for TrackTV. The testi
         <li>State management testing</li>
         <li>Form validation testing</li>
         <li>Filter and sort functionality testing</li>
+        <li>Form validation tests for Login/Signup forms</li>
+        <li>Authentication state management tests</li>
+        <li>Token storage and persistence tests</li>
       </ul>
     </td>
     <td><img src="https://img.shields.io/badge/Status-Not_Started-lightgrey?style=flat-square" alt="Status: Not Started" /></td>
@@ -60,6 +63,9 @@ This document outlines the comprehensive testing strategy for TrackTV. The testi
         <li>API integration testing (Jest, React Testing Library, Supertest)</li>
         <li>State flow testing (React Testing Library)</li>
         <li>User flow testing (e.g., show search, episode tracking) (React Testing Library, Cypress)</li>
+        <li>Login flow complete test</li>
+        <li>Signup and email verification flow test</li>
+        <li>Protected route access tests</li>
       </ul>
     </td>
     <td><img src="https://img.shields.io/badge/Status-Not_Started-lightgrey?style=flat-square" alt="Status: Not Started" /></td>
@@ -98,6 +104,9 @@ This document outlines the comprehensive testing strategy for TrackTV. The testi
         <li>Middleware testing (Jest)</li>
         <li>Utility function testing (Jest)</li>
         <li>Database operation testing (Jest)</li>
+        <li>Authentication controller tests</li>
+        <li>Token generation and validation tests</li>
+        <li>Password hashing and comparison tests</li>
       </ul>
     </td>
     <td><img src="https://img.shields.io/badge/Status-Not_Started-lightgrey?style=flat-square" alt="Status: Not Started" /></td>
@@ -110,6 +119,9 @@ This document outlines the comprehensive testing strategy for TrackTV. The testi
         <li>Database integration testing (Jest)</li>
         <li>External API (TVMaze) integration testing (Jest)</li>
         <li>Authentication and authorization testing (Jest, Supertest)</li>
+        <li>Complete authentication flow tests</li>
+        <li>Database interaction tests for user storage</li>
+        <li>Email sending functionality tests</li>
       </ul>
     </td>
     <td><img src="https://img.shields.io/badge/Status-Not_Started-lightgrey?style=flat-square" alt="Status: Not Started" /></td>

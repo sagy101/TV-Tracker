@@ -5,11 +5,13 @@ const bcrypt = require('bcryptjs'); // Import bcryptjs
 // TODO: Add error handling utility
 
 // Helper function to sign JWT
-const signToken = (id) => {
-  // Ensure JWT_SECRET and JWT_EXPIRES_IN are set in your .env file
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '90d' // Default to 90 days
-  });
+const signToken = (id, rememberMe = false) => {
+  // Use different expiration times based on rememberMe parameter
+  const expiresIn = rememberMe 
+    ? process.env.JWT_REMEMBER_ME_EXPIRES_IN || '30d' // 30 days for "Remember Me"
+    : process.env.JWT_EXPIRES_IN || '24h'; // 24 hours for normal login
+
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn });
 };
 
 exports.sendVerification = async (req, res, next) => {
@@ -197,7 +199,7 @@ exports.signup = async (req, res, next) => {
 
 // --- Login Controller ---
 exports.login = async (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password, rememberMe } = req.body;
 
   // 1. Check if email and password exist
   if (!email || !password) {
@@ -221,7 +223,8 @@ exports.login = async (req, res, next) => {
     }
 
     // 4. If everything ok, send token to client
-    const token = signToken(user._id);
+    // Pass rememberMe to signToken function to generate appropriate token lifespan
+    const token = signToken(user._id, rememberMe);
 
     // Prepare user object for response (exclude password)
     const userResponse = {
@@ -230,10 +233,12 @@ exports.login = async (req, res, next) => {
        // Add other relevant non-sensitive fields
     };
 
+    // Include rememberMe in the response to inform frontend about token type
     res.status(200).json({
       status: 'success',
       token,
       user: userResponse,
+      rememberMe: !!rememberMe // Ensure boolean value
     });
 
   } catch (error) {

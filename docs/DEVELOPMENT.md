@@ -242,4 +242,67 @@ npm test
 
 # Run specific test file
 npm test -- path/to/test.js
-``` 
+```
+
+### Technology Stack
+
+- **Frontend**: React with Hooks, Context API (`AuthContext`), React Router, Framer Motion for animations
+- **Styling**: Tailwind CSS with modern form designs and responsive layouts
+- **Backend**: Node.js with Express, Mongoose ODM
+- **Database**: MongoDB
+- **Authentication**: 
+  - bcryptjs for secure password hashing
+  - JWT with configurable expiration times (short for regular sessions, long for "Remember Me")
+  - Dual storage strategy (localStorage/sessionStorage) based on session preferences
+  - Email validation and verification
+- **API Integration**: TVMaze API for show data
+- **Build Tools**: Webpack, Babel, ESLint, Prettier (via react-scripts) 
+
+## Authentication Implementation Details
+
+### Stay Signed In Functionality
+
+The application implements a "Stay signed in" feature using a dual-storage approach:
+
+1. **Frontend Storage Strategy:**
+   - When "Stay signed in" is checked:
+     - Auth token stored in `localStorage` (persists between browser sessions)
+   - When not checked:
+     - Auth token stored in `sessionStorage` (cleared when browser tab closes)
+
+2. **Backend Token Expiration:**
+   - Uses environment variables for configurable token lifetimes:
+     - `JWT_EXPIRES_IN`: Default token lifetime (24h) for regular sessions
+     - `JWT_REMEMBER_ME_EXPIRES_IN`: Extended token lifetime (30d) for "Remember Me" sessions
+   - Token type is determined by the `rememberMe` parameter sent during login
+
+3. **Implementation:**
+   - `AuthContext.js`: Manages token storage selection and authentication state
+   - `LoginForm.jsx`: Handles the checkbox UI and sends preference to the backend
+   - `authController.js`: Adjusts JWT expiration time based on login preference
+
+This approach provides a balance between security and convenience, allowing users to choose their preferred login persistence behavior.
+
+### Form Animations
+
+The authentication system uses Framer Motion to create smooth transitions between the sign-in and create account forms:
+
+1. **Slide Animation:**
+   - Signing in → Creating account: Current form slides out left while new form slides in from right
+   - Creating account → Signing in: Current form slides out right while new form slides in from left
+   - Uses spring physics for natural movement (`stiffness: 350, damping: 30`)
+
+2. **Fade Animation:**
+   - Page title and form elements fade in/out during transitions
+   - "Already have an account?" / "Don't have an account?" text smoothly transitions
+
+3. **Implementation:**
+   - Uses `AnimatePresence` to handle unmounting animations
+   - Custom animation variants defined in `LoginPage.jsx`
+   - Dynamically adjusts container size based on active form
+
+4. **Performance Considerations:**
+   - Animations are kept short (0.2-0.25s) for responsiveness
+   - Containers properly sized to prevent unnecessary layout shifts
+
+This creates a polished, app-like experience that guides users smoothly between authentication states. 

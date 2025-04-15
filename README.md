@@ -60,9 +60,11 @@
 ## Key Features
 
 ### User Authentication
-- Secure user signup with email verification.
-- User login with password.
-- JWT-based session management.
+- Secure user signup with email verification
+- Modern Google-style login interface with smooth animations
+- "Stay signed in" functionality for persistent sessions
+- Real-time email validation and password strength indicators
+- JWT-based session management with configurable token expiration
 
 ### Show Management
 <p align="center">
