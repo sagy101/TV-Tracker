@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Page transition animations between Episodes and Shows pages.
 - Enhanced Actions Menu with improved styling and layout.
 - Public-facing Home Page showcasing key features and planned additions.
+- Automatic page adjustment on Shows and Episodes pages when filters reduce the total number of pages below the current page.
 
 ---
 
@@ -51,6 +52,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various styling inconsistencies.
 - Linter errors and improved code readability.
 - UI refresh issues after show import.
+- Runtime errors on Shows and Episodes pages due to undefined props during initial render.
+- Filter logic for ignored shows on the Episodes page.
 
 ---
 
@@ -62,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - Page transition animations (replaced with different animations).
+- Unnecessary duplicated files and components from the `server/src` directory.
 
 ---
 

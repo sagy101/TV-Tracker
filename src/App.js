@@ -531,8 +531,8 @@ function App() {
               <Routes>
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />
-                <Route path="/" element={isAuthenticated ? <Episodes episodes={episodes} onToggleWatched={handleToggleWatched} showUnwatchedOnly={showUnwatchedOnly} setShowUnwatchedOnly={setShowUnwatchedOnly} loading={loading} /> : <HomePage />} />
-                <Route path="/shows" element={isAuthenticated ? <Shows shows={shows} onDeleteShow={handleDeleteShow} onToggleIgnore={handleToggleIgnore} loading={loading} /> : <HomePage />} />
+                <Route path="/" element={isAuthenticated ? <Episodes episodes={episodes} onToggleWatched={handleToggleWatched} showUnwatchedOnly={showUnwatchedOnly} setShowUnwatchedOnly={setShowUnwatchedOnly} loading={loading} isReleased={isReleased} shows={shows} /> : <HomePage />} />
+                <Route path="/shows" element={isAuthenticated ? <Shows shows={shows} episodes={episodes} onDeleteShow={handleDeleteShow} onToggleIgnore={handleToggleIgnore} onAddShow={handleAddShow} loading={loading} /> : <HomePage />} />
               </Routes>
             </div>
           </div>

@@ -5,7 +5,7 @@ import SearchDrawer from '../components/SearchDrawer';
 import { motion, AnimatePresence } from 'framer-motion';
 import PaginationControls from '../components/PaginationControls';
 
-function Shows({ shows, episodes, onDeleteShow, onAddShow, onToggleIgnore }) {
+function Shows({ shows = [], episodes = [], onDeleteShow, onAddShow, onToggleIgnore }) {
   const [itemsPerPage, setItemsPerPage] = useState(() => 
     parseInt(localStorage.getItem('shows_itemsPerPage')) || 10
   );
@@ -152,6 +152,20 @@ function Shows({ shows, episodes, onDeleteShow, onAddShow, onToggleIgnore }) {
   const totalPages = Math.ceil(sortedShows.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedShows = sortedShows.slice(startIndex, startIndex + itemsPerPage);
+
+  // Effect to adjust current page if total pages decrease
+  useEffect(() => {
+    const newTotalPages = Math.ceil(sortedShows.length / itemsPerPage);
+    if (currentPage > newTotalPages && newTotalPages > 0) {
+      setCurrentPage(newTotalPages);
+    } else if (newTotalPages === 0 && sortedShows.length > 0) {
+       // Handle case where filter results in zero items but previously there were items
+       setCurrentPage(1); 
+    } else if (currentPage === 0 && newTotalPages > 0) {
+        // Ensure current page is at least 1 if there are pages
+        setCurrentPage(1);
+    }
+  }, [sortedShows, itemsPerPage, currentPage]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);

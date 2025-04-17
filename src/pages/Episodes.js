@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PaginationControls from '../components/PaginationControls';
 
 function Episodes({ 
-  shows,
-  episodes,
+  shows = [],
+  episodes = [],
   loading,
   onToggleWatched,
   isReleased
@@ -72,6 +72,20 @@ function Episodes({
   const totalPages = Math.ceil(sortedEpisodes.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedEpisodes = sortedEpisodes.slice(startIndex, startIndex + itemsPerPage);
+
+  // Effect to adjust current page if total pages decrease
+  useEffect(() => {
+    const newTotalPages = Math.ceil(sortedEpisodes.length / itemsPerPage);
+    if (currentPage > newTotalPages && newTotalPages > 0) {
+      setCurrentPage(newTotalPages);
+    } else if (newTotalPages === 0 && sortedEpisodes.length > 0) {
+       // Handle case where filter results in zero items but previously there were items
+       setCurrentPage(1); 
+    } else if (currentPage === 0 && newTotalPages > 0) {
+        // Ensure current page is at least 1 if there are pages
+        setCurrentPage(1);
+    }
+  }, [sortedEpisodes, itemsPerPage, currentPage]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
