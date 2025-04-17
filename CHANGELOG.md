@@ -32,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced Actions Menu with improved styling and layout.
 - Public-facing Home Page showcasing key features and planned additions.
 - Automatic page adjustment on Shows and Episodes pages when filters reduce the total number of pages below the current page.
+- User-specific show ignore status with smooth toggle transitions.
+- Authentication token integration in all API requests.
 
 ---
 
@@ -44,6 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored overall code structure for better modularity and readability (ongoing).
 - Modified Login Page layout: Integrated "Home" button into the main navigation bar (conditional display), removed fixed elements, fixed scrolling issues.
 - Improved styling for "Technology Stack" section on the Home Page.
+- Migrated show ignored status from global to user-specific while maintaining backward compatibility.
+- Improved filtered shows animation transition to prevent showing all shows during filter changes.
 
 ---
 

@@ -5,8 +5,7 @@ const showSchema = new mongoose.Schema({
   name: { type: String, required: true },
   searchName: { type: String },
   image: { type: String },
-  status: { type: String, default: 'Unknown' },
-  ignored: { type: Boolean, default: false }
+  status: { type: String, default: 'Unknown' }
 }, {
   timestamps: true
 });

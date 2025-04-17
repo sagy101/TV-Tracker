@@ -48,7 +48,7 @@ function App() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState(null);
   const [showImportDialog, setShowImportDialog] = useState(false);
-  const { isAuthenticated, logout, isLoading: isAuthLoading, user } = useContext(AuthContext);
+  const { isAuthenticated, logout, isLoading: isAuthLoading, user, token } = useContext(AuthContext);
   
   // Fetch all shows and their episodes from the database
   const fetchAllShows = useCallback(async () => {
@@ -62,13 +62,21 @@ function App() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`${API_BASE_URL}/shows`);
+      const response = await fetch(`${API_BASE_URL}/shows`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const showsData = await handleApiResponse(response);
       setShows(showsData);
       
       // Fetch episodes for all shows
       const episodesPromises = showsData.map(show => 
-        fetch(`${API_BASE_URL}/shows/${show.tvMazeId}/episodes`)
+        fetch(`${API_BASE_URL}/shows/${show.tvMazeId}/episodes`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
           .then(handleApiResponse)
       );
       
@@ -93,14 +101,18 @@ function App() {
       setError(err.message);
       setLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, token]);
 
   const fetchEpisodesForShow = useCallback(async (showId) => {
     try {
       setLoading(true);
       setError(null);
       
-      const showResponse = await fetch(`${API_BASE_URL}/shows/${showId}`);
+      const showResponse = await fetch(`${API_BASE_URL}/shows/${showId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const showData = await handleApiResponse(showResponse);
       
       // Add show to database
@@ -108,6 +120,7 @@ function App() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           tvMazeId: showId,
@@ -119,7 +132,11 @@ function App() {
       
       await handleApiResponse(addShowResponse);
       
-      const epResponse = await fetch(`${API_BASE_URL}/shows/${showId}/episodes`);
+      const epResponse = await fetch(`${API_BASE_URL}/shows/${showId}/episodes`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const epData = await handleApiResponse(epResponse);
       
       // Update state with new show
@@ -159,7 +176,7 @@ function App() {
       setError(err.message);
       setLoading(false);
     }
-  }, []);
+  }, [token]);
   
   // Load saved data on startup or when auth state changes
   useEffect(() => {
@@ -181,6 +198,7 @@ function App() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
       });
       if (!response.ok) {
@@ -199,6 +217,9 @@ function App() {
     try {
       const response = await fetch(`${API_BASE_URL}/shows/${showId}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       if (!response.ok) {
         throw new Error('Failed to delete show');
@@ -215,7 +236,8 @@ function App() {
       const response = await fetch(`${API_BASE_URL}/shows/${showId}/ignore`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
       });
       const updatedShow = await handleApiResponse(response);
@@ -239,6 +261,7 @@ function App() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ watched: newWatchedStatus }),
       });
@@ -266,7 +289,10 @@ function App() {
     if (!isAuthenticated) return;
     try {
       const response = await fetch(`${API_BASE_URL}/admin/clear-all`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       const result = await handleApiResponse(response);
@@ -289,6 +315,9 @@ function App() {
       
       const response = await fetch(`${API_BASE_URL}/refresh/shows`, {
         method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       
       const result = await handleApiResponse(response);
@@ -315,7 +344,10 @@ function App() {
       const showPromises = shows.map(show => 
         fetch(`${API_BASE_URL}/shows`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify({
             tvMazeId: show.id,
             name: show.name,
@@ -335,7 +367,10 @@ function App() {
 
           return fetch(`${API_BASE_URL}/shows/${show.id}/episodes`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
             body: JSON.stringify({
               season: episode.season,
               episode: episode.episode,

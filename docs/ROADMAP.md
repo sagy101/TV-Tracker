@@ -40,10 +40,12 @@ This document outlines the planned features and improvements for TrackTV. The ro
         <li>✅ Secure Login & JWT Sessions</li>
         <li>✅ "Stay signed in" feature with token persistence options</li>
         <li>✅ Modern Google-style interface with smooth animations</li>
+        <li>✅ User-specific show ignored status (first phase of separating user data)</li>
+        <li>✅ Authentication token integration with all API requests</li>
       </ul>
       <b>Next Steps / Remaining:</b>
       <ul>
-        <li>🚧 **Separate User Data:** Critical step to associate shows, episodes, watched status, etc., with individual users. (Currently shared globally).</li>
+        <li>🚧 **Separate User Data:** Continue separating other user data (watched episodes, etc.)</li>
         <li>🔑 Password Reset Functionality</li>
         <li>👤 User Profiles & Preferences</li>
         <li>🔐 Authorization/Roles (Admin vs User)</li>

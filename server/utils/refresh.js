@@ -1,6 +1,7 @@
 const Show = require('../../models/Show'); // Adjusted path
 const Episode = require('../../models/Episode'); // Adjusted path
 const fetchFromTVMaze = require('./tvmaze'); // Assuming tvmaze.js is in the same utils folder
+const UserShowSettings = require('../../models/UserShowSettings'); // Adjusted path
 
 // Helper function to update show details
 async function updateShowDetails(show, showData) {
@@ -132,67 +133,97 @@ async function processShow(show) {
 
 // Function to refresh multiple active shows
 async function refreshActiveShows() {
-    console.log('Starting refresh of active (non-Ended) shows...');
-    // Find shows that are not marked as 'Ended' and are not ignored
-    const activeShows = await Show.find({ status: { $ne: 'Ended' }, ignored: { $ne: true } });
-    console.log(`Found ${activeShows.length} active and non-ignored shows to refresh`);
+  console.log('Starting refresh of active (non-Ended) shows...');
+  
+  // Get shows not marked as 'Ended'
+  const activeShows = await Show.find({ status: { $ne: 'Ended' } });
+  console.log(`Found ${activeShows.length} active shows to refresh`);
+  
+  // Get shows that are marked as ignored by any user
+  const ignoredSettings = await UserShowSettings.find({
+    ignored: true,
+    showTvMazeId: { $in: activeShows.map(show => show.tvMazeId) }
+  });
+  
+  // Create a map of ignored showIds
+  const ignoredShowIds = new Set();
+  ignoredSettings.forEach(setting => {
+    ignoredShowIds.add(setting.showTvMazeId);
+  });
+  
+  // Check for legacy ignored status in Show model (for backward compatibility)
+  const legacyIgnoredShows = await Show.find({ 
+    status: { $ne: 'Ended' }, 
+    ignored: true 
+  });
+  
+  legacyIgnoredShows.forEach(show => {
+    ignoredShowIds.add(show.tvMazeId);
+  });
+  
+  // Filter out shows that are ignored
+  const nonIgnoredShows = activeShows.filter(show => 
+    !ignoredShowIds.has(show.tvMazeId)
+  );
+  
+  console.log(`Found ${nonIgnoredShows.length} active and non-ignored shows to refresh`);
 
-    const results = {
-      processed: 0,
-      showsUpdated: 0,
-      episodesAdded: 0,
-      episodesUpdated: 0,
-      errors: []
-    };
+  const results = {
+    processed: 0,
+    showsUpdated: 0,
+    episodesAdded: 0,
+    episodesUpdated: 0,
+    errors: []
+  };
 
-    // Process shows sequentially or in parallel (consider API rate limits)
-    // Sequential processing:
-    for (const show of activeShows) {
-        const result = await processShow(show);
-        results.processed++;
-        if (result.success) {
-            if (result.showUpdated) results.showsUpdated++;
-            results.episodesAdded += result.episodesAdded;
-            results.episodesUpdated += result.episodesUpdated;
-        } else {
-            results.errors.push({
-                showId: result.showId,
-                showName: result.showName,
-                error: result.error
-            });
-        }
-    }
+  // Process shows sequentially or in parallel (consider API rate limits)
+  // Sequential processing:
+  for (const show of nonIgnoredShows) {
+      const result = await processShow(show);
+      results.processed++;
+      if (result.success) {
+          if (result.showUpdated) results.showsUpdated++;
+          results.episodesAdded += result.episodesAdded;
+          results.episodesUpdated += result.episodesUpdated;
+      } else {
+          results.errors.push({
+              showId: result.showId,
+              showName: result.showName,
+              error: result.error
+          });
+      }
+  }
 
-    // Parallel processing (example with Promise.allSettled):
-    /*
-    const refreshPromises = activeShows.map(show => processShow(show));
-    const settledResults = await Promise.allSettled(refreshPromises);
+  // Parallel processing (example with Promise.allSettled):
+  /*
+  const refreshPromises = nonIgnoredShows.map(show => processShow(show));
+  const settledResults = await Promise.allSettled(refreshPromises);
 
-    settledResults.forEach(settledResult => {
-        results.processed++;
-        if (settledResult.status === 'fulfilled') {
-            const result = settledResult.value;
-            if (result.success) {
-                 if (result.showUpdated) results.showsUpdated++;
-                 results.episodesAdded += result.episodesAdded;
-                 results.episodesUpdated += result.episodesUpdated;
-            } else {
-                results.errors.push({ showId: result.showId, showName: result.showName, error: result.error });
-            }
-        } else {
-            // Handle rejected promises (errors not caught within processShow)
-            console.error('Unhandled error during show refresh:', settledResult.reason);
-            // Attempt to find showId/Name if possible from context, otherwise log generic error
-            results.errors.push({ showId: 'unknown', showName: 'unknown', error: settledResult.reason?.message || 'Unhandled exception' });
-        }
-    });
-    */
+  settledResults.forEach(settledResult => {
+      results.processed++;
+      if (settledResult.status === 'fulfilled') {
+          const result = settledResult.value;
+          if (result.success) {
+               if (result.showUpdated) results.showsUpdated++;
+               results.episodesAdded += result.episodesAdded;
+               results.episodesUpdated += result.episodesUpdated;
+          } else {
+              results.errors.push({ showId: result.showId, showName: result.showName, error: result.error });
+          }
+      } else {
+          // Handle rejected promises (errors not caught within processShow)
+          console.error('Unhandled error during show refresh:', settledResult.reason);
+          // Attempt to find showId/Name if possible from context, otherwise log generic error
+          results.errors.push({ showId: 'unknown', showName: 'unknown', error: settledResult.reason?.message || 'Unhandled exception' });
+      }
+  });
+  */
 
-    console.log('Refresh completed.', `Processed: ${results.processed}, Shows Updated: ${results.showsUpdated}, Episodes Added: ${results.episodesAdded}, Episodes Updated: ${results.episodesUpdated}, Errors: ${results.errors.length}`);
-    if (results.errors.length > 0) {
-        console.warn('Errors occurred during refresh:', results.errors);
-    }
-    return results;
+  console.log('Refresh completed.', `Processed: ${results.processed}, Shows Updated: ${results.showsUpdated}, Episodes Added: ${results.episodesAdded}, Episodes Updated: ${results.episodesUpdated}, Errors: ${results.errors.length}`);
+  if (results.errors.length > 0) {
+      console.warn('Errors occurred during refresh:', results.errors);
+  }
+  return results;
 }
 
 module.exports = {
