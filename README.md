@@ -80,6 +80,7 @@
 <p align="center">
   <img src="docs/images/shows.png" alt="Shows Management" width="700">
 </p>
+
 - Track and manage your TV shows with comprehensive details:
   - Show status and progress tracking
   - Time spent watching statistics
