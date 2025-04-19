@@ -1,10 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Download } from 'lucide-react';
 import ImportSearchResultsDialog from './ImportSearchResultsDialog';
 import ProgressBar from './ProgressBar';
+import { AuthContext } from '../contexts/AuthContext';
+
+const API_BASE_URL = 'http://localhost:3001/api';
 
 function ImportDialog({ isOpen, onClose, onImport }) {
+  const { token } = useContext(AuthContext);
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResultsDialog, setShowResultsDialog] = useState(false);
@@ -29,8 +33,11 @@ function ImportDialog({ isOpen, onClose, onImport }) {
 
   const searchForShow = async (showName) => {
     try {
-      const response = await fetch(`/api/shows/search?q=${encodeURIComponent(showName)}`, {
-        signal: abortControllerRef.current.signal
+      const response = await fetch(`${API_BASE_URL}/shows/search?q=${encodeURIComponent(showName)}`, {
+        signal: abortControllerRef.current.signal,
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       if (!response.ok) {
         if (response.status === 499) {

@@ -1,12 +1,25 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
+import { X, Search, AlertCircle, CheckCircle } from 'lucide-react';
+import { AuthContext } from '../contexts/AuthContext';
 
-const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
+const API_BASE_URL = 'http://localhost:3001/api';
+
+const SearchDrawer = ({ isOpen, onSelectShow, onClose, existingShows = [] }) => {
+  const { token } = useContext(AuthContext);
   const [searchInput, setSearchInput] = useState('');
   const [yearFilter, setYearFilter] = useState('');
   const [error, setError] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const searchTimeoutRef = useRef(null);
+
+  // Create a Set of existing show IDs for quick lookup
+  const existingShowIds = new Set(existingShows.map(show => show.tvMazeId.toString()));
+
+  // Check if a show is already in the user's collection
+  const isShowInCollection = (showId) => {
+    return existingShowIds.has(showId.toString());
+  };
 
   const handleInputChange = async (e) => {
     const query = e.target.value;
@@ -22,7 +35,11 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
     if (query.length >= 1) {
       searchTimeoutRef.current = setTimeout(async () => {
         try {
-          const response = await fetch(`/api/shows/search?q=${encodeURIComponent(query)}`);
+          const response = await fetch(`${API_BASE_URL}/shows/search?q=${encodeURIComponent(query)}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
           if (!response.ok) throw new Error('Search failed');
           const data = await response.json();
           
@@ -55,25 +72,53 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
 
     if (/^\d+$/.test(searchInput)) {
       try {
-        const response = await fetch(`/api/shows/search?q=${searchInput}`);
+        const response = await fetch(`${API_BASE_URL}/shows/search?q=${searchInput}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         if (!response.ok) throw new Error('Show not found');
         const data = await response.json();
         
+        let showData;
         if (Array.isArray(data) && data.length > 0) {
-          await onSelectShow(data[0].show);
-          setSearchInput('');
-          setYearFilter('');
-          setSearchResults([]);
-          onClose();
+          showData = data[0].show;
         } else if (data.id) {
-          await onSelectShow(data);
-          setSearchInput('');
-          setYearFilter('');
-          setSearchResults([]);
-          onClose();
+          showData = data;
         } else {
           throw new Error('Show not found');
         }
+        
+        // Check if show is already in collection
+        if (isShowInCollection(showData.id)) {
+          setError('This show is already in your collection');
+          return;
+        }
+        
+        // Add the show using the new endpoint
+        const addResponse = await fetch(`${API_BASE_URL}/shows/${showData.id}`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            ignored: false
+          })
+        });
+        
+        if (!addResponse.ok) {
+          throw new Error('Failed to add show');
+        }
+        
+        // Notify parent component
+        await onSelectShow();
+        
+        // Reset UI state
+        setSearchInput('');
+        setYearFilter('');
+        setSearchResults([]);
+        onClose();
       } catch (err) {
         setError('Error adding show. Please check the ID and try again.');
       }
@@ -82,7 +127,26 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
 
   const handleSelectResult = async (show) => {
     try {
-      await onSelectShow(show);
+      // Update to use the /:id endpoint instead of the legacy route
+      const response = await fetch(`${API_BASE_URL}/shows/${show.id}`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ignored: false
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to add show');
+      }
+      
+      // Call onSelectShow with the show ID, not the entire show object
+      await onSelectShow();
+      
+      // Reset UI state
       setSearchInput('');
       setYearFilter('');
       setSearchResults([]);
@@ -178,49 +242,66 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
                         {yearFilter && <span className="text-gray-500 ml-2">({filteredResults.length} shows from {yearFilter})</span>}
                       </h3>
                       <div className="space-y-2">
-                        {filteredResults.slice(0, 8).map(({ show }) => (
-                          <button
-                            key={show.id}
-                            onClick={() => handleSelectResult(show)}
-                            className="w-full text-left px-4 py-2 border border-gray-200 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                          >
-                            <div className="flex justify-between items-start">
-                              <div className="font-medium">{show.name}</div>
-                              {show.status && (
-                                <span className={`text-xs px-2 py-0.5 rounded ${
-                                  show.status === 'Running' ? 'bg-green-100 text-green-800' :
-                                  show.status === 'Ended' ? 'bg-gray-100 text-gray-800' :
-                                  'bg-yellow-100 text-yellow-800'
-                                }`}>
-                                  {show.status}
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-sm text-gray-500 space-y-1">
-                              <div className="flex items-center gap-2">
-                                {show.network?.name && (
-                                  <span>
-                                    {show.network.name}
-                                    {show.network.country?.code && ` (${show.network.country.code})`}
-                                  </span>
-                                )}
-                                {show.premiered && (
-                                  <span>• {show.premiered.split('-')[0]}</span>
-                                )}
-                                {show.language && (
-                                  <span className="px-1.5 py-0.5 bg-gray-100 rounded text-xs">
-                                    {show.language}
-                                  </span>
+                        {filteredResults.slice(0, 8).map(({ show }) => {
+                          const alreadyAdded = isShowInCollection(show.id);
+                          
+                          return (
+                            <button
+                              key={show.id}
+                              onClick={() => !alreadyAdded && handleSelectResult(show)}
+                              className={`w-full text-left px-4 py-2 border rounded-md ${
+                                alreadyAdded 
+                                  ? 'border-gray-200 bg-gray-50 cursor-not-allowed' 
+                                  : 'border-gray-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                              }`}
+                              disabled={alreadyAdded}
+                            >
+                              <div className="flex justify-between items-start">
+                                <div className="font-medium">{show.name}</div>
+                                <div className="flex items-center gap-2">
+                                  {show.status && (
+                                    <span className={`text-xs px-2 py-0.5 rounded ${
+                                      show.status === 'Running' ? 'bg-green-100 text-green-800' :
+                                      show.status === 'Ended' ? 'bg-gray-100 text-gray-800' :
+                                      'bg-yellow-100 text-yellow-800'
+                                    }`}>
+                                      {show.status}
+                                    </span>
+                                  )}
+                                  {alreadyAdded && (
+                                    <span className="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-800">
+                                      <CheckCircle className="h-3 w-3 mr-1" />
+                                      Added
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="text-sm text-gray-500 space-y-1">
+                                <div className="flex items-center gap-2">
+                                  {show.network?.name && (
+                                    <span>
+                                      {show.network.name}
+                                      {show.network.country?.code && ` (${show.network.country.code})`}
+                                    </span>
+                                  )}
+                                  {show.premiered && (
+                                    <span>• {show.premiered.split('-')[0]}</span>
+                                  )}
+                                  {show.language && (
+                                    <span className="px-1.5 py-0.5 bg-gray-100 rounded text-xs">
+                                      {show.language}
+                                    </span>
+                                  )}
+                                </div>
+                                {show.genres && show.genres.length > 0 && (
+                                  <div className="text-xs">
+                                    {show.genres.join(' • ')}
+                                  </div>
                                 )}
                               </div>
-                              {show.genres && show.genres.length > 0 && (
-                                <div className="text-xs">
-                                  {show.genres.join(' • ')}
-                                </div>
-                              )}
-                            </div>
-                          </button>
-                        ))}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -237,7 +318,8 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose }) => {
 SearchDrawer.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onSelectShow: PropTypes.func.isRequired,
-  onClose: PropTypes.func.isRequired
+  onClose: PropTypes.func.isRequired,
+  existingShows: PropTypes.array
 };
 
 export default SearchDrawer; 

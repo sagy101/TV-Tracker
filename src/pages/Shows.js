@@ -291,14 +291,14 @@ function Shows({ shows = [], episodes = [], onDeleteShow, onAddShow, onToggleIgn
         </div>
 
         {/* Shows Table */}
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div 
             key={`table-container-${showIgnoredFilter}-${showWatchedFilter}`}
             id="shows-table-container" 
             className="bg-white rounded-lg shadow-sm overflow-hidden mb-4"
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            exit={{ opacity: 0.5 }}
             transition={{ duration: 0.2 }}
           >
             <div className="overflow-x-auto">
@@ -318,82 +318,76 @@ function Shows({ shows = [], episodes = [], onDeleteShow, onAddShow, onToggleIgn
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  <AnimatePresence>
-                    {paginatedShows.map((show) => {
-                      const stats = getShowStats(show.tvMazeId);
-                      const isFullyWatched = stats.totalEpisodes > 0 && stats.watchedEpisodes === stats.totalEpisodes;
-                      return (
-                        <motion.tr
-                          key={show.tvMazeId}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className={`hover:bg-gray-50 transition-colors ${
-                            isFullyWatched
-                              ? 'bg-green-50'
-                              : show.ignored
-                                ? 'bg-gray-50'
-                                : ''
-                          }`}
-                        >
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {show.name}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {show.tvMazeId}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {stats.seasons}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {stats.totalEpisodes}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <div className="flex items-center">
-                              <span className="mr-2">{stats.watchedEpisodes}</span>
-                              <span className="text-gray-400">
-                                ({Math.round((stats.watchedEpisodes / stats.totalEpisodes) * 100)}%)
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <div className="flex items-center">
-                              <Clock className="h-4 w-4 mr-2 text-gray-400" />
-                              {stats.timeWatched}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass(show.status)}`}>
-                              {show.status || 'Unknown'}
+                  {paginatedShows.map((show) => {
+                    const stats = getShowStats(show.tvMazeId);
+                    const isFullyWatched = stats.totalEpisodes > 0 && stats.watchedEpisodes === stats.totalEpisodes;
+                    return (
+                      <tr
+                        key={`${show.tvMazeId}-${stats.watchedEpisodes}`}
+                        className={`hover:bg-gray-50 transition-colors ${
+                          isFullyWatched
+                            ? 'bg-green-50'
+                            : show.ignored
+                              ? 'bg-gray-50'
+                              : ''
+                        }`}
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {show.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {show.tvMazeId}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {stats.seasons}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {stats.totalEpisodes}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <div className="flex items-center">
+                            <span className="mr-2">{stats.watchedEpisodes}</span>
+                            <span className="text-gray-400">
+                              ({Math.round((stats.watchedEpisodes / stats.totalEpisodes) * 100)}%)
                             </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center justify-center space-x-2">
-                              <button
-                                onClick={() => onToggleIgnore(show.tvMazeId)}
-                                className={`inline-flex items-center p-2 rounded-full ${
-                                  show.ignored 
-                                    ? 'text-gray-600 bg-gray-100 hover:bg-gray-200'
-                                    : 'text-gray-600 hover:bg-gray-100'
-                                }`}
-                                title={show.ignored ? 'Show in Episodes' : 'Hide from Episodes'}
-                              >
-                                {show.ignored ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
-                              </button>
-                              <button
-                                onClick={() => onDeleteShow(show.tvMazeId)}
-                                className="inline-flex items-center p-2 border border-transparent rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                                title="Delete Show"
-                              >
-                                <Trash2 className="h-5 w-5" />
-                              </button>
-                            </div>
-                          </td>
-                        </motion.tr>
-                      );
-                    })}
-                  </AnimatePresence>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <div className="flex items-center">
+                            <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                            {stats.timeWatched}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass(show.status)}`}>
+                            {show.status || 'Unknown'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center justify-center space-x-2">
+                            <button
+                              onClick={() => onToggleIgnore(show.tvMazeId)}
+                              className={`inline-flex items-center p-2 rounded-full ${
+                                show.ignored 
+                                  ? 'text-gray-600 bg-gray-100 hover:bg-gray-200'
+                                  : 'text-gray-600 hover:bg-gray-100'
+                              }`}
+                              title={show.ignored ? 'Show in Episodes' : 'Hide from Episodes'}
+                            >
+                              {show.ignored ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+                            </button>
+                            <button
+                              onClick={() => onDeleteShow(show.tvMazeId)}
+                              className="inline-flex items-center p-2 border border-transparent rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                              title="Delete Show"
+                            >
+                              <Trash2 className="h-5 w-5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

@@ -42,6 +42,8 @@ This document outlines the planned features and improvements for TrackTV. The ro
         <li>✅ Modern Google-style interface with smooth animations</li>
         <li>✅ User-specific show ignored status (first phase of separating user data)</li>
         <li>✅ Authentication token integration with all API requests</li>
+        <li>✅ Improved UI for already-added shows in search results</li>
+        <li>✅ Fixed duplicate show handling in search and import</li>
       </ul>
       <b>Next Steps / Remaining:</b>
       <ul>

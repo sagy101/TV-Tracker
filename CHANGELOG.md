@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Automatic page adjustment on Shows and Episodes pages when filters reduce the total number of pages below the current page.
 - User-specific show ignore status with smooth toggle transitions.
 - Authentication token integration in all API requests.
+- Visual indicator and disabling of already-added shows in search results to prevent duplicates.
 
 ---
 
@@ -48,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved styling for "Technology Stack" section on the Home Page.
 - Migrated show ignored status from global to user-specific while maintaining backward compatibility.
 - Improved filtered shows animation transition to prevent showing all shows during filter changes.
+- Updated API endpoints to use modern RESTful patterns and removed legacy routes.
 
 ---
 
@@ -58,6 +60,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UI refresh issues after show import.
 - Runtime errors on Shows and Episodes pages due to undefined props during initial render.
 - Filter logic for ignored shows on the Episodes page.
+- Fixed infinite render loop in UserHomePage component with proper memoization.
+- Resolved duplicate show issues in search and import functionality.
+- Fixed server-side episode fetching errors (assignment to constant variable).
+- Enhanced error handling during show imports and API responses.
 
 ---
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Eye, EyeOff, CheckCircle2, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import PaginationControls from './PaginationControls';
@@ -6,8 +6,12 @@ import ImportEpisodesDialog from './ImportEpisodesDialog';
 import ImportSummaryDialog from './ImportSummaryDialog';
 import StatusList from './StatusList';
 import ProgressBar from './ProgressBar';
+import { AuthContext } from '../contexts/AuthContext';
+
+const API_BASE_URL = 'http://localhost:3001/api';
 
 function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress }) {
+  const { token } = useContext(AuthContext);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [isImporting, setIsImporting] = useState(false);
@@ -40,10 +44,15 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
 
   const addShow = async (show, ignored) => {
     try {
-      const response = await fetch(`/api/shows/${show.id}`, {
+      const response = await fetch(`${API_BASE_URL}/shows/${show.id}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ignored })
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ignored: ignored
+        })
       });
       if (!response.ok) throw new Error(`Failed to add show: ${show.name}`);
       const data = await response.json();
@@ -51,16 +60,22 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
       return data; // Return the server response directly which includes { show, skipped }
     } catch (err) {
       console.error(`Error adding show ${show.name}:`, err);
-      return null;
+      throw err; // Rethrow the error to be caught in processShow
     }
   };
 
   const processShow = async ({ show, ignored }) => {
-    const result = await addShow(show, ignored);
-    if (result) {
-      return { success: true, show: result.show, skipped: result.skipped };
+    try {
+      const result = await addShow(show, ignored);
+      // Preserve the ignored status on the show object
+      if (result.show) {
+        result.show.ignored = ignored;
+      }
+      return { success: true, show: result.show, skipped: result.skipped, name: show.name };
+    } catch (err) {
+      console.error(`Error processing show ${show.name}:`, err);
+      return { success: false, name: show.name, error: err.message };
     }
-    return { success: false };
   };
 
   const processBatch = async (batch) => {

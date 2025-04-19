@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
-import { Home, List, Trash2, Plus, RefreshCw, Tv, ArrowLeftRight, Play, Circle, CheckCircle, ArrowUpDown, Infinity, Download, LogIn, LogOut } from 'lucide-react';
+import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation, Navigate } from 'react-router-dom';
+import { Home, List, Trash2, Plus, RefreshCw, Tv, ArrowLeftRight, Play, Circle, CheckCircle, ArrowUpDown, Infinity, Download, LogIn, LogOut, LayoutDashboard } from 'lucide-react';
 import Episodes from './pages/Episodes';
 import Shows from './pages/Shows';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
+import UserHomePage from './pages/UserHomePage';
 import SearchDrawer from './components/SearchDrawer';
 import ImportDialog from './components/ImportDialog';
 import ActionsMenu from './components/ActionsMenu';
@@ -14,8 +15,14 @@ const API_BASE_URL = 'http://localhost:3001/api';
 
 // Helper function to handle API responses
 async function handleApiResponse(response) {
+  // Prevent reading the body of a response that has already been consumed
+  if (response.bodyUsed) {
+    throw new Error("Response body has already been consumed");
+  }
+  
+  const text = await response.text(); // Read the response body once
+  
   if (!response.ok) {
-    const text = await response.text();
     let error;
     try {
       const json = JSON.parse(text);
@@ -26,9 +33,9 @@ async function handleApiResponse(response) {
     error.status = response.status;
     throw error;
   }
-  const text = await response.text();
+  
   try {
-    return JSON.parse(text);
+    return JSON.parse(text); // Parse the same text we already read
   } catch (error) {
     console.error('Invalid JSON response:', text);
     throw new Error('Invalid JSON response from API');
@@ -70,18 +77,36 @@ function App() {
       const showsData = await handleApiResponse(response);
       setShows(showsData);
       
-      // Fetch episodes for all shows
-      const episodesPromises = showsData.map(show => 
-        fetch(`${API_BASE_URL}/shows/${show.tvMazeId}/episodes`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
+      // Fetch episodes for all shows - using async/await approach instead of Promise.all with .then
+      const allEpisodesData = [];
+      for (const show of showsData) {
+        try {
+          const epResponse = await fetch(`${API_BASE_URL}/shows/${show.tvMazeId}/episodes`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          // Create a new variable for the response text to avoid consuming the body twice
+          let epData;
+          try {
+            epData = await handleApiResponse(epResponse);
+            if (Array.isArray(epData)) {
+              allEpisodesData.push(...epData);
+            } else {
+              console.error(`Invalid episode data format for show ${show.name}:`, epData);
+            }
+          } catch (parseError) {
+            console.error(`Error parsing episodes for show ${show.name}:`, parseError);
+            // Continue with other shows even if one fails
           }
-        })
-          .then(handleApiResponse)
-      );
+        } catch (epError) {
+          console.error(`Error fetching episodes for show ${show.name}:`, epError);
+          // Continue with other shows even if one fails
+        }
+      }
       
-      const allEpisodesData = await Promise.all(episodesPromises);
-      const processedEpisodes = allEpisodesData.flat().map(ep => ({
+      const processedEpisodes = allEpisodesData.map(ep => ({
         id: ep.tvMazeId,
         showId: ep.showId,
         showName: showsData.find(s => s.tvMazeId === ep.showId)?.name,
@@ -192,6 +217,10 @@ function App() {
   
   const handleAddShow = async (showId) => {
     if (!isAuthenticated) return;
+    
+    // Create a local loading state for this action only
+    const localLoading = true;
+    
     try {
       const id = typeof showId === 'object' ? showId.id : showId;
       const response = await fetch(`${API_BASE_URL}/shows/${id}`, {
@@ -205,7 +234,41 @@ function App() {
         const error = await response.text();
         throw new Error(error || 'Failed to add show');
       }
-      await fetchAllShows();
+      
+      const result = await handleApiResponse(response);
+      
+      // Update local state directly instead of refetching everything
+      if (!result.skipped) {
+        // New show was added
+        setShows(prevShows => [...prevShows, result.show]);
+        
+        // Fetch only the episodes for this show
+        const epResponse = await fetch(`${API_BASE_URL}/shows/${id}/episodes`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        const epData = await handleApiResponse(epResponse);
+        
+        // Add only the new episodes to state
+        if (Array.isArray(epData) && epData.length > 0) {
+          const processedEpisodes = epData.map(ep => ({
+            id: ep.tvMazeId,
+            showId: id,
+            showName: result.show.name,
+            season: ep.season,
+            number: ep.number,
+            name: ep.name,
+            airdate: ep.airdate,
+            airtime: ep.airtime,
+            runtime: ep.runtime,
+            watched: ep.watched
+          }));
+          
+          setEpisodes(prevEpisodes => [...prevEpisodes, ...processedEpisodes]);
+        }
+      }
     } catch (error) {
       console.error('Error adding show:', error);
       throw new Error(error.message);
@@ -214,6 +277,19 @@ function App() {
 
   const handleDeleteShow = async (showId) => {
     if (!isAuthenticated) return;
+    
+    // Optimistic update - remove from state before server confirms
+    const showToDelete = shows.find(show => show.tvMazeId === showId);
+    const episodesToRemove = episodes.filter(episode => episode.showId === showId);
+    
+    // Save the original state in case we need to restore
+    const originalShows = [...shows];
+    const originalEpisodes = [...episodes];
+    
+    // Update local state immediately
+    setShows(prevShows => prevShows.filter(show => show.tvMazeId !== showId));
+    setEpisodes(prevEpisodes => prevEpisodes.filter(episode => episode.showId !== showId));
+    
     try {
       const response = await fetch(`${API_BASE_URL}/shows/${showId}`, {
         method: 'DELETE',
@@ -221,12 +297,21 @@ function App() {
           'Authorization': `Bearer ${token}`
         }
       });
+      
       if (!response.ok) {
+        // If the delete failed, restore the original state
+        setShows(originalShows);
+        setEpisodes(originalEpisodes);
         throw new Error('Failed to delete show');
       }
-      await fetchAllShows();
+      
+      // Success - already removed from state
+      
     } catch (error) {
       console.error('Error deleting show:', error);
+      // Restore state in case of any error
+      setShows(originalShows);
+      setEpisodes(originalEpisodes);
     }
   };
 
@@ -268,11 +353,14 @@ function App() {
       
       await handleApiResponse(response);
       
-      setEpisodes(episodes.map(episode => 
+      // Create a completely new array to ensure child components detect the change
+      const updatedEpisodes = episodes.map(episode => 
         episode.id === episodeId 
           ? { ...episode, watched: newWatchedStatus } 
-          : episode
-      ));
+          : { ...episode }
+      );
+      
+      setEpisodes(updatedEpisodes);
     } catch (err) {
       console.error("Error updating episode:", err);
       setError(err.message);
@@ -340,24 +428,9 @@ function App() {
   const handleImportShows = async (shows, episodes = []) => {
     if (!isAuthenticated) return;
     try {
-      // Add shows to the database
-      const showPromises = shows.map(show => 
-        fetch(`${API_BASE_URL}/shows`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            tvMazeId: show.id,
-            name: show.name,
-            image: show.image,
-            status: show.status,
-            ignored: false
-          })
-        })
-      );
-      await Promise.all(showPromises);
+      // Assuming that shows already have their properties correctly set, including ignored status
+      // Just pass them through to refresh the show list
+      await fetchAllShows();
 
       // If episodes are provided, add them to the database
       if (episodes.length > 0) {
@@ -365,7 +438,7 @@ function App() {
           const show = shows.find(s => s.name === episode.showname);
           if (!show) return null;
 
-          return fetch(`${API_BASE_URL}/shows/${show.id}/episodes`, {
+          return fetch(`${API_BASE_URL}/shows/${show.tvMazeId}/episodes`, {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',
@@ -388,7 +461,7 @@ function App() {
       }
 
       // Refresh the shows list
-      await handleRefreshShows();
+      await fetchAllShows();
     } catch (err) {
       console.error('Error importing shows and episodes:', err);
     }
@@ -410,7 +483,7 @@ function App() {
               {isAuthenticated && (
                 <>
                   <NavLink
-                    to="/"
+                    to="/user-home"
                     className={({ isActive }) =>
                       `inline-flex items-center px-4 py-2 border-b-2 text-sm font-medium ${
                         isActive
@@ -419,7 +492,20 @@ function App() {
                       }`
                     }
                   >
-                    <Home className="h-5 w-5 mr-2" />
+                    <LayoutDashboard className="h-5 w-5 mr-2" />
+                    Dashboard
+                  </NavLink>
+                  <NavLink
+                    to="/episodes"
+                    className={({ isActive }) =>
+                      `ml-4 inline-flex items-center px-4 py-2 border-b-2 text-sm font-medium ${
+                        isActive
+                          ? 'border-indigo-500 text-indigo-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`
+                    }
+                  >
+                    <List className="h-5 w-5 mr-2" />
                     Episodes
                   </NavLink>
                   <NavLink
@@ -490,9 +576,9 @@ function App() {
       {isAuthenticated && (
         <SearchDrawer
           isOpen={isDrawerOpen}
-          onSelectShow={handleAddShow}
-          onAddShow={handleAddShow}
+          onSelectShow={fetchAllShows}
           onClose={() => setIsDrawerOpen(false)}
+          existingShows={shows}
         />
       )}
       <ImportDialog
@@ -557,17 +643,19 @@ function App() {
       )}
 
       <main className="py-10">
-        {loading && !isAuthLoading && <div className="text-center">Loading Data...</div>}
+        {loading && !isAuthLoading && <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-indigo-600 text-white px-4 py-2 rounded-md shadow-lg z-50">Loading Data...</div>}
         {error && <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">{error}</div>}
         
-        {!loading && !isAuthLoading && (
+        {!isAuthLoading && (
           <div className="min-h-[calc(100vh-12rem)] relative overflow-hidden">
             <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
               <Routes>
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />
-                <Route path="/" element={isAuthenticated ? <Episodes episodes={episodes} onToggleWatched={handleToggleWatched} showUnwatchedOnly={showUnwatchedOnly} setShowUnwatchedOnly={setShowUnwatchedOnly} loading={loading} isReleased={isReleased} shows={shows} /> : <HomePage />} />
+                <Route path="/" element={isAuthenticated ? <Navigate to="/user-home" replace /> : <HomePage />} />
+                <Route path="/episodes" element={isAuthenticated ? <Episodes episodes={episodes} onToggleWatched={handleToggleWatched} showUnwatchedOnly={showUnwatchedOnly} setShowUnwatchedOnly={setShowUnwatchedOnly} loading={loading} isReleased={isReleased} shows={shows} /> : <HomePage />} />
                 <Route path="/shows" element={isAuthenticated ? <Shows shows={shows} episodes={episodes} onDeleteShow={handleDeleteShow} onToggleIgnore={handleToggleIgnore} onAddShow={handleAddShow} loading={loading} /> : <HomePage />} />
+                <Route path="/user-home" element={isAuthenticated ? <UserHomePage episodes={episodes} shows={shows} onToggleWatched={handleToggleWatched} isReleased={isReleased} /> : <HomePage />} />
               </Routes>
             </div>
           </div>

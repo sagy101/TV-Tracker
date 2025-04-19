@@ -112,7 +112,7 @@ router.get('/:id/episodes', async (req, res, next) => {
     }
 
     // Transform and save episodes
-    const episodes = tvMazeEpisodes.map(ep => ({
+    const episodeData = tvMazeEpisodes.map(ep => ({
       tvMazeId: ep.id.toString(),
       showId: showId,
       season: ep.season,
@@ -125,10 +125,11 @@ router.get('/:id/episodes', async (req, res, next) => {
     }));
 
     // Save episodes to database if any exist
-    if (episodes.length > 0) {
+    let savedEpisodes = [];
+    if (episodeData.length > 0) {
         try {
-            await Episode.insertMany(episodes, { ordered: false }); // Use ordered: false to continue on duplicate errors if any
-            console.log(`✅ Attempted to save ${episodes.length} episodes to database for show ${showId}`);
+            await Episode.insertMany(episodeData, { ordered: false }); // Use ordered: false to continue on duplicate errors if any
+            console.log(`✅ Attempted to save ${episodeData.length} episodes to database for show ${showId}`);
         } catch (dbError) {
             // Ignore duplicate key errors (code 11000) as we might re-fetch
             if (dbError.code !== 11000) {
@@ -139,17 +140,16 @@ router.get('/:id/episodes', async (req, res, next) => {
             }
         }
         // Fetch again from DB to ensure we return the saved data including potential existing ones if fetch was triggered concurrently
-        episodes = await Episode.find({ showId: showId });
-        episodes.sort((a, b) => a.season - b.season || a.number - b.number);
+        savedEpisodes = await Episode.find({ showId: showId });
+        savedEpisodes.sort((a, b) => a.season - b.season || a.number - b.number);
     }
 
-    res.json(episodes);
+    res.json(savedEpisodes);
   } catch (error) {
     console.error(`Error in /api/shows/${req.params.id}/episodes:`, error);
     next(error); // Pass error to the central error handler
   }
 });
-
 
 // Add or Update show (POST /api/shows/:id) - Preferred method
 router.post('/:id', async (req, res, next) => {
@@ -272,63 +272,6 @@ router.post('/:id', async (req, res, next) => {
     next(error); // Pass error to the central error handler
   }
 });
-
-// Legacy Add/Update Show (POST /api/shows) - Kept for backward compatibility
-router.post('/', async (req, res, next) => {
-  try {
-    const { tvMazeId, name, image, status, ignored } = req.body;
-    console.log(`Adding/updating show through legacy endpoint: ${name} (${tvMazeId})`);
-
-    if (!tvMazeId || !name) {
-      // Use return to stop execution and send error
-      return res.status(400).json({ error: 'Missing required fields: tvMazeId and name are required' });
-    }
-
-    // Get userId if authenticated
-    let userId = null;
-    if (req.user) {
-      userId = req.user._id;
-    }
-
-    // Find existing or create new show (without ignored field)
-    const show = await Show.findOneAndUpdate(
-      { tvMazeId },
-      { $set: { tvMazeId, name, image, status } },
-      { upsert: true, new: true, runValidators: true }
-    );
-
-    // Handle ignored status
-    let responseIgnored = false;
-    
-    if (userId && ignored !== undefined) {
-      // User is authenticated, update or create UserShowSettings
-      const userShowSettings = await UserShowSettings.findOneAndUpdate(
-        { userId, showTvMazeId: tvMazeId },
-        { $set: { ignored: !!ignored } },
-        { upsert: true, new: true }
-      );
-      responseIgnored = userShowSettings.ignored;
-      console.log(`Legacy endpoint: Updated user show settings for user ${userId} and show ${tvMazeId}, ignored: ${responseIgnored}`);
-    } else if (ignored !== undefined) {
-      // Legacy compatibility - update the show.ignored field
-      show.ignored = !!ignored;
-      await show.save();
-      responseIgnored = show.ignored;
-      console.log(`[Legacy] Legacy endpoint: Updated show ${show.name} (${tvMazeId}), ignored: ${responseIgnored}`);
-    }
-
-    console.log(`Legacy endpoint processed show: ${show.name} (${show.tvMazeId})`);
-    
-    // Return the show with the ignored status
-    const showResponse = show.toObject();
-    showResponse.ignored = responseIgnored;
-    res.json(showResponse);
-  } catch (error) {
-    console.error('Error in legacy show addition:', error);
-    next(error); // Pass error to the central error handler
-  }
-});
-
 
 // Get all tracked shows (GET /api/shows)
 router.get('/', async (req, res, next) => {

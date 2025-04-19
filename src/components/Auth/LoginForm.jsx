@@ -76,8 +76,8 @@ function LoginForm() {
       // Use the login function from AuthContext
       login(data.user, data.token, rememberMe);
 
-      // Redirect to dashboard or shows page
-      navigate('/shows'); // Or maybe navigate(-1) to go back?
+      // Redirect to dashboard
+      navigate('/user-home');
 
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
