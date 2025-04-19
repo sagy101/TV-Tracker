@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Calendar, ChevronLeft, ChevronRight, Eye, EyeOff, Clock, Info, Tv, CheckCircle, Circle } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Eye, EyeOff, Clock, Info, Tv, CheckCircle, Circle, Star, Tag } from 'lucide-react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, parseISO, differenceInCalendarDays, addDays } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 // Modal component for showing all recent unwatched episodes
 const FullEpisodeListModal = ({ isOpen, onClose, episodes, shows, onToggleWatched, title }) => {
@@ -486,6 +487,102 @@ function UserHomePage({ episodes = [], shows = [], onToggleWatched, isReleased }
                   <button onClick={() => setShowAllUpcoming(true)} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
                     View {upcomingEpisodes.length - 5} more episodes
                   </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Recommendations */}
+        <div className="max-w-7xl mx-auto mt-8 px-4 sm:px-6 lg:px-8">
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Recommended for You</h2>
+
+            {/* Genre-based Recommendations */}
+            <div>
+              <div className="flex items-center mb-4">
+                <Tag className="h-5 w-5 text-indigo-500 mr-2" />
+                <h3 className="text-lg font-medium text-gray-900">Based on Your Favorite Genres</h3>
+              </div>
+
+              {filteredShows.length === 0 ? (
+                <p className="text-gray-500">Add more shows to get personalized recommendations.</p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Filter to exclude shows that are already in the user's shows */}
+                  {filteredShows
+                    .filter(show => !shows.some(userShow => userShow.tvMazeId === show.tvMazeId))
+                    .filter(show => !show.ignored)
+                    .filter(show => show.genres && show.genres.length > 0)
+                    .sort((a, b) => {
+                      // First sort by genres that match watched shows
+                      const watchedShowGenres = new Set();
+                      filteredShows
+                        .filter(s => episodes.some(e => e.showId === s.tvMazeId && e.watched))
+                        .forEach(s => {
+                          if (s.genres) s.genres.forEach(g => watchedShowGenres.add(g));
+                        });
+                        
+                      const aMatchCount = a.genres.filter(g => watchedShowGenres.has(g)).length;
+                      const bMatchCount = b.genres.filter(g => watchedShowGenres.has(g)).length;
+                      
+                      if (aMatchCount !== bMatchCount) return bMatchCount - aMatchCount;
+                      
+                      // Then by popularity
+                      return (b.popularity || 0) - (a.popularity || 0);
+                    })
+                    .slice(0, 4)
+                    .map(show => (
+                      <Link
+                        key={show.tvMazeId}
+                        to={`/shows/${show.tvMazeId}`}
+                        className="bg-indigo-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
+                      >
+                        <div>
+                          <div className="h-40 bg-indigo-200 relative">
+                            {show.image ? (
+                              <img 
+                                src={show.image} 
+                                alt={show.name} 
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-indigo-100">
+                                <Tv className="h-12 w-12 text-indigo-300" />
+                              </div>
+                            )}
+                            
+                            {show.genres && show.genres.length > 0 && (
+                              <div className="absolute bottom-2 left-2 flex flex-wrap gap-1">
+                                {show.genres.slice(0, 2).map(genre => (
+                                  <span 
+                                    key={genre} 
+                                    className="px-2 py-1 bg-indigo-600 bg-opacity-80 rounded text-xs font-medium text-white"
+                                  >
+                                    {genre}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div className="p-4">
+                            <h4 className="font-medium text-indigo-900 truncate">{show.name}</h4>
+                            
+                            <div className="mt-2 flex items-center justify-between">
+                              <div className="text-xs text-indigo-700">
+                                {show.status}
+                              </div>
+                              {show.rating && show.rating.average && (
+                                <div className="flex items-center">
+                                  <Star className="h-3 w-3 text-yellow-500 mr-1" />
+                                  <span className="text-xs font-medium">{show.rating.average}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
                 </div>
               )}
             </div>

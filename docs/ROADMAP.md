@@ -105,32 +105,36 @@ This document outlines the planned features and improvements for TrackTV. The ro
     <td><b>Show Details Page</b></td>
     <td>
       <ul>
-        <li>Dedicated page for each show with comprehensive information</li>
-        <li>Season-by-season breakdown with collapsible sections</li>
-        <li>Episode details including summaries and guest stars</li>
-        <li>Show statistics and watching patterns</li>
-        <li>Cast information and character details</li>
-        <li>Related shows recommendations</li>
-        <li>User notes and episode ratings</li>
-        <li>Progress tracking visualization</li>
+        <li>✅ Dedicated page for each show with comprehensive information</li>
+        <li>✅ Season-by-season breakdown with collapsible sections</li>
+        <li>✅ Episode details including summaries</li>
+        <li>✅ Show statistics and watching progress</li>
+        <li>✅ User progress tracking visualization</li>
+        <li>✅ Episode watched status toggle functionality</li>
+        <li>🚧 Cast information and character details (partially implemented)</li>
+        <li>❌ Related shows recommendations</li>
+        <li>❌ User notes and episode ratings</li>
       </ul>
     </td>
     <td><img src="https://img.shields.io/badge/Priority-Medium-yellow?style=flat-square" alt="Priority: Medium" /></td>
-    <td><img src="https://img.shields.io/badge/Status-Planned-lightgrey?style=flat-square" alt="Status: Planned" /></td>
+    <td><img src="https://img.shields.io/badge/Status-Mostly_Complete-blue?style=flat-square" alt="Status: Mostly Complete" /></td>
   </tr>
   <tr>
     <td><b>Calendar View</b></td>
     <td>
       <ul>
-        <li>Visual calendar display of upcoming episode air dates</li>
-        <li>Month, week, and day view options</li>
-        <li>Filtering by show or status</li>
-        <li>Integration with show details and episode tracking</li>
-        <li>Customizable reminders or notifications (optional)</li>
+        <li>✅ Dashboard view with upcoming episodes</li>
+        <li>✅ Recently aired episodes tracking</li>
+        <li>✅ Episode watch status tracking</li>
+        <li>🚧 Visual calendar display of upcoming episode air dates</li>
+        <li>❌ Month, week, and day view options</li>
+        <li>✅ Filtering by show status</li>
+        <li>✅ Integration with show details and episode tracking</li>
+        <li>❌ Customizable reminders or notifications (optional)</li>
       </ul>
     </td>
     <td><img src="https://img.shields.io/badge/Priority-Medium-yellow?style=flat-square" alt="Priority: Medium" /></td>
-    <td><img src="https://img.shields.io/badge/Status-Planned-lightgrey?style=flat-square" alt="Status: Planned" /></td>
+    <td><img src="https://img.shields.io/badge/Status-Partially_Complete-blue?style=flat-square" alt="Status: Partially Complete" /></td>
   </tr>
   <tr>
     <td><b>Cross-Platform Setup Support</b></td>

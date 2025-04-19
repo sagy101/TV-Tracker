@@ -35,6 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - User-specific show ignore status with smooth toggle transitions.
 - Authentication token integration in all API requests.
 - Visual indicator and disabling of already-added shows in search results to prevent duplicates.
+- Comprehensive Show Detail page with show information, user stats, and episode tracking.
+- User Dashboard with statistics, upcoming episodes, and recently aired episodes.
+- Next episode tracking with "Mark as Watched" functionality.
 
 ---
 
@@ -50,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrated show ignored status from global to user-specific while maintaining backward compatibility.
 - Improved filtered shows animation transition to prevent showing all shows during filter changes.
 - Updated API endpoints to use modern RESTful patterns and removed legacy routes.
+- Enhanced technology stack with JWT Auth, TVMaze API, and Axios integrations.
 
 ---
 

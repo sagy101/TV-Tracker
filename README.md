@@ -95,6 +95,29 @@
   - Quick watch status toggle
   - Configurable filters and pagination
 
+### User Dashboard
+<p align="center">
+  <img src="docs/images/dashboard.png" alt="User Dashboard" width="700">
+</p>
+- Personal dashboard with comprehensive overview:
+  - Watch statistics and progress tracking
+  - Upcoming episodes notification
+  - Recently aired unwatched episodes
+  - Recommendations based on watching patterns
+  - Quick filters and show management
+
+### Show Detail Page
+<p align="center">
+  <img src="docs/images/show_detail.png" alt="Show Detail" width="700">
+</p>
+- Comprehensive show information and management:
+  - Complete show metadata and details
+  - Season and episode breakdown
+  - Episode watch status tracking 
+  - Viewing statistics and progress indicators
+  - "Mark all as watched" functionality for seasons
+  - Next episode suggestions
+
 ### Show Search & Import
 <p align="center">
   <img src="docs/images/search.png" alt="Show Search" width="700">

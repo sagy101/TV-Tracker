@@ -1,9 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Tv, List, Calendar, User, Shield, Sparkles, PaintBucket } from 'lucide-react';
+import { Tv, List, Calendar, User, Shield, Sparkles, PaintBucket, TrendingUp, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 function HomePage() {
+  const [trendingShows, setTrendingShows] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
+  // Fetch trending shows when component mounts
+  useEffect(() => {
+    const fetchTrendingShows = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/shows?sort=popularity');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch trending shows');
+        }
+        
+        const shows = await response.json();
+        // Take only the top 6 shows
+        setTrendingShows(shows.slice(0, 6));
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching trending shows:', error);
+        setLoading(false);
+      }
+    };
+    
+    fetchTrendingShows();
+  }, []);
+  
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -59,6 +86,91 @@ function HomePage() {
               Get Started
             </Link>
           </motion.div>
+        </div>
+      </div>
+
+      {/* Trending Shows Section */}
+      <div className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl font-extrabold text-gray-900 flex items-center justify-center">
+                <TrendingUp className="h-8 w-8 text-indigo-600 mr-3" />
+                <span>Trending Shows</span>
+              </h2>
+              <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+                Popular shows being tracked by our community.
+              </p>
+            </motion.div>
+          </div>
+
+          <div className="mt-10">
+            {loading ? (
+              <div className="flex justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+              </div>
+            ) : trendingShows.length > 0 ? (
+              <motion.div 
+                className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                {trendingShows.map((show) => (
+                  <motion.div key={show.tvMazeId} className="group" variants={itemVariants}>
+                    <div className="bg-gray-50 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+                      <div className="h-48 w-full bg-gray-200 relative">
+                        {show.image ? (
+                          <img
+                            src={show.image}
+                            alt={show.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Tv className="h-12 w-12 text-gray-400" />
+                          </div>
+                        )}
+                        
+                        {show.genres && show.genres.length > 0 && (
+                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3">
+                            <div className="flex flex-wrap gap-1">
+                              {show.genres.slice(0, 3).map(genre => (
+                                <span 
+                                  key={genre} 
+                                  className="px-2 py-1 bg-indigo-600 bg-opacity-80 rounded text-xs font-medium text-white"
+                                >
+                                  {genre}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-4">
+                        <h3 className="text-lg font-medium text-gray-900 mb-1">{show.name}</h3>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-500">{show.status}</span>
+                          {show.rating && show.rating.average && (
+                            <div className="flex items-center">
+                              <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                              <span className="text-sm font-medium text-gray-700">{show.rating.average}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : (
+              <p className="text-center text-gray-500">No trending shows available.</p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -167,6 +279,9 @@ function HomePage() {
                 <span className="px-4 py-2 bg-green-50 text-green-700 rounded-md text-sm font-medium shadow-sm">MongoDB</span>
                 <span className="px-4 py-2 bg-cyan-50 text-cyan-700 rounded-md text-sm font-medium shadow-sm">Tailwind CSS</span>
                 <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-md text-sm font-medium shadow-sm">Framer Motion</span>
+                <span className="px-4 py-2 bg-yellow-50 text-yellow-700 rounded-md text-sm font-medium shadow-sm">JWT Auth</span>
+                <span className="px-4 py-2 bg-red-50 text-red-700 rounded-md text-sm font-medium shadow-sm">TVMaze API</span>
+                <span className="px-4 py-2 bg-purple-50 text-purple-700 rounded-md text-sm font-medium shadow-sm">Axios</span>
               </div>
               
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Development</h3>
@@ -176,7 +291,7 @@ function HomePage() {
                 accessible tools for TV enthusiasts.
               </p>
               
-              <div className="mt-6 flex justify-center space-x-6">
+              <div className="mt-6 flex justify-center">
                 <a 
                   href="https://github.com/sagy101/TV-Tracker" 
                   target="_blank" 
@@ -188,12 +303,6 @@ function HomePage() {
                   </svg>
                   GitHub
                 </a>
-                <Link
-                  to="/login"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200"
-                >
-                  Sign In
-                </Link>
               </div>
             </div>
           </div>

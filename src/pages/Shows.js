@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Clock, Trash2, EyeOff, Eye, CheckCircle, Circle, ChevronUp, ChevronDown } from 'lucide-react';
+import { Clock, Trash2, EyeOff, Eye, CheckCircle, Circle, ChevronUp, ChevronDown, Tv } from 'lucide-react';
 import SearchDrawer from '../components/SearchDrawer';
 import { motion, AnimatePresence } from 'framer-motion';
 import PaginationControls from '../components/PaginationControls';
+import { Link } from 'react-router-dom';
 
 function Shows({ shows = [], episodes = [], onDeleteShow, onAddShow, onToggleIgnore }) {
   const [itemsPerPage, setItemsPerPage] = useState(() => 
@@ -332,8 +333,23 @@ function Shows({ shows = [], episodes = [], onDeleteShow, onAddShow, onToggleIgn
                               : ''
                         }`}
                       >
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {show.name}
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              {show.image ? (
+                                <img className="h-10 w-10 rounded-full object-cover" src={show.image} alt={show.name} />
+                              ) : (
+                                <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                  <Tv className="h-6 w-6 text-gray-400" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="ml-4">
+                              <Link to={`/shows/${show.tvMazeId}`} className="text-sm font-medium text-indigo-600 hover:text-indigo-900 hover:underline">
+                                {show.name}
+                              </Link>
+                            </div>
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {show.tvMazeId}

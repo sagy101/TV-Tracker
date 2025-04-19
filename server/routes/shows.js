@@ -76,10 +76,50 @@ router.get('/search', async (req, res) => {
 // Get specific show details (GET /api/shows/:id)
 router.get('/:id', async (req, res, next) => {
   try {
-    console.log(`Fetching show with ID: ${req.params.id}`);
-    const data = await fetchFromTVMaze(`https://api.tvmaze.com/shows/${req.params.id}`);
-    console.log(`Successfully fetched show: ${data.name}`);
-    res.json(data);
+    const showId = req.params.id;
+    console.log(`Fetching show with ID: ${showId}`);
+    
+    // First check if we have this show in our database
+    let show = await Show.findOne({ tvMazeId: showId });
+    let tvMazeData;
+    
+    // If not in our database or data is stale, fetch from TVMaze
+    if (!show) {
+      console.log(`Show ${showId} not found in database, fetching from TVMaze`);
+      tvMazeData = await fetchFromTVMaze(`https://api.tvmaze.com/shows/${showId}`);
+    }
+    
+    // If we have user authentication, get the user-specific ignored status
+    let ignored = false;
+    if (req.user && (show || tvMazeData)) {
+      const userSettings = await UserShowSettings.findOne({
+        userId: req.user._id,
+        showTvMazeId: showId
+      });
+      
+      if (userSettings) {
+        ignored = userSettings.ignored;
+        console.log(`Found user settings for ${showId}, ignored: ${ignored}`);
+      }
+    }
+    
+    // If we have the show in database, return it with ignore status
+    if (show) {
+      const showData = show.toObject();
+      showData.ignored = ignored;
+      return res.json(showData);
+    }
+    
+    // Otherwise, return the TVMaze data
+    if (tvMazeData) {
+      console.log(`Successfully fetched show from TVMaze: ${tvMazeData.name}`);
+      // Add the ignored status to the TVMaze data
+      tvMazeData.ignored = ignored;
+      return res.json(tvMazeData);
+    }
+    
+    // If we get here, we couldn't find the show
+    throw new Error(`Show with ID ${showId} not found`);
   } catch (error) {
     console.error('Error fetching show:', error);
     next(error); // Pass error to the central error handler
@@ -190,33 +230,109 @@ router.post('/:id', async (req, res, next) => {
         console.log(`[Legacy] Updated ignored status for existing show ${showId} to ${ignored}`);
       }
       
+      // Check if show data needs to be refreshed (older than 7 days)
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      
+      if (!existingShow.lastUpdated || existingShow.lastUpdated < oneWeekAgo) {
+        console.log(`Show ${showId} data is older than 7 days, refreshing from TVMaze`);
+        try {
+          // Fetch updated show data and cast information
+          const [showData, castData] = await Promise.all([
+            fetchFromTVMaze(`https://api.tvmaze.com/shows/${showId}`),
+            fetchFromTVMaze(`https://api.tvmaze.com/shows/${showId}/cast`)
+          ]);
+          
+          // Update show with new data
+          existingShow.name = showData.name;
+          existingShow.image = showData.image?.medium || null;
+          existingShow.status = showData.status || 'Unknown';
+          existingShow.summary = showData.summary;
+          existingShow.genres = showData.genres || [];
+          existingShow.language = showData.language;
+          existingShow.premiered = showData.premiered;
+          existingShow.rating = { average: showData.rating?.average };
+          existingShow.network = showData.network ? {
+            name: showData.network.name,
+            country: showData.network.country ? {
+              name: showData.network.country.name,
+              code: showData.network.country.code
+            } : null
+          } : null;
+          existingShow.runtime = showData.runtime;
+          existingShow.officialSite = showData.officialSite;
+          
+          // Process cast data
+          if (Array.isArray(castData)) {
+            existingShow.cast = castData.slice(0, 10).map(castMember => ({
+              personName: castMember.person.name,
+              characterName: castMember.character.name,
+              personId: castMember.person.id.toString(),
+              personImage: castMember.person.image?.medium || null
+            }));
+          }
+          
+          existingShow.lastUpdated = new Date();
+          await existingShow.save();
+          console.log(`✅ Refreshed data for show: ${showData.name} (${showId})`);
+        } catch (refreshError) {
+          console.error(`Error refreshing show data for ${showId}:`, refreshError);
+          // Continue with existing show data
+        }
+      }
+      
       // Return the show with the appropriate ignored status
       const showResponse = existingShow.toObject();
       showResponse.ignored = responseIgnored;
       return res.json({ show: showResponse, skipped: true }); // Indicate it existed
     }
 
-    // Fetch show details from TVMaze only if it doesn't exist
-    let showData;
+    // Fetch show details and cast from TVMaze
+    let showData, castData;
     try {
-      showData = await fetchFromTVMaze(`https://api.tvmaze.com/shows/${showId}`);
+      [showData, castData] = await Promise.all([
+        fetchFromTVMaze(`https://api.tvmaze.com/shows/${showId}`),
+        fetchFromTVMaze(`https://api.tvmaze.com/shows/${showId}/cast`)
+      ]);
     } catch (tvMazeError) {
        // If TVMaze API returns an error (e.g., 404 Not Found)
         console.log(`Show ${showId} not found in TVMaze API or failed to fetch: ${tvMazeError.message}`);
-        // Decide if you want to create a "placeholder" show or just return an error
-        // For now, returning an error status might be clearer
         return res.status(404).json({ error: `Show with ID ${showId} not found on TVMaze.` });
-        // Original logic treated this as 'skipped: true', which might be confusing.
-        // return res.json({ show: null, skipped: true }); // Consider if this behavior is desired
     }
 
-    // Create new show in database (without the ignored field)
+    // Process cast data
+    const cast = Array.isArray(castData) 
+      ? castData.slice(0, 10).map(castMember => ({
+          personName: castMember.person.name,
+          characterName: castMember.character.name,
+          personId: castMember.person.id.toString(),
+          personImage: castMember.person.image?.medium || null
+        }))
+      : [];
+
+    // Create new show in database with enhanced data
     const newShow = new Show({
       tvMazeId: showId,
       name: showData.name,
-      searchName: searchName || showData.name, // Use provided searchName or default to show name
+      searchName: searchName || showData.name,
       image: showData.image?.medium || null,
-      status: showData.status || 'Unknown'
+      status: showData.status || 'Unknown',
+      summary: showData.summary,
+      genres: showData.genres || [],
+      language: showData.language,
+      premiered: showData.premiered,
+      rating: { average: showData.rating?.average },
+      network: showData.network ? {
+        name: showData.network.name,
+        country: showData.network.country ? {
+          name: showData.network.country.name,
+          code: showData.network.country.code
+        } : null
+      } : null,
+      runtime: showData.runtime,
+      officialSite: showData.officialSite,
+      cast: cast,
+      lastUpdated: new Date()
     });
 
     await newShow.save();
@@ -233,9 +349,8 @@ router.post('/:id', async (req, res, next) => {
       console.log(`Created user settings for user ${userId} and show ${showId} with ignored: ${ignored || false}`);
     }
 
-    // Fetch and save episodes associated with the new show - trigger the episode fetch endpoint logic might be cleaner
-    // Or reuse the logic here (less ideal)
-     try {
+    // Fetch and save episodes associated with the new show
+    try {
         const tvMazeEpisodes = await fetchFromTVMaze(`https://api.tvmaze.com/shows/${showId}/episodes`);
         if (Array.isArray(tvMazeEpisodes) && tvMazeEpisodes.length > 0) {
             const episodeDocs = tvMazeEpisodes.map(ep => ({
@@ -249,35 +364,138 @@ router.post('/:id', async (req, res, next) => {
                 runtime: ep.runtime || null,
                 watched: false
             }));
-            await Episode.insertMany(episodeDocs, { ordered: false }); // Allow continuing if some duplicates exist
+            await Episode.insertMany(episodeDocs, { ordered: false });
             console.log(`✅ Added ${episodeDocs.length} episodes for new show ${showId}`);
         } else {
              console.log(`No episodes found or invalid format from TVMaze for show ${showId}`);
         }
     } catch (epError) {
-        // Log episode fetch/save error but don't fail the show creation
         console.error(`Error fetching/saving episodes for new show ${showId}:`, epError);
-         if (epError.code !== 11000) { // Log non-duplicate errors more verbosely
+        if (epError.code !== 11000) {
              console.error('Episode saving error details:', epError);
-         }
+        }
     }
 
     // Return the show with the appropriate ignored status
     const showResponse = newShow.toObject();
     showResponse.ignored = ignored || false;
-    res.status(201).json({ show: showResponse, skipped: false }); // Use 201 Created status
+    res.status(201).json({ show: showResponse, skipped: false });
 
   } catch (error) {
     console.error('Error adding show:', error);
-    next(error); // Pass error to the central error handler
+    next(error);
   }
 });
 
-// Get all tracked shows (GET /api/shows)
+// Utility function to update show popularity
+async function updateShowPopularity() {
+  try {
+    console.log('Updating show popularity metrics...');
+    const allShows = await Show.find();
+    const allEpisodes = await Episode.find();
+    
+    // Map episodes to their shows
+    const showEpisodeMap = {};
+    allEpisodes.forEach(episode => {
+      if (!showEpisodeMap[episode.showId]) {
+        showEpisodeMap[episode.showId] = [];
+      }
+      showEpisodeMap[episode.showId].push(episode);
+    });
+    
+    // Get all user settings
+    const allUserSettings = await UserShowSettings.find();
+    
+    // Map user settings to shows
+    const showUserMap = {};
+    allUserSettings.forEach(setting => {
+      if (!showUserMap[setting.showTvMazeId]) {
+        showUserMap[setting.showTvMazeId] = [];
+      }
+      showUserMap[setting.showTvMazeId].push(setting);
+    });
+    
+    // Calculate popularity for each show
+    for (const show of allShows) {
+      const showId = show.tvMazeId;
+      const episodes = showEpisodeMap[showId] || [];
+      const userSettings = showUserMap[showId] || [];
+      
+      // Calculate metrics
+      const watchedEpisodes = episodes.filter(ep => ep.watched).length;
+      const totalEpisodes = episodes.length;
+      const watchPercentage = totalEpisodes > 0 ? (watchedEpisodes / totalEpisodes) * 100 : 0;
+      const userCount = userSettings.length;
+      const nonIgnoredUserCount = userSettings.filter(setting => !setting.ignored).length;
+      
+      // Calculate weighted popularity score
+      // 40% from watch percentage, 30% from user count, 30% from non-ignored ratio
+      const watchScore = watchPercentage * 0.4;
+      const userScore = Math.min(userCount * 5, 100) * 0.3; // Cap at 20 users for max score
+      const ignoredRatio = userCount > 0 ? (nonIgnoredUserCount / userCount) * 100 : 100;
+      const ignoredScore = ignoredRatio * 0.3;
+      
+      // Combine scores and add rating bonus if available
+      let popularityScore = watchScore + userScore + ignoredScore;
+      
+      // Add bonus from TVMaze rating if available (up to 10% bonus)
+      if (show.rating && show.rating.average) {
+        const ratingBonus = (show.rating.average / 10) * 10; // Rating is out of 10
+        popularityScore += ratingBonus;
+      }
+      
+      // Add genre diversity bonus
+      if (show.genres && show.genres.length > 0) {
+        const genreBonus = Math.min(show.genres.length * 2, 10); // Up to 10% bonus
+        popularityScore += genreBonus;
+      }
+      
+      // Update show popularity
+      show.popularity = Math.round(popularityScore * 10) / 10; // Round to 1 decimal place
+      await show.save();
+    }
+    
+    console.log(`✅ Updated popularity for ${allShows.length} shows`);
+    return true;
+  } catch (error) {
+    console.error('Error updating show popularity:', error);
+    return false;
+  }
+}
+
+// Route to trigger popularity update (POST /api/shows/update-popularity)
+router.post('/update-popularity', async (req, res, next) => {
+  try {
+    const success = await updateShowPopularity();
+    if (success) {
+      res.json({ message: 'Show popularity updated successfully' });
+    } else {
+      res.status(500).json({ error: 'Failed to update show popularity' });
+    }
+  } catch (error) {
+    console.error('Error in /api/shows/update-popularity:', error);
+    next(error);
+  }
+});
+
+// Update the "Get all tracked shows" route to include sorting by popularity
 router.get('/', async (req, res, next) => {
   try {
-    const shows = await Show.find().sort({ name: 1 }); // Sort shows alphabetically by name
-    console.log(`Found ${shows.length} shows in database`);
+    // Optional sorting parameter, default to alphabetical
+    const sortBy = req.query.sort || 'name';
+    let sortQuery = {};
+    
+    // Define sorting options
+    if (sortBy === 'popularity') {
+      sortQuery = { popularity: -1, name: 1 }; // Descending popularity, then alphabetical
+    } else if (sortBy === 'rating') {
+      sortQuery = { 'rating.average': -1, name: 1 }; // Descending rating, then alphabetical
+    } else {
+      sortQuery = { name: 1 }; // Default alphabetical
+    }
+    
+    const shows = await Show.find().sort(sortQuery);
+    console.log(`Found ${shows.length} shows in database, sorted by ${sortBy}`);
     
     let userId = null;
     if (req.user) {
@@ -318,7 +536,7 @@ router.get('/', async (req, res, next) => {
     res.json(showsWithSettings);
   } catch (error) {
     console.error('Error in GET /api/shows:', error);
-    next(error); // Pass error to the central error handler
+    next(error);
   }
 });
 
@@ -360,67 +578,76 @@ router.put('/:id/ignore', async (req, res, next) => {
     const showId = req.params.id;
     console.log('Attempting to toggle ignore status for show:', showId);
 
+    // Require authentication
+    if (!req.user) {
+      console.error('Authentication required to toggle ignore status');
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const userId = req.user._id;
+    console.log(`User ${userId} toggling ignore status for show ${showId}`);
+
     // Find the show using string ID
-    const show = await Show.findOne({ tvMazeId: showId });
+    let show = await Show.findOne({ tvMazeId: showId });
+    
+    // If show doesn't exist in our database, try to add it
     if (!show) {
-      console.error('Show not found:', showId);
-      return res.status(404).json({ error: 'Show not found' });
-    }
-
-    let userId = null;
-    if (req.user) {
-      userId = req.user._id;
-    } else {
-      // For backwards compatibility, allow non-authenticated users
-      // This would be removed once all clients use authentication
-      console.log('No authenticated user, using anonymous ignore status');
-    }
-
-    let userShowSettings;
-    let ignored;
-
-    if (userId) {
-      // Find existing user show settings
-      userShowSettings = await UserShowSettings.findOne({
-        userId,
-        showTvMazeId: showId
-      });
-
-      if (userShowSettings) {
-        // Toggle the ignored status
-        userShowSettings.ignored = !userShowSettings.ignored;
-        await userShowSettings.save();
-        ignored = userShowSettings.ignored;
-        console.log(`Toggled existing setting: show ${show.name} (${show.tvMazeId}) ignored status to ${ignored} for user ${userId}`);
-      } else {
-        // When creating new settings, start with ignored=false and then toggle to true
-        // This ensures the first click always toggles from false->true
-        const initialState = false;
-        userShowSettings = await UserShowSettings.create({
-          userId,
-          showTvMazeId: showId,
-          ignored: !initialState // Toggle from the initial state
+      console.log(`Show ${showId} not found in database. Trying to add it first.`);
+      try {
+        // Fetch show data from TVMaze
+        const showData = await fetchFromTVMaze(`https://api.tvmaze.com/shows/${showId}`);
+        
+        // Create a basic show record
+        show = new Show({
+          tvMazeId: showId,
+          name: showData.name,
+          searchName: showData.name,
+          image: showData.image?.medium || null,
+          status: showData.status || 'Unknown',
+          lastUpdated: new Date()
         });
-        ignored = !initialState;
-        console.log(`Created new setting: show ${show.name} (${show.tvMazeId}) ignored status set to ${ignored} for user ${userId}`);
+        
+        await show.save();
+        console.log(`Added show ${showData.name} to database for ignore toggle`);
+      } catch (fetchError) {
+        console.error(`Failed to add show ${showId} to database:`, fetchError);
+        return res.status(404).json({ error: 'Show not found and could not be added' });
       }
+    }
+    
+    // Find existing user show settings
+    let userShowSettings = await UserShowSettings.findOne({
+      userId,
+      showTvMazeId: showId
+    });
+
+    let ignored;
+    if (userShowSettings) {
+      // Toggle the ignored status
+      userShowSettings.ignored = !userShowSettings.ignored;
+      await userShowSettings.save();
+      ignored = userShowSettings.ignored;
+      console.log(`Toggled existing setting: show ${show.name} (${show.tvMazeId}) ignored status to ${ignored} for user ${userId}`);
     } else {
-      // For backwards compatibility - this would be removed once all clients use authentication
-      show.ignored = !show.ignored; // Temporary for non-authenticated users
-      await show.save();
-      ignored = show.ignored;
-      console.log(`[Legacy] Updated show ${show.name} (${show.tvMazeId}), ignored: ${ignored}`);
+      // When creating new settings, start with ignored=false and then toggle to true
+      // This ensures the first click always toggles from false->true
+      const initialState = false;
+      userShowSettings = await UserShowSettings.create({
+        userId,
+        showTvMazeId: showId,
+        ignored: !initialState // Toggle from the initial state
+      });
+      ignored = !initialState;
+      console.log(`Created new setting: show ${show.name} (${show.tvMazeId}) ignored status set to ${ignored} for user ${userId}`);
     }
 
     // Return the show object with the updated ignored status
-    // This maintains backwards compatibility with frontend
     res.json({ 
       ...show.toObject(), 
       ignored 
     });
   } catch (error) {
     console.error('Error toggling show ignore status:', error);
-    // Pass error to the central error handler instead of custom response
     next(error);
   }
 });

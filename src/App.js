@@ -6,6 +6,7 @@ import Shows from './pages/Shows';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import UserHomePage from './pages/UserHomePage';
+import ShowDetail from './pages/ShowDetail';
 import SearchDrawer from './components/SearchDrawer';
 import ImportDialog from './components/ImportDialog';
 import ActionsMenu from './components/ActionsMenu';
@@ -655,6 +656,7 @@ function App() {
                 <Route path="/" element={isAuthenticated ? <Navigate to="/user-home" replace /> : <HomePage />} />
                 <Route path="/episodes" element={isAuthenticated ? <Episodes episodes={episodes} onToggleWatched={handleToggleWatched} showUnwatchedOnly={showUnwatchedOnly} setShowUnwatchedOnly={setShowUnwatchedOnly} loading={loading} isReleased={isReleased} shows={shows} /> : <HomePage />} />
                 <Route path="/shows" element={isAuthenticated ? <Shows shows={shows} episodes={episodes} onDeleteShow={handleDeleteShow} onToggleIgnore={handleToggleIgnore} onAddShow={handleAddShow} loading={loading} /> : <HomePage />} />
+                <Route path="/shows/:id" element={isAuthenticated ? <ShowDetail /> : <Navigate to="/login" replace />} />
                 <Route path="/user-home" element={isAuthenticated ? <UserHomePage episodes={episodes} shows={shows} onToggleWatched={handleToggleWatched} isReleased={isReleased} /> : <HomePage />} />
               </Routes>
             </div>

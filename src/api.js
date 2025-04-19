@@ -60,4 +60,32 @@ export async function clearAllData() {
     method: 'POST',
   });
   return handleApiResponse(response);
+}
+
+export async function toggleShowIgnore(showId) {
+  try {
+    // Get authentication token from localStorage
+    const token = localStorage.getItem('auth_token');
+    
+    if (!token) {
+      throw new Error('Authentication required. Please log in to toggle show status.');
+    }
+    
+    const response = await fetch(`${API_BASE_URL}/shows/${showId}/ignore`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (response.status === 401) {
+      throw new Error('Authentication required. Please log in to toggle show status.');
+    }
+    
+    return handleApiResponse(response);
+  } catch (error) {
+    console.error('Error toggling show ignore status:', error);
+    throw error;
+  }
 } 
