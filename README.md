@@ -71,7 +71,7 @@
 
 ### User Authentication
 - Secure user signup with email verification
-- Modern Google-style login interface with smooth animations and integrated navigation.
+- Modern login interface with smooth animations and integrated navigation.
 - "Stay signed in" functionality for persistent sessions
 - Real-time email validation and password strength indicators
 - JWT-based session management with configurable token expiration
