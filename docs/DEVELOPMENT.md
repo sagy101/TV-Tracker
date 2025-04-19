@@ -6,6 +6,8 @@
   <img src="https://img.shields.io/badge/Express.js-404D59?style=for-the-badge&logo=express&logoColor=white" alt="Express.js" />
   <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion" />
+  <img src="https://img.shields.io/badge/date_fns-F75D7E?style=for-the-badge" alt="date-fns" />
 </p>
 
 This document provides detailed information about the development environment, tools, and processes used in the TrackTV project.
@@ -193,6 +195,7 @@ tv-tracker/
    - Start the frontend with `npm start`
    - Access the application at http://localhost:3000
 
+
 3. **Making Changes**
    - Create a feature branch from `main`
    - Implement your changes
@@ -255,6 +258,15 @@ npm test -- path/to/test.js
   - JWT with configurable expiration times (short for regular sessions, long for "Remember Me")
   - Dual storage strategy (localStorage/sessionStorage) based on session preferences
   - Email validation and verification
+- **State Management**:
+  - React Context API for global state
+  - useState/useEffect hooks for component-level state
+  - useMemo for performance optimization of derived data
+  - useCallback for optimized event handling
+- **Date Management**: 
+  - date-fns for calendar implementation
+  - Date parsing, formatting, and manipulation
+  - Date range calculations for upcoming/recent episodes
 - **API Integration**: TVMaze API for show data
 - **Build Tools**: Webpack, Babel, ESLint, Prettier (via react-scripts) 
 

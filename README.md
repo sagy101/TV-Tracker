@@ -14,6 +14,8 @@
   <img src="https://img.shields.io/badge/Express.js-404D59?style=for-the-badge&logo=express&logoColor=white" alt="Express.js" />
   <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion" />
+  <img src="https://img.shields.io/badge/date_fns-F75D7E?style=for-the-badge" alt="date-fns" />
 </p>
 
 <p align="center">
@@ -103,8 +105,10 @@
   - Watch statistics and progress tracking
   - Upcoming episodes notification
   - Recently aired unwatched episodes
-  - Recommendations based on watching patterns
-  - Quick filters and show management
+  - Interactive calendar with episode air dates
+  - Detailed day view for selected dates
+  - Show/hide ignored shows toggle
+  - Quick access to watch episode functionality
 
 ### Show Detail Page
 <p align="center">
@@ -112,11 +116,13 @@
 </p>
 - Comprehensive show information and management:
   - Complete show metadata and details
-  - Season and episode breakdown
-  - Episode watch status tracking 
+  - Season and episode breakdown with collapsible sections
+  - Episode watch status tracking with one-click toggle
   - Viewing statistics and progress indicators
-  - "Mark all as watched" functionality for seasons
-  - Next episode suggestions
+  - "Mark season as watched" functionality
+  - Cast information with character details
+  - Next episode suggestion with quick watch action
+  - Show ignore/unignore toggle
 
 ### Show Search & Import
 <p align="center">
@@ -254,8 +260,14 @@ tv-tracker/
 
 ### Technology Stack
 
-- **Frontend**: React with Hooks, Context API (`AuthContext`), React Router
-- **Styling**: Tailwind CSS
+- **Frontend**: React with Hooks, Context API (`AuthContext`), React Router, Framer Motion
+- **Styling**: Tailwind CSS with responsive layouts and smooth animations
+- **State Management**: React Context API, useState/useEffect hooks, useMemo for performance optimization
+- **UI Components**: 
+  - Interactive calendars with date-fns
+  - Collapsible sections with animation
+  - Custom stat cards and visualization components
+  - Modal dialogs and popovers
 - **Backend**: Node.js with Express, Mongoose ODM
 - **Database**: MongoDB
 - **Authentication**: bcryptjs (hashing), jsonwebtoken (JWT), nodemailer (emails)
@@ -283,10 +295,10 @@ See my [Roadmap](docs/ROADMAP.md) for a comprehensive overview of planned featur
 
 Highlights of upcoming features:
 - Advanced import/export functionality
-- Dedicated show details pages
 - Auto-refresh for active shows
-- Multi-user support
 - AI-powered show recommendations
+- Enhanced customization options
+- Mobile app version
 
 ---
 
