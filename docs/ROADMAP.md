@@ -111,9 +111,7 @@ This document outlines the planned features and improvements for TrackTV. The ro
         <li>✅ Show statistics and watching progress</li>
         <li>✅ User progress tracking visualization</li>
         <li>✅ Episode watched status toggle functionality</li>
-        <li>🚧 Cast information and character details (partially implemented)</li>
         <li>❌ Related shows recommendations</li>
-        <li>❌ User notes and episode ratings</li>
       </ul>
     </td>
     <td><img src="https://img.shields.io/badge/Priority-Medium-yellow?style=flat-square" alt="Priority: Medium" /></td>
@@ -126,11 +124,11 @@ This document outlines the planned features and improvements for TrackTV. The ro
         <li>✅ Dashboard view with upcoming episodes</li>
         <li>✅ Recently aired episodes tracking</li>
         <li>✅ Episode watch status tracking</li>
-        <li>🚧 Visual calendar display of upcoming episode air dates</li>
-        <li>❌ Month, week, and day view options</li>
+        <li>✅ Visual calendar display of upcoming episode air dates</li>
         <li>✅ Filtering by show status</li>
         <li>✅ Integration with show details and episode tracking</li>
         <li>❌ Customizable reminders or notifications (optional)</li>
+        <li>❌ Sync with Google and Apple calenders </li>
       </ul>
     </td>
     <td><img src="https://img.shields.io/badge/Priority-Medium-yellow?style=flat-square" alt="Priority: Medium" /></td>
