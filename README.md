@@ -71,7 +71,7 @@
 
 ### User Authentication
 - Secure user signup with email verification
-- Modern Google-style login interface with smooth animations and integrated navigation.
+- Modern login interface with smooth animations and integrated navigation.
 - "Stay signed in" functionality for persistent sessions
 - Real-time email validation and password strength indicators
 - JWT-based session management with configurable token expiration
@@ -80,6 +80,7 @@
 <p align="center">
   <img src="docs/images/shows.png" alt="Shows Management" width="700">
 </p>
+
 - Track and manage your TV shows with comprehensive details:
   - Show status and progress tracking
   - Time spent watching statistics
@@ -91,6 +92,7 @@
 <p align="center">
   <img src="docs/images/episodes.png" alt="Episodes View" width="700">
 </p>
+
 - View and manage episodes in chronological order:
   - Color-coded status indicators
   - Detailed episode information
@@ -101,7 +103,8 @@
 <p align="center">
   <img src="docs/images/dashboard.png" alt="User Dashboard" width="700">
 </p>
-- Personal dashboard with comprehensive overview:
+
+- Personas dashboard with comprehensive overview:
   - Watch statistics and progress tracking
   - Upcoming episodes notification
   - Recently aired unwatched episodes
@@ -114,6 +117,7 @@
 <p align="center">
   <img src="docs/images/show_detail.png" alt="Show Detail" width="700">
 </p>
+
 - Comprehensive show information and management:
   - Complete show metadata and details
   - Season and episode breakdown with collapsible sections
@@ -128,6 +132,7 @@
 <p align="center">
   <img src="docs/images/search.png" alt="Show Search" width="700">
 </p>
+
 - Multiple ways to add shows to your collection:
   - Search by name with real-time results
   - Direct TVMaze ID lookup
