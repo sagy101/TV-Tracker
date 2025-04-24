@@ -1,91 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Clock, Trash2, EyeOff, Eye, CheckCircle, Circle, ChevronUp, ChevronDown, Tv } from 'lucide-react';
-import SearchDrawer from '../components/SearchDrawer';
+import { Clock, Trash2, EyeOff, Eye, CheckCircle, Circle, ChevronUp, ChevronDown, Tv, Film, Users, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PaginationControls from '../components/PaginationControls';
 import { Link } from 'react-router-dom';
 
-function Shows({ shows = [], episodes = [], onDeleteShow, onAddShow, onToggleIgnore }) {
-  const [itemsPerPage, setItemsPerPage] = useState(() => 
-    parseInt(localStorage.getItem('shows_itemsPerPage')) || 10
-  );
+function Shows({ shows = [], episodes = [], onDeleteShow, onToggleIgnore }) {
+  const [itemsPerPage, setItemsPerPage] = useState(() => parseInt(localStorage.getItem('shows_itemsPerPage')) || 10);
   const [currentPage, setCurrentPage] = useState(1);
   const [isSticky, setIsSticky] = useState(false);
   const [shouldStickToPage, setShouldStickToPage] = useState(false);
   const [sortColumn, setSortColumn] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
-  const [newShowId, setNewShowId] = useState('');
-  const [error, setError] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [showIgnoredFilter, setShowIgnoredFilter] = useState(() => 
-    localStorage.getItem('shows_ignoredFilter') || 'all'
-  );
-  const [showWatchedFilter, setShowWatchedFilter] = useState(() => 
-    localStorage.getItem('shows_watchedFilter') || 'all'
-  );
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [showIgnoredFilter, setShowIgnoredFilter] = useState(() => localStorage.getItem('shows_ignoredFilter') || 'all');
+  const [showWatchedFilter, setShowWatchedFilter] = useState(() => localStorage.getItem('shows_watchedFilter') || 'all');
 
-  // Save items per page to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('shows_itemsPerPage', itemsPerPage.toString());
-  }, [itemsPerPage]);
-
-  // Save filter states to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('shows_ignoredFilter', showIgnoredFilter);
-  }, [showIgnoredFilter]);
-
-  useEffect(() => {
-    localStorage.setItem('shows_watchedFilter', showWatchedFilter);
-  }, [showWatchedFilter]);
+  useEffect(() => { localStorage.setItem('shows_itemsPerPage', itemsPerPage.toString()); }, [itemsPerPage]);
+  useEffect(() => { localStorage.setItem('shows_ignoredFilter', showIgnoredFilter); }, [showIgnoredFilter]);
+  useEffect(() => { localStorage.setItem('shows_watchedFilter', showWatchedFilter); }, [showWatchedFilter]);
 
   const getShowStats = (showId) => {
     const showEpisodes = episodes.filter(ep => ep.showId === showId);
     const watchedEpisodes = showEpisodes.filter(ep => ep.watched);
     const seasons = [...new Set(showEpisodes.map(ep => ep.season))];
-    
-    // Assuming each episode is ~42 minutes
-    const timeWatched = watchedEpisodes.length * 42;
-    const hours = Math.floor(timeWatched / 60);
-    const minutes = timeWatched % 60;
-    
+    const totalRuntimeMinutes = watchedEpisodes.reduce((sum, ep) => sum + (ep.runtime || 42), 0);
+    const hours = Math.floor(totalRuntimeMinutes / 60);
+    const minutes = totalRuntimeMinutes % 60;
+    const watchedPercentage = showEpisodes.length > 0 ? Math.round((watchedEpisodes.length / showEpisodes.length) * 100) : 0;
     return {
       seasons: seasons.length,
       totalEpisodes: showEpisodes.length,
       watchedEpisodes: watchedEpisodes.length,
+      watchedPercentage: watchedPercentage,
       timeWatched: `${hours}h ${minutes}m`
     };
   };
 
-  const handleSelectShow = async (show) => {
-    try {
-      await onAddShow(show.id);
-      setNewShowId('');
-      setSearchResults([]);
-      setIsDrawerOpen(false);
-    } catch (err) {
-      setError('Error adding show. Please try again.');
-    }
-  };
-
   const filteredShows = shows.filter(show => {
-    // When filter is on (ignored), show only ignored shows
-    // When filter is off (all), show only unignored shows
     if (showIgnoredFilter === 'ignored' ? !show.ignored : show.ignored) return false;
-
-    // Filter by watched status
     if (showWatchedFilter !== 'all') {
       const stats = getShowStats(show.tvMazeId);
       const isFullyWatched = stats.totalEpisodes > 0 && stats.watchedEpisodes === stats.totalEpisodes;
-      // When filter is on, show only not fully watched shows
       if (isFullyWatched) return false;
     }
-
     return true;
   });
 
-  // Add sorting function
   const handleSort = (column) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -95,21 +55,17 @@ function Shows({ shows = [], episodes = [], onDeleteShow, onAddShow, onToggleIgn
     }
   };
 
-  // Add sort indicator component
   const SortIndicator = ({ column }) => {
-    if (sortColumn !== column) {
-      return null;
-    }
+    if (sortColumn !== column) return null;
     return sortDirection === 'asc' ? 
       <ChevronUp className="h-4 w-4 inline-block ml-1" /> : 
       <ChevronDown className="h-4 w-4 inline-block ml-1" />;
   };
 
-  // Add sortable column header component
-  const SortableHeader = ({ column, children }) => (
+  const SortableHeader = ({ column, children, className = "" }) => (
     <th 
       scope="col" 
-      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+      className={`px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 ${className}`}
       onClick={() => handleSort(column)}
     >
       <div className="flex items-center gap-1">
@@ -119,51 +75,36 @@ function Shows({ shows = [], episodes = [], onDeleteShow, onAddShow, onToggleIgn
     </th>
   );
 
-  // Sort the filtered shows
   const sortedShows = [...filteredShows].sort((a, b) => {
     const direction = sortDirection === 'asc' ? 1 : -1;
     const statsA = getShowStats(a.tvMazeId);
     const statsB = getShowStats(b.tvMazeId);
-
     switch (sortColumn) {
-      case 'name':
-        return direction * a.name.localeCompare(b.name);
-      case 'tvMazeId':
-        return direction * (parseInt(a.tvMazeId) - parseInt(b.tvMazeId));
-      case 'seasons':
-        return direction * (statsA.seasons - statsB.seasons);
-      case 'episodes':
-        return direction * (statsA.totalEpisodes - statsB.totalEpisodes);
-      case 'watched':
-        const watchedPercentA = statsA.totalEpisodes ? (statsA.watchedEpisodes / statsA.totalEpisodes) : 0;
-        const watchedPercentB = statsB.totalEpisodes ? (statsB.watchedEpisodes / statsB.totalEpisodes) : 0;
-        return direction * (watchedPercentA - watchedPercentB);
+      case 'name': return direction * a.name.localeCompare(b.name);
+      case 'tvMazeId': return direction * (parseInt(a.tvMazeId) - parseInt(b.tvMazeId));
+      case 'seasons': return direction * (statsA.seasons - statsB.seasons);
+      case 'episodes': return direction * (statsA.totalEpisodes - statsB.totalEpisodes);
+      case 'watched': return direction * (statsA.watchedPercentage - statsB.watchedPercentage);
       case 'timeSpent':
-        const timeA = statsA.watchedEpisodes * 42; // 42 minutes per episode
-        const timeB = statsB.watchedEpisodes * 42;
+        const timeA = statsA.watchedEpisodes * (a.runtime || 42);
+        const timeB = statsB.watchedEpisodes * (b.runtime || 42);
         return direction * (timeA - timeB);
-      case 'status':
-        return direction * (a.status || '').localeCompare(b.status || '');
-      default:
-        return 0;
+      case 'status': return direction * (a.status || '').localeCompare(b.status || '');
+      default: return 0;
     }
   });
 
-  // Update pagination to use sorted shows
   const totalPages = Math.ceil(sortedShows.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedShows = sortedShows.slice(startIndex, startIndex + itemsPerPage);
 
-  // Effect to adjust current page if total pages decrease
   useEffect(() => {
     const newTotalPages = Math.ceil(sortedShows.length / itemsPerPage);
     if (currentPage > newTotalPages && newTotalPages > 0) {
       setCurrentPage(newTotalPages);
     } else if (newTotalPages === 0 && sortedShows.length > 0) {
-       // Handle case where filter results in zero items but previously there were items
        setCurrentPage(1); 
     } else if (currentPage === 0 && newTotalPages > 0) {
-        // Ensure current page is at least 1 if there are pages
         setCurrentPage(1);
     }
   }, [sortedShows, itemsPerPage, currentPage]);
@@ -173,39 +114,35 @@ function Shows({ shows = [], episodes = [], onDeleteShow, onAddShow, onToggleIgn
     window.scrollTo(0, 0);
   };
 
-  // Check if pagination controls should be sticky
   useEffect(() => {
     const checkSticky = () => {
-      const tableContainer = document.getElementById('shows-table-container');
+      const listContainer = document.getElementById('shows-list-container');
       const headerContent = document.getElementById('header-content');
-      if (!tableContainer || !headerContent) return;
+      if (!listContainer || !headerContent) return;
 
       const viewportHeight = window.innerHeight;
-      const minTableRows = 5; // Minimum number of table rows to show
-      const estimatedRowHeight = 53; // Height of one table row including padding
-      const minTableHeight = estimatedRowHeight * minTableRows; // Minimum table height needed
+      const headerHeight = headerContent.offsetHeight;
+      const listHeight = listContainer.offsetHeight;
+      const contentHeight = headerHeight + listHeight;
 
-      // If viewport is large enough (can show more than minimum rows × 2)
-      if (viewportHeight > minTableHeight * 2) {
-        setIsSticky(true);
-        setShouldStickToPage(false);
-        return;
-      }
-
-      // For small viewports, keep at page bottom
-      setIsSticky(false);
+      setIsSticky(contentHeight > viewportHeight);
       setShouldStickToPage(true);
     };
 
-    // Use a small delay to ensure the table container has been rendered
-    const timerId = setTimeout(checkSticky, 100);
+    checkSticky();
     window.addEventListener('resize', checkSticky);
     
+    const resizeObserver = new ResizeObserver(checkSticky);
+    const listElement = document.getElementById('shows-list-container');
+    const headerElement = document.getElementById('header-content');
+    if (listElement) resizeObserver.observe(listElement);
+    if (headerElement) resizeObserver.observe(headerElement);
+
     return () => {
-      clearTimeout(timerId);
       window.removeEventListener('resize', checkSticky);
+      resizeObserver.disconnect();
     };
-  }, [paginatedShows.length, showIgnoredFilter, showWatchedFilter]);
+  }, [paginatedShows.length]);
 
   const getStatusClass = (status) => {
     if (status === 'Ended') return 'bg-gray-100 text-gray-800';
@@ -216,201 +153,233 @@ function Shows({ shows = [], episodes = [], onDeleteShow, onAddShow, onToggleIgn
   return (
     <div className="min-h-screen bg-gray-50 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
-        {/* Header Content */}
         <div id="header-content">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Shows</h1>
             <p className="text-gray-600">Overview of all your tracked TV shows</p>
           </div>
 
-          <SearchDrawer
-            isOpen={isDrawerOpen}
-            searchResults={searchResults}
-            onSelectShow={handleSelectShow}
-            onClose={() => setIsDrawerOpen(false)}
-          />
-
-          {/* Table Controls */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-6">
-              {/* Items per page */}
+          <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4 md:gap-0">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-6 w-full md:w-auto">
               <select
                 value={itemsPerPage}
                 onChange={(e) => {
                   setItemsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="border rounded px-3 py-1"
+                className="border rounded px-3 py-1 text-sm"
               >
                 <option value={10}>10 per page</option>
                 <option value={20}>20 per page</option>
                 <option value={100}>100 per page</option>
               </select>
 
-              {/* Filter Icons */}
-              <div className="flex items-center gap-6">
+              <div className="flex gap-2">
                 <motion.button
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    // Immediately set the filter state for a faster visual response
-                    setShowIgnoredFilter(showIgnoredFilter === 'ignored' ? 'all' : 'ignored');
-                  }}
-                  className={`flex items-center gap-2 p-2 rounded-md transition-colors duration-200 ${
+                  onClick={() => setShowIgnoredFilter(showIgnoredFilter === 'ignored' ? 'all' : 'ignored')}
+                  className={`flex items-center gap-1 p-2 rounded-md text-sm transition-colors duration-200 ${
                     showIgnoredFilter === 'ignored'
                       ? 'text-indigo-600 bg-indigo-50'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                   title={showIgnoredFilter === 'ignored' ? "Show Unignored Shows" : "Show Ignored Shows"}
                 >
-                  {showIgnoredFilter === 'ignored' ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
-                  <span className="text-sm">{showIgnoredFilter === 'ignored' ? "Ignored Shows" : "Unignored Shows"}</span>
+                  {showIgnoredFilter === 'ignored' ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                  <span>{showIgnoredFilter === 'ignored' ? "Ignored" : "Unignored"}</span>
                 </motion.button>
 
                 <motion.button
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    setShowWatchedFilter(showWatchedFilter === 'unwatched' ? 'all' : 'unwatched');
-                  }}
-                  className={`flex items-center gap-2 p-2 rounded-md transition-colors duration-200 ${
+                  onClick={() => setShowWatchedFilter(showWatchedFilter === 'unwatched' ? 'all' : 'unwatched')}
+                  className={`flex items-center gap-1 p-2 rounded-md text-sm transition-colors duration-200 ${
                     showWatchedFilter === 'unwatched'
                       ? 'text-green-600 bg-green-50'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                   title={showWatchedFilter === 'unwatched' ? "Show All Shows" : "Show Incomplete Shows"}
                 >
-                  {showWatchedFilter === 'unwatched' ? <Circle className="h-5 w-5" /> : <CheckCircle className="h-5 w-5" />}
-                  <span className="text-sm">{showWatchedFilter === 'unwatched' ? "Incomplete Shows" : "All Progress"}</span>
+                  {showWatchedFilter === 'unwatched' ? <Circle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+                  <span>{showWatchedFilter === 'unwatched' ? "Incomplete" : "All Progress"}</span>
                 </motion.button>
               </div>
             </div>
 
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 mt-2 md:mt-0">
               Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, sortedShows.length)} of {sortedShows.length} shows
             </div>
           </div>
         </div>
 
-        {/* Shows Table */}
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div 
-            key={`table-container-${showIgnoredFilter}-${showWatchedFilter}`}
-            id="shows-table-container" 
-            className="bg-white rounded-lg shadow-sm overflow-hidden mb-4"
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0.5 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead>
-                  <tr className="bg-gray-50">
-                    <SortableHeader column="name">Series Name</SortableHeader>
-                    <SortableHeader column="tvMazeId">TVMaze ID</SortableHeader>
-                    <SortableHeader column="seasons">Seasons</SortableHeader>
-                    <SortableHeader column="episodes">Episodes</SortableHeader>
-                    <SortableHeader column="watched">Watched</SortableHeader>
-                    <SortableHeader column="timeSpent">Time Spent</SortableHeader>
-                    <SortableHeader column="status">Status</SortableHeader>
-                    <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {paginatedShows.map((show) => {
-                    const stats = getShowStats(show.tvMazeId);
-                    const isFullyWatched = stats.totalEpisodes > 0 && stats.watchedEpisodes === stats.totalEpisodes;
-                    return (
-                      <tr
-                        key={`${show.tvMazeId}-${stats.watchedEpisodes}`}
-                        className={`hover:bg-gray-50 transition-colors ${
-                          isFullyWatched
-                            ? 'bg-green-50'
-                            : show.ignored
-                              ? 'bg-gray-50'
-                              : ''
-                        }`}
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10">
-                              {show.image ? (
-                                <img className="h-10 w-10 rounded-full object-cover" src={show.image} alt={show.name} />
-                              ) : (
-                                <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                  <Tv className="h-6 w-6 text-gray-400" />
+        <div id="shows-list-container" className="mb-4">
+          <div className="hidden md:block bg-white rounded-lg shadow-sm overflow-hidden">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div 
+                key={`table-container-${showIgnoredFilter}-${showWatchedFilter}`}
+                initial={{ opacity: 1 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0.5 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        <SortableHeader column="name" className="pl-4">Series</SortableHeader>
+                        <SortableHeader column="tvMazeId">ID</SortableHeader>
+                        <SortableHeader column="seasons">Seasons</SortableHeader>
+                        <SortableHeader column="episodes">Episodes</SortableHeader>
+                        <SortableHeader column="watched">Watched</SortableHeader>
+                        <SortableHeader column="timeSpent">Time Spent</SortableHeader>
+                        <SortableHeader column="status">Status</SortableHeader>
+                        <th scope="col" className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider pr-4">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {paginatedShows.map((show) => {
+                        const stats = getShowStats(show.tvMazeId);
+                        const isFullyWatched = stats.totalEpisodes > 0 && stats.watchedEpisodes === stats.totalEpisodes;
+                        return (
+                          <tr
+                            key={`${show.tvMazeId}-${stats.watchedEpisodes}`}
+                            className={`hover:bg-gray-50 transition-colors ${
+                              isFullyWatched ? 'bg-green-50' : show.ignored ? 'bg-gray-50' : ''
+                            }`}
+                          >
+                            <td className="pl-4 pr-2 py-3 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0 h-10 w-10">
+                                  {show.image ? (
+                                    <img className="h-10 w-10 rounded-full object-cover" src={show.image} alt={show.name} />
+                                  ) : (
+                                    <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                      <Tv className="h-6 w-6 text-gray-400" />
+                                    </div>
+                                  )}
                                 </div>
-                              )}
+                                <div className="ml-3">
+                                  <Link to={`/shows/${show.tvMazeId}`} className="text-sm font-medium text-indigo-600 hover:text-indigo-900 hover:underline">
+                                    {show.name}
+                                  </Link>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{show.tvMazeId}</td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-center">{stats.seasons}</td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-center">{stats.totalEpisodes}</td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                              <div className="flex items-center justify-center">
+                                <span className="mr-1">{stats.watchedEpisodes}</span>
+                                <span className="text-gray-400">({stats.watchedPercentage}%)</span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                              <div className="flex items-center justify-center">
+                                <Clock className="h-4 w-4 mr-1 text-gray-400" />
+                                {stats.timeWatched}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-center">
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusClass(show.status)}`}>
+                                {show.status || 'Unknown'}
+                              </span>
+                            </td>
+                            <td className="px-4 pr-4 py-3 whitespace-nowrap">
+                              <div className="flex items-center justify-center space-x-1">
+                                <button
+                                  onClick={() => onToggleIgnore(show.tvMazeId)}
+                                  className={`inline-flex items-center p-1.5 rounded-full ${
+                                    show.ignored ? 'text-gray-600 bg-gray-200 hover:bg-gray-300' : 'text-gray-500 hover:bg-gray-100'
+                                  }`}
+                                  title={show.ignored ? 'Show in Episodes' : 'Hide from Episodes'}
+                                >
+                                  {show.ignored ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                                </button>
+                                <button
+                                  onClick={() => onDeleteShow(show.tvMazeId)}
+                                  className="inline-flex items-center p-1.5 border border-transparent rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                  title="Delete Show"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          <div className="block md:hidden space-y-3">
+            <AnimatePresence>
+              {paginatedShows.map((show) => {
+                const stats = getShowStats(show.tvMazeId);
+                const isFullyWatched = stats.totalEpisodes > 0 && stats.watchedEpisodes === stats.totalEpisodes;
+                return (
+                  <motion.div
+                    key={show.tvMazeId}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                    className={`bg-white rounded-lg shadow-sm overflow-hidden ${isFullyWatched ? 'border-l-4 border-green-500' : show.ignored ? 'border-l-4 border-gray-400' : 'border-l-4 border-indigo-500'}`}
+                  >
+                    <div className="p-4 flex items-start gap-4">
+                       <div className="flex-shrink-0 h-16 w-16">
+                          {show.image ? (
+                            <img className="h-16 w-16 rounded object-cover" src={show.image} alt={show.name} />
+                          ) : (
+                            <div className="h-16 w-16 rounded bg-gray-200 flex items-center justify-center">
+                              <Tv className="h-8 w-8 text-gray-400" />
                             </div>
-                            <div className="ml-4">
-                              <Link to={`/shows/${show.tvMazeId}`} className="text-sm font-medium text-indigo-600 hover:text-indigo-900 hover:underline">
-                                {show.name}
-                              </Link>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {show.tvMazeId}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {stats.seasons}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {stats.totalEpisodes}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <div className="flex items-center">
-                            <span className="mr-2">{stats.watchedEpisodes}</span>
-                            <span className="text-gray-400">
-                              ({Math.round((stats.watchedEpisodes / stats.totalEpisodes) * 100)}%)
+                          )}
+                       </div>
+                       <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-start">
+                            <Link to={`/shows/${show.tvMazeId}`} className="text-base font-semibold text-indigo-700 hover:underline leading-tight truncate pr-2">
+                              {show.name}
+                            </Link>
+                            <span className={`flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusClass(show.status)}`}>
+                              {show.status || 'Unknown'}
                             </span>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <div className="flex items-center">
-                            <Clock className="h-4 w-4 mr-2 text-gray-400" />
-                            {stats.timeWatched}
+                          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500">
+                             <span className="inline-flex items-center"><Film className="h-3 w-3 mr-1" /> {stats.totalEpisodes} Ep / {stats.seasons} S</span>
+                             <span className="inline-flex items-center"><CheckCircle className="h-3 w-3 mr-1 text-green-500" /> {stats.watchedPercentage}% Watched</span>
+                             <span className="inline-flex items-center"><Clock className="h-3 w-3 mr-1" /> {stats.timeWatched}</span>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass(show.status)}`}>
-                            {show.status || 'Unknown'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center justify-center space-x-2">
-                            <button
-                              onClick={() => onToggleIgnore(show.tvMazeId)}
-                              className={`inline-flex items-center p-2 rounded-full ${
-                                show.ignored 
-                                  ? 'text-gray-600 bg-gray-100 hover:bg-gray-200'
-                                  : 'text-gray-600 hover:bg-gray-100'
-                              }`}
-                              title={show.ignored ? 'Show in Episodes' : 'Hide from Episodes'}
-                            >
-                              {show.ignored ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
-                            </button>
-                            <button
-                              onClick={() => onDeleteShow(show.tvMazeId)}
-                              className="inline-flex items-center p-2 border border-transparent rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                              title="Delete Show"
-                            >
-                              <Trash2 className="h-5 w-5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </motion.div>
-        </AnimatePresence>
+                       </div>
+                    </div>
+                    <div className="px-4 py-2 bg-gray-50 border-t border-gray-100 flex justify-end items-center space-x-2">
+                       <button
+                         onClick={() => onToggleIgnore(show.tvMazeId)}
+                         className={`inline-flex items-center px-2 py-1 rounded text-xs ${ 
+                           show.ignored ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                         }`}
+                         title={show.ignored ? 'Show in Episodes' : 'Hide from Episodes'}
+                       >
+                         {show.ignored ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
+                       </button>
+                       <button
+                         onClick={() => onDeleteShow(show.tvMazeId)}
+                         className="inline-flex items-center px-2 py-1 border border-transparent rounded text-xs text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500"
+                         title="Delete Show"
+                       >
+                         <Trash2 className="h-4 w-4 mr-1" /> Delete
+                       </button>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        </div>
 
-        {/* Pagination Controls */}
         <PaginationControls
           currentPage={currentPage}
           totalPages={totalPages}
@@ -428,7 +397,8 @@ Shows.propTypes = {
     tvMazeId: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     status: PropTypes.string,
-    ignored: PropTypes.bool
+    ignored: PropTypes.bool,
+    image: PropTypes.string
   })).isRequired,
   episodes: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -436,10 +406,10 @@ Shows.propTypes = {
     season: PropTypes.number.isRequired,
     number: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
-    watched: PropTypes.bool.isRequired
+    watched: PropTypes.bool.isRequired,
+    runtime: PropTypes.number
   })).isRequired,
   onDeleteShow: PropTypes.func.isRequired,
-  onAddShow: PropTypes.func.isRequired,
   onToggleIgnore: PropTypes.func.isRequired
 };
 

@@ -18,7 +18,7 @@ import {
   ChevronUp,
   Check
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function ShowDetail() {
   const { id } = useParams();
@@ -272,6 +272,19 @@ function ShowDetail() {
   // Sort seasons
   const seasons = Object.keys(episodesBySeason).map(Number).sort((a, b) => a - b);
 
+  // Helper to determine if an episode is released (using a simple date comparison)
+  const isReleased = (episode) => {
+    if (!episode?.airdate) return false;
+    try {
+      const epDate = new Date(episode.airdate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Compare dates only
+      return epDate <= today;
+    } catch (e) {
+      return false;
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -502,7 +515,7 @@ function ShowDetail() {
       {/* Tab Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {activeTab === 'overview' && (
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white shadow rounded-lg p-4 md:p-6">
             {/* User Stats Section */}
             <div className="border-t-0 pt-0">
               <h2 className="text-xl font-bold mb-4">Your Stats</h2>
@@ -645,77 +658,113 @@ function ShowDetail() {
         )}
 
         {activeTab === 'episodes' && (
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white shadow rounded-lg p-4 md:p-6">
             {episodes.length > 0 ? (
               <div>
-                {seasons.map((season) => (
-                  <div key={season} className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
-                    <div 
-                      className="bg-gray-100 p-4 flex items-center justify-between cursor-pointer"
-                      onClick={() => toggleSeasonExpanded(season)}
-                    >
-                      <div className="flex items-center">
-                        <h3 className="text-lg font-medium">Season {season}</h3>
-                        <div className="ml-4 text-sm text-gray-500">
-                          {episodesBySeason[season].length} episodes
-                        </div>
-                        <div className="ml-4">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            {episodesBySeason[season].filter(ep => ep.watched).length}/{episodesBySeason[season].length} watched
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center">
-                        {episodesBySeason[season].some(ep => !ep.watched) && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleMarkSeasonWatched(season);
-                            }}
-                            className="mr-4 text-sm text-indigo-600 hover:text-indigo-800"
-                          >
-                            Mark all as watched
-                          </button>
-                        )}
-                        {expandedSeasons[season] ? (
-                          <ChevronUp className="h-5 w-5 text-gray-500" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-gray-500" />
-                        )}
-                      </div>
-                    </div>
-                    
-                    {expandedSeasons[season] && (
-                      <div className="divide-y divide-gray-200">
-                        {episodesBySeason[season].map((episode) => (
-                          <div key={episode.id} className="p-4 flex items-center">
-                            <button
-                              onClick={() => handleToggleEpisodeWatched(episode.id)}
-                              className={`mr-3 ${episode.watched ? 'text-green-500' : 'text-gray-300'}`}
-                            >
-                              {episode.watched ? (
-                                <CheckCircle className="h-6 w-6" />
-                              ) : (
-                                <Circle className="h-6 w-6" />
-                              )}
-                            </button>
-                            <div className="flex-1">
-                              <div className="flex items-baseline">
-                                <span className="text-gray-500 text-sm mr-2">E{episode.number}</span>
-                                <h4 className="font-medium">{episode.name}</h4>
-                              </div>
-                              {episode.airdate && (
-                                <div className="text-sm text-gray-500 mt-1">
-                                  {episode.airdate}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                {seasons.map((season) => {
+                  const seasonEpisodes = episodesBySeason[season];
+                  const isSeasonWatched = seasonEpisodes.every(ep => ep.watched);
+                  const canMarkAll = seasonEpisodes.some(ep => !ep.watched);
+                  return (
+                     <div key={season} className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
+                       {/* Season Header (remains similar) */}
+                       <div 
+                         className="bg-gray-100 p-3 md:p-4 flex flex-col md:flex-row items-start md:items-center justify-between cursor-pointer gap-2 md:gap-0"
+                         onClick={() => toggleSeasonExpanded(season)}
+                       >
+                         <div className="flex items-center">
+                           <h3 className="text-base md:text-lg font-medium">Season {season}</h3>
+                           <div className="ml-3 md:ml-4 text-xs md:text-sm text-gray-500">
+                             {seasonEpisodes.length} episodes
+                           </div>
+                           <div className="ml-3 md:ml-4">
+                             <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${isSeasonWatched ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                               {seasonEpisodes.filter(ep => ep.watched).length}/{seasonEpisodes.length} watched
+                             </span>
+                           </div>
+                         </div>
+                         <div className="flex items-center self-end md:self-center">
+                           {canMarkAll && (
+                             <button
+                               onClick={(e) => { e.stopPropagation(); handleMarkSeasonWatched(season); }}
+                               className="mr-2 md:mr-4 text-xs md:text-sm text-indigo-600 hover:text-indigo-800"
+                             >
+                               Mark all as watched
+                             </button>
+                           )}
+                           {expandedSeasons[season] ? (
+                             <ChevronUp className="h-5 w-5 text-gray-500" />
+                           ) : (
+                             <ChevronDown className="h-5 w-5 text-gray-500" />
+                           )}
+                         </div>
+                       </div>
+                       
+                       {/* Episode List (conditionally rendered and responsive) */}
+                       {expandedSeasons[season] && (
+                         <div>
+                           {/* Desktop Table View (Hidden on Mobile) */}
+                           <div className="hidden md:block divide-y divide-gray-200">
+                             {seasonEpisodes.map((episode) => (
+                               <div key={episode.id} className="px-4 py-3 flex items-center">
+                                 <button
+                                   onClick={() => handleToggleEpisodeWatched(episode.id)}
+                                   className={`mr-3 flex-shrink-0 ${episode.watched ? 'text-green-500' : 'text-gray-300 hover:text-gray-400'}`}
+                                 >
+                                   {episode.watched ? <CheckCircle className="h-5 w-5" /> : <Circle className="h-5 w-5" />}
+                                 </button>
+                                 <div className="flex-1 min-w-0">
+                                   <div className="flex items-baseline">
+                                     <span className="text-gray-500 text-sm mr-2 w-10 text-right">E{episode.number}</span>
+                                     <h4 className="font-medium text-sm truncate" title={episode.name}>{episode.name}</h4>
+                                   </div>
+                                 </div>
+                                 <div className="ml-4 text-sm text-gray-500 w-28 text-right">
+                                     {episode.airdate || '-'} 
+                                 </div>
+                               </div>
+                             ))}
+                           </div>
+
+                           {/* Mobile Card View (Visible on Mobile) */}
+                           <div className="block md:hidden divide-y divide-gray-100">
+                               <AnimatePresence>
+                                  {seasonEpisodes.map((episode) => {
+                                     const released = isReleased(episode);
+                                     return (
+                                        <motion.div
+                                           key={episode.id}
+                                           layout
+                                           initial={{ opacity: 0, height: 0 }}
+                                           animate={{ opacity: 1, height: 'auto' }}
+                                           exit={{ opacity: 0, height: 0 }}
+                                           transition={{ duration: 0.2 }}
+                                           className={`p-3 flex items-start ${episode.watched ? 'bg-green-50' : 'bg-white'}`}
+                                         >
+                                          <button
+                                            onClick={() => handleToggleEpisodeWatched(episode.id)}
+                                            className={`mr-3 mt-1 flex-shrink-0 ${episode.watched ? 'text-green-500' : 'text-gray-300 hover:text-gray-400'}`}
+                                          >
+                                            {episode.watched ? <CheckCircle className="h-5 w-5" /> : <Circle className="h-5 w-5" />}
+                                          </button>
+                                          <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-medium text-gray-800 leading-snug">{episode.name}</p>
+                                            <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
+                                               <span>E{episode.number}</span>
+                                               {episode.airdate && <span><Calendar className="h-3 w-3 inline mr-0.5" /> {episode.airdate}</span>}
+                                               {episode.runtime && <span><Clock className="h-3 w-3 inline mr-0.5" /> {episode.runtime}m</span>}
+                                            </div>
+                                          </div>
+                                         </motion.div>
+                                     );
+                                  })}
+                               </AnimatePresence>
+                           </div>
+                         </div>
+                       )}
+                     </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-12">

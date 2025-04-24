@@ -274,4 +274,10 @@ I welcome input from my community on feature prioritization! Please submit your 
 
 ## Milestone Progress
 
-Progress toward my roadmap goals can be tracked on the [project board TBD](https://github.com/sagy101/tv-tracker/projects). 
+Progress toward my roadmap goals can be tracked on the [project board TBD](https://github.com/sagy101/tv-tracker/projects).
+
+## Completed Milestones
+
+*   **[Date] - Mobile Responsiveness Overhaul:** Implemented responsive layouts across all major pages (Navigation, Dashboard, Episodes, Shows, Show Detail, Home) using Tailwind CSS utility classes and card-based views for smaller screens.
+*   **[Date] - API Refactoring:** Centralized frontend API calls, added environment variable support for API URL, and improved error handling.
+*   **[Date] - Core Functionality:** User auth, show/episode tracking, search, import. 

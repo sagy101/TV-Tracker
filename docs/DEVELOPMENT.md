@@ -335,3 +335,15 @@ The authentication system uses Framer Motion to create smooth transitions betwee
    - Containers properly sized to prevent unnecessary layout shifts
 
 This creates a polished, app-like experience that guides users smoothly between authentication states. 
+
+## Recent Updates (as of [Current Date])
+
+*   **Major Mobile UI Overhaul:**
+    *   Implemented fully responsive navigation using a hamburger menu on smaller screens.
+    *   Refactored Episodes, Shows, and Show Detail pages to use card-based layouts on mobile for better readability.
+    *   Improved dashboard layout density and calendar display on mobile devices.
+    *   Adjusted HomePage layout and trending shows display for mobile.
+*   **API Refactoring:**
+    *   Centralized all frontend API calls into `src/api.js`.
+    *   Configured API base URL using `NEXT_PUBLIC_API_URL` environment variable for deployment flexibility.
+    *   Improved API response handling and error management.

@@ -46,7 +46,7 @@
 ## Overview
 
 <p>
-  TrackTV is a comprehensive solution for TV show enthusiasts to track and organize their watching experience. With an intuitive interface, it simplifies keeping up with shows across various platforms.
+  TrackTV is a comprehensive solution for TV show enthusiasts to track and organize their watching experience. With an intuitive interface **designed to work seamlessly on both desktop and mobile devices**, it simplifies keeping up with shows across various platforms.
 </p>
 
 <p>
@@ -69,42 +69,41 @@
   <strong>Homepage</strong> - Attractive landing page showcasing key features and planned additions.
 </p>
 
-### User Authentication
-- Secure user signup with email verification
-- Modern login interface with smooth animations and integrated navigation.
-- "Stay signed in" functionality for persistent sessions
-- Real-time email validation and password strength indicators
-- JWT-based session management with configurable token expiration
+- **📱 Fully Responsive Design:** Optimized for viewing and interaction on desktops, tablets, and mobile phones.
+- **User Authentication:**
+  - Secure user signup with email verification
+  - Modern login interface with smooth animations and integrated navigation.
+  - "Stay signed in" functionality for persistent sessions
+  - Real-time email validation and password strength indicators
+  - JWT-based session management with configurable token expiration
+- **Show Management:**
+  <p align="center">
+    <img src="docs/images/shows.png" alt="Shows Management" width="700">
+  </p>
 
-### Show Management
-<p align="center">
-  <img src="docs/images/shows.png" alt="Shows Management" width="700">
-</p>
+  - Track and manage your TV shows with comprehensive details:
+    - Show status and progress tracking
+    - Time spent watching statistics
+    - Color-coded completion status (green for 100% watched)
+    - Show management actions (ignore/delete)
+    - Configurable filters and sorting options
+- **Episode Tracking:**
+  <p align="center">
+    <img src="docs/images/episodes.png" alt="Episodes View" width="700">
+  </p>
 
-- Track and manage your TV shows with comprehensive details:
-  - Show status and progress tracking
-  - Time spent watching statistics
-  - Color-coded completion status (green for 100% watched)
-  - Show management actions (ignore/delete)
-  - Configurable filters and sorting options
+  - View and manage episodes in chronological order:
+    - Color-coded status indicators
+    - Detailed episode information
+    - Quick watch status toggle
+    - Configurable filters and pagination
+- **User Dashboard:**
+  <p align="center">
+    <img src="docs/images/dashboard.png" alt="User Dashboard" width="700">
+  </p>
 
-### Episode Tracking
-<p align="center">
-  <img src="docs/images/episodes.png" alt="Episodes View" width="700">
-</p>
-
-- View and manage episodes in chronological order:
-  - Color-coded status indicators
-  - Detailed episode information
-  - Quick watch status toggle
-  - Configurable filters and pagination
-
-### User Dashboard
-<p align="center">
-  <img src="docs/images/dashboard.png" alt="User Dashboard" width="700">
-</p>
-
-- Personas dashboard with comprehensive overview:
+  - Personalized dashboard with comprehensive overview (stats, calendar, recent/upcoming lists).
+  - **Responsive layout** adjusts components for optimal viewing on all screen sizes.
   - Watch statistics and progress tracking
   - Upcoming episodes notification
   - Recently aired unwatched episodes
@@ -112,13 +111,13 @@
   - Detailed day view for selected dates
   - Show/hide ignored shows toggle
   - Quick access to watch episode functionality
+- **Show Detail Page:**
+  <p align="center">
+    <img src="docs/images/show_detail.png" alt="Show Detail" width="700">
+  </p>
 
-### Show Detail Page
-<p align="center">
-  <img src="docs/images/show_detail.png" alt="Show Detail" width="700">
-</p>
-
-- Comprehensive show information and management:
+  - Comprehensive show information and management.
+  - **Responsive episode lists** switch to card view on mobile.
   - Complete show metadata and details
   - Season and episode breakdown with collapsible sections
   - Episode watch status tracking with one-click toggle
@@ -127,21 +126,19 @@
   - Cast information with character details
   - Next episode suggestion with quick watch action
   - Show ignore/unignore toggle
+- **Show Search & Import:**
+  <p align="center">
+    <img src="docs/images/search.png" alt="Show Search" width="700">
+  </p>
 
-### Show Search & Import
-<p align="center">
-  <img src="docs/images/search.png" alt="Show Search" width="700">
-</p>
-
-- Multiple ways to add shows to your collection:
-  - Search by name with real-time results
-  - Direct TVMaze ID lookup
-  - Bulk import via CSV with field mapping
-
-### Data Management
-- Persistent storage with MongoDB
-- Filter state persistence across sessions
-- Backup and restore capabilities
+  - Multiple ways to add shows to your collection:
+    - Search by name with real-time results
+    - Direct TVMaze ID lookup
+    - Bulk import via CSV with field mapping
+- **Data Management:**
+  - Persistent storage with MongoDB
+  - Filter state persistence across sessions
+  - Backup and restore capabilities
 
 ---
 

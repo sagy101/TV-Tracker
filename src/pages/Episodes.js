@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { CheckCircle, Calendar, Clock, Eye, EyeOff, Circle } from 'lucide-react';
+import { CheckCircle, Calendar, Clock, Eye, EyeOff, Circle, Tv } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PaginationControls from '../components/PaginationControls';
 
@@ -95,30 +95,32 @@ function Episodes({
   // Check if pagination controls should be sticky
   useEffect(() => {
     const checkSticky = () => {
-      const tableContainer = document.getElementById('episodes-table-container');
+      const listContainer = document.getElementById('episodes-list-container');
       const headerContent = document.getElementById('header-content');
-      if (!tableContainer || !headerContent) return;
+      if (!listContainer || !headerContent) return;
 
       const viewportHeight = window.innerHeight;
-      const minTableRows = 5; // Minimum number of table rows to show
-      const estimatedRowHeight = 53; // Height of one table row including padding
-      const minTableHeight = estimatedRowHeight * minTableRows; // Minimum table height needed
+      const headerHeight = headerContent.offsetHeight;
+      const listHeight = listContainer.offsetHeight;
+      const contentHeight = headerHeight + listHeight;
 
-      // If viewport is large enough (can show more than minimum rows × 2)
-      if (viewportHeight > minTableHeight * 2) {
-        setIsSticky(true);
-        setShouldStickToPage(false);
-        return;
-      }
-
-      // For small viewports, keep at page bottom
-      setIsSticky(false);
+      setIsSticky(contentHeight > viewportHeight);
       setShouldStickToPage(true);
     };
 
     checkSticky();
     window.addEventListener('resize', checkSticky);
-    return () => window.removeEventListener('resize', checkSticky);
+
+    const resizeObserver = new ResizeObserver(checkSticky);
+    const listElement = document.getElementById('episodes-list-container');
+    const headerElement = document.getElementById('header-content');
+    if (listElement) resizeObserver.observe(listElement);
+    if (headerElement) resizeObserver.observe(headerElement);
+
+    return () => {
+       window.removeEventListener('resize', checkSticky);
+       resizeObserver.disconnect();
+    };
   }, [paginatedEpisodes.length]);
 
   return (
@@ -133,8 +135,8 @@ function Episodes({
           </div>
 
           {/* Table Controls */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-6">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4 md:gap-0">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-6 w-full md:w-auto">
               {/* Items per page */}
               <select
                 value={itemsPerPage}
@@ -142,7 +144,7 @@ function Episodes({
                   setItemsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="border rounded px-3 py-1"
+                className="border rounded px-3 py-1 text-sm"
               >
                 <option value={10}>10 per page</option>
                 <option value={20}>20 per page</option>
@@ -153,34 +155,34 @@ function Episodes({
               <div className="flex gap-2">
                 <button
                   onClick={() => setWatchedFilter(watchedFilter === 'unwatched' ? 'all' : 'unwatched')}
-                  className={`flex items-center gap-2 p-2 rounded-md ${
+                  className={`flex items-center gap-1 p-2 rounded-md text-sm ${
                     watchedFilter === 'unwatched' 
                       ? 'text-green-600 bg-green-50'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                   title={watchedFilter === 'unwatched' ? "Show All Episodes" : "Show Unwatched Episodes"}
                 >
-                  {watchedFilter === 'unwatched' ? <Circle className="h-5 w-5" /> : <CheckCircle className="h-5 w-5" />}
-                  <span className="text-sm">{watchedFilter === 'unwatched' ? "Unwatched" : "All"}</span>
+                  {watchedFilter === 'unwatched' ? <Circle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+                  <span>{watchedFilter === 'unwatched' ? "Unwatched" : "All Watched"}</span>
                 </button>
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowIgnoredFilter(showIgnoredFilter === 'ignored' ? 'all' : 'ignored')}
-                  className={`flex items-center gap-2 p-2 rounded-md ${
+                  className={`flex items-center gap-1 p-2 rounded-md text-sm ${
                     showIgnoredFilter === 'ignored'
                       ? 'text-indigo-600 bg-indigo-50'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                   title={showIgnoredFilter === 'ignored' ? "Show Only Unignored Shows" : "Show All Shows"}
                 >
-                  {showIgnoredFilter === 'ignored' ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
-                  <span className="text-sm">{showIgnoredFilter === 'ignored' ? "All Shows" : "Unignored Shows"}</span>
+                  {showIgnoredFilter === 'ignored' ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                  <span>{showIgnoredFilter === 'ignored' ? "All Shows" : "Unignored"}</span>
                 </button>
               </div>
             </div>
 
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 mt-2 md:mt-0">
               Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, sortedEpisodes.length)} of {sortedEpisodes.length} episodes
             </div>
           </div>
@@ -193,103 +195,149 @@ function Episodes({
           </div>
         )}
 
-        {/* Episodes Table */}
-        <div id="episodes-table-container" className="bg-white rounded-lg shadow-sm overflow-hidden mb-4">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Air Date & Time
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Show
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Episode
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Title
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Runtime
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                <AnimatePresence>
-                  {paginatedEpisodes.map((episode) => {
-                    const show = shows.find(s => s.tvMazeId === episode.showId);
-                    const released = isReleased(episode);
-                    return (
-                      <motion.tr
-                        key={episode.id}
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.4 }}
-                        className={`${
-                          episode.watched
-                            ? 'bg-green-50'
-                            : released
-                              ? 'bg-yellow-50'
-                              : 'bg-blue-50'
-                        } hover:bg-gray-50 transition-colors`}
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          <div className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                            {episode.airdate}
-                            <Clock className="h-4 w-4 mx-2 text-gray-400" />
-                            {episode.airtime}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {episode.showName}
-                          {show?.ignored && (
-                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                              Ignored
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          S{episode.season.toString().padStart(2, '0')}E{episode.number.toString().padStart(2, '0')}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          {episode.name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                          {episode.runtime ? `${episode.runtime} min` : 'N/A'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <button
-                            onClick={() => onToggleWatched(episode.id)}
-                            className={`inline-flex items-center justify-center p-2 rounded-full transition-colors ${
-                              episode.watched
-                                ? 'text-green-600 bg-green-100 hover:bg-green-200'
-                                : 'text-gray-400 bg-gray-100 hover:bg-gray-200'
-                            }`}
-                          >
-                            {episode.watched ? (
-                              <CheckCircle className="h-5 w-5" />
-                            ) : (
-                              <Circle className="h-5 w-5" />
+        {/* Episodes List Container (for both table and cards) */}
+        <div id="episodes-list-container" className="mb-4">
+
+          {/* Desktop Table (hidden on small screens) */}
+          <div className="hidden md:block bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead>
+                  <tr className="bg-gray-50">
+                    {/* Adjusted padding and text size for table headers */}
+                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Air Date & Time</th>
+                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Show</th>
+                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Episode</th>
+                    <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                    <th scope="col" className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Runtime</th>
+                    <th scope="col" className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  <AnimatePresence>
+                    {paginatedEpisodes.map((episode) => {
+                      const show = shows.find(s => s.tvMazeId === episode.showId);
+                      const released = isReleased(episode);
+                      return (
+                        <motion.tr
+                          key={episode.id}
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.4 }}
+                          className={`${
+                            episode.watched
+                              ? 'bg-green-50'
+                              : released
+                                ? 'bg-yellow-50'
+                                : 'bg-blue-50'
+                          } hover:bg-gray-50 transition-colors`}
+                        >
+                          {/* Adjusted padding for table cells */}
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            <div className="flex items-center text-xs">
+                              <Calendar className="h-4 w-4 mr-1 text-gray-400" />
+                              {episode.airdate}
+                              <Clock className="h-4 w-4 ml-2 mr-1 text-gray-400" />
+                              {episode.airtime}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {episode.showName}
+                            {show?.ignored && (
+                              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">Ignored</span>
                             )}
-                          </button>
-                        </td>
-                      </motion.tr>
-                    );
-                  })}
-                </AnimatePresence>
-              </tbody>
-            </table>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                            S{episode.season.toString().padStart(2, '0')}E{episode.number.toString().padStart(2, '0')}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-900">
+                            {episode.name}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-center">
+                            {episode.runtime ? `${episode.runtime} min` : 'N/A'}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-center">
+                            <button
+                              onClick={() => onToggleWatched(episode.id)}
+                              className={`inline-flex items-center justify-center p-2 rounded-full transition-colors ${
+                                episode.watched
+                                  ? 'text-green-600 bg-green-100 hover:bg-green-200'
+                                  : 'text-gray-400 bg-gray-100 hover:bg-gray-200'
+                              }`}
+                            >
+                              {episode.watched ? (
+                                <CheckCircle className="h-5 w-5" />
+                              ) : (
+                                <Circle className="h-5 w-5" />
+                              )}
+                            </button>
+                          </td>
+                        </motion.tr>
+                      );
+                    })}
+                  </AnimatePresence>
+                </tbody>
+              </table>
+            </div>
           </div>
+
+          {/* Mobile Card List (visible on small screens) */}
+          <div className="block md:hidden space-y-3">
+             <AnimatePresence>
+                {paginatedEpisodes.map((episode) => {
+                  const show = shows.find(s => s.tvMazeId === episode.showId);
+                  const released = isReleased(episode);
+                  return (
+                    <motion.div
+                      key={episode.id}
+                      layout // Animate layout changes
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.3 }}
+                      className={`bg-white rounded-lg shadow-sm p-4 ${
+                        episode.watched ? 'border-l-4 border-green-500' : released ? 'border-l-4 border-yellow-500' : 'border-l-4 border-blue-500'
+                      }`}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1">
+                          <h3 className="text-base font-semibold text-gray-900 leading-tight">{episode.name}</h3>
+                          <p className="text-sm text-indigo-600 font-medium flex items-center">
+                             <Tv className="h-4 w-4 mr-1 inline" /> {episode.showName}
+                             {show?.ignored && <span className="ml-2 text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">Ignored</span>}
+                           </p>
+                          <p className="text-xs text-gray-500">
+                            S{episode.season.toString().padStart(2, '0')}E{episode.number.toString().padStart(2, '0')}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => onToggleWatched(episode.id)}
+                          className={`ml-3 flex-shrink-0 inline-flex items-center justify-center p-2 rounded-full transition-colors ${
+                            episode.watched
+                              ? 'text-green-600 bg-green-100 hover:bg-green-200'
+                              : 'text-gray-400 bg-gray-100 hover:bg-gray-200'
+                          }`}
+                        >
+                          {episode.watched ? <CheckCircle className="h-5 w-5" /> : <Circle className="h-5 w-5" />}
+                        </button>
+                      </div>
+                      <div className="flex justify-between items-center text-xs text-gray-500 mt-2 pt-2 border-t border-gray-100">
+                        <span className="flex items-center">
+                          <Calendar className="h-3 w-3 mr-1" /> {episode.airdate}
+                          <Clock className="h-3 w-3 ml-2 mr-1" /> {episode.airtime}
+                        </span>
+                        <span>{episode.runtime ? `${episode.runtime} min` : ''}</span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+           </div>
+
         </div>
 
-        {/* Pagination Controls */}
+        {/* Pagination Controls (should work for both layouts) */}
         <PaginationControls
           currentPage={currentPage}
           totalPages={totalPages}

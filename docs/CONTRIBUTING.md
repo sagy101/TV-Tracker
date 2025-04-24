@@ -34,6 +34,7 @@ Thank you for considering contributing to TrackTV! This document provides guidel
 - [Release Process](#release-process)
 - [Issue Reporting](#issue-reporting)
 - [Communication](#communication)
+- [Areas for Contribution](#areas-for-contribution)
 
 ---
 
@@ -214,6 +215,29 @@ When reporting issues, please use the provided issue templates and include:
 - [GitHub Issues](https://github.com/sagy101/tv-tracker/issues) for bug reports and feature requests
 - [GitHub Discussions](https://github.com/sagy101/tv-tracker/discussions) for questions and community interaction
 - For sensitive issues, contact the maintainers directly
+
+---
+
+## Areas for Contribution
+
+*   **Frontend Development:**
+    *   Implementing new UI features from the [Roadmap](ROADMAP.md).
+    *   Refining existing components for better performance and accessibility.
+    *   **Improving mobile responsiveness** further (testing on various devices).
+    *   Adding unit and integration tests for components.
+*   **Backend Development:**
+    *   Developing new API endpoints for planned features.
+    *   Optimizing database queries and performance.
+    *   Implementing the **AI Show Assistant** feature.
+    *   Enhancing security measures.
+*   **Documentation:**
+    *   Improving installation guides and setup instructions.
+    *   Adding more detailed explanations of the architecture and codebase.
+    *   Keeping documentation up-to-date with new features (like the recent **API refactoring** and **mobile UI improvements**).
+*   **Testing:**
+    *   Writing end-to-end tests.
+    *   Manual testing on different browsers and devices.
+    *   Reporting bugs and suggesting improvements.
 
 ---
 

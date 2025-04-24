@@ -174,117 +174,152 @@ function UserHomePage({ episodes = [], shows = [], onToggleWatched, isReleased }
     setSelectedDate(isSameDay(day, selectedDate) ? null : day);
   };
 
+  // Calculate recommendations *before* the return statement
+  const watchedShowGenres = useMemo(() => {
+    const genres = new Set();
+    filteredShows
+      .filter(s => episodes.some(e => e.showId === s.tvMazeId && e.watched))
+      .forEach(s => {
+        if (s.genres) s.genres.forEach(g => genres.add(g));
+      });
+    return genres;
+  }, [filteredShows, episodes]);
+
+  const recommendedShows = useMemo(() => {
+    // Exclude shows already in the user's list (filteredShows includes ignored based on state)
+    const userShowIds = new Set(shows.map(s => s.tvMazeId)); 
+    
+    // Placeholder for actual recommendation fetching/logic
+    // For now, let's filter the *available* shows based on genre match and not being added
+    // Ideally, this would fetch potential recommendations from the backend
+    // Example: Find shows NOT in userShowIds that share genres with watchedShowGenres
+    
+    // THIS IS DEMO LOGIC - REPLACE WITH ACTUAL RECOMMENDATION SOURCE
+    const potentialRecommendations = shows // Assuming `shows` prop might contain *all* shows from somewhere? Unlikely.
+      .filter(show => !userShowIds.has(show.tvMazeId)) // Not already added
+      .filter(show => show.genres && show.genres.some(g => watchedShowGenres.has(g))) // Shares a genre
+      .sort((a, b) => (b.rating?.average || 0) - (a.rating?.average || 0)); // Sort by rating desc
+      
+    // If using the above demo logic with the current `shows` prop, it will likely be empty
+    // because `shows` only contains the user's added shows.
+    // We need a source of *other* shows to recommend.
+    // Returning an empty array until a proper source is implemented.
+    // return potentialRecommendations.slice(0, 4);
+    return []; // *** Replace this line when actual recommendation data source is available ***
+
+  }, [shows, filteredShows, watchedShowGenres]); // Dependencies adjusted
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-              <p className="text-gray-600">Your personalized TV show tracking overview</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-1 sm:mb-2">Dashboard</h1>
+              <p className="text-gray-600 text-sm sm:text-base">Your personalized TV show tracking overview</p>
             </div>
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowIgnoredShows(!showIgnoredShows)}
-              className={`mt-4 sm:mt-0 self-start sm:self-center flex items-center gap-2 p-2 rounded-md transition-colors duration-200 border ${
+              className={`mt-3 sm:mt-0 self-start sm:self-center flex items-center gap-1.5 p-2 rounded-md transition-colors duration-200 border text-xs sm:text-sm ${
                 showIgnoredShows
                   ? 'text-indigo-600 bg-indigo-50 border-indigo-200'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-gray-200'
               }`}
               title={showIgnoredShows ? "Hide Ignored Shows" : "Show Ignored Shows"}
             >
-              {showIgnoredShows ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
-              <span className="text-sm">{showIgnoredShows ? "Including Ignored Shows" : "Excluding Ignored Shows"}</span>
+              {showIgnoredShows ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              <span>{showIgnoredShows ? "Including Ignored" : "Excluding Ignored"}</span>
             </motion.button>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white shadow rounded-lg p-6">
+        {/* Stats Cards - Responsive Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8">
+          <div className="bg-white shadow rounded-lg p-3 md:p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-blue-100 text-blue-500">
-                <Tv className="h-6 w-6" />
+              <div className="p-2 md:p-3 rounded-full bg-blue-100 text-blue-500">
+                <Tv className="h-5 w-5 md:h-6 md:w-6" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Total Shows</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.totalShows}</p>
+              <div className="ml-3 md:ml-4">
+                <p className="text-xs md:text-sm font-medium text-gray-500">Shows</p>
+                <p className="text-xl md:text-2xl font-semibold text-gray-900">{stats.totalShows}</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white shadow rounded-lg p-3 md:p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-green-100 text-green-500">
-                <CheckCircle className="h-6 w-6" />
+              <div className="p-2 md:p-3 rounded-full bg-green-100 text-green-500">
+                <CheckCircle className="h-5 w-5 md:h-6 md:w-6" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Episodes Watched</p>
-                <p className="text-2xl font-semibold text-gray-900">
+              <div className="ml-3 md:ml-4">
+                <p className="text-xs md:text-sm font-medium text-gray-500">Watched</p>
+                <p className="text-xl md:text-2xl font-semibold text-gray-900">
                   {stats.watchedEpisodes}/{stats.totalEpisodes}
                 </p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white shadow rounded-lg p-3 md:p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-indigo-100 text-indigo-500">
-                <Clock className="h-6 w-6" />
+              <div className="p-2 md:p-3 rounded-full bg-indigo-100 text-indigo-500">
+                <Clock className="h-5 w-5 md:h-6 md:w-6" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Watch Time</p>
-                <p className="text-2xl font-semibold text-gray-900">
+              <div className="ml-3 md:ml-4">
+                <p className="text-xs md:text-sm font-medium text-gray-500">Time</p>
+                <p className="text-xl md:text-2xl font-semibold text-gray-900">
                   {Math.floor(stats.totalWatchTime / 60)}h {stats.totalWatchTime % 60}m
                 </p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white shadow rounded-lg p-3 md:p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-yellow-100 text-yellow-500">
-                <Calendar className="h-6 w-6" />
+              <div className="p-2 md:p-3 rounded-full bg-yellow-100 text-yellow-500">
+                <Calendar className="h-5 w-5 md:h-6 md:w-6" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Upcoming Episodes</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.upcomingEpisodes}</p>
+              <div className="ml-3 md:ml-4">
+                <p className="text-xs md:text-sm font-medium text-gray-500">Upcoming</p>
+                <p className="text-xl md:text-2xl font-semibold text-gray-900">{stats.upcomingEpisodes}</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-6 md:gap-8 mb-8">
           {/* Calendar */}
           <div className="w-full lg:w-7/12">
-            <div className="bg-white shadow rounded-lg p-6">
+            <div className="bg-white shadow rounded-lg p-4 md:p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">Episode Calendar</h2>
-                <div className="flex space-x-2">
-                  <button onClick={prevMonth} className="p-2 rounded-full hover:bg-gray-100">
-                    <ChevronLeft className="h-5 w-5 text-gray-600" />
+                <h2 className="text-lg md:text-xl font-semibold text-gray-900">Calendar</h2>
+                <div className="flex items-center space-x-1 md:space-x-2">
+                  <button onClick={prevMonth} className="p-1.5 md:p-2 rounded-full hover:bg-gray-100">
+                    <ChevronLeft className="h-4 w-4 md:h-5 md:w-5 text-gray-600" />
                   </button>
-                  <h3 className="text-lg font-medium text-gray-700">
-                    {format(currentDate, 'MMMM yyyy')}
+                  <h3 className="text-base md:text-lg font-medium text-gray-700 w-28 md:w-32 text-center">
+                    {format(currentDate, 'MMM yyyy')}
                   </h3>
-                  <button onClick={nextMonth} className="p-2 rounded-full hover:bg-gray-100">
-                    <ChevronRight className="h-5 w-5 text-gray-600" />
+                  <button onClick={nextMonth} className="p-1.5 md:p-2 rounded-full hover:bg-gray-100">
+                    <ChevronRight className="h-4 w-4 md:h-5 md:w-5 text-gray-600" />
                   </button>
                 </div>
               </div>
               
-              <div className="grid grid-cols-7 gap-2 mb-2">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                  <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
+              <div className="grid grid-cols-7 gap-1 md:gap-2 mb-2">
+                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(day => (
+                  <div key={day} className="text-center text-xs md:text-sm font-medium text-gray-500 py-1 md:py-2">
                     {day}
                   </div>
                 ))}
               </div>
               
-              <div className="grid grid-cols-7 gap-2">
+              <div className="grid grid-cols-7 gap-1 md:gap-2">
                 {/* Fill in empty cells before the first day of the month */}
                 {Array.from({ length: monthStart.getDay() }).map((_, index) => (
-                  <div key={`empty-start-${index}`} className="h-24 p-1 text-center text-sm text-gray-300"></div>
+                  <div key={`empty-start-${index}`} className="h-16 md:h-24 border border-transparent"></div>
                 ))}
                 
                 {/* Calendar days */}
@@ -292,67 +327,56 @@ function UserHomePage({ episodes = [], shows = [], onToggleWatched, isReleased }
                   const dayEpisodes = getEpisodesForDay(day);
                   const isToday = isSameDay(day, new Date());
                   const isSelected = selectedDate && isSameDay(day, selectedDate);
+                  const hasEpisodes = dayEpisodes.length > 0;
                   
                   return (
                     <div
                       key={day.toISOString()}
                       onClick={() => handleSelectDay(day)}
-                      className={`h-24 p-1 border rounded-md cursor-pointer overflow-hidden transition-colors duration-200 ${
-                        isToday ? 'bg-blue-50 border-blue-400 border-2' :
-                        isSelected ? 'bg-indigo-100 border-indigo-500 border-2' :
-                        'border-gray-200 hover:bg-gray-50'
+                      className={`h-16 md:h-24 p-1 border rounded cursor-pointer overflow-hidden transition-all duration-150 flex flex-col relative ${
+                        isToday ? 'border-blue-400 border-2 font-bold' : isSelected ? 'border-indigo-500 border-2 bg-indigo-50' : 'border-gray-200 hover:bg-gray-50'
                       }`}
                     >
-                      <div className="text-right text-sm font-medium mb-1">
+                      <div className={`text-right text-xs md:text-sm mb-0.5 ${isToday ? 'text-blue-600' : isSelected ? 'text-indigo-700' : 'text-gray-600'}`}>
                         {format(day, 'd')}
                       </div>
-                      <div className="overflow-y-auto max-h-16">
-                        {dayEpisodes.slice(0, 3).map(episode => {
-                          const show = shows.find(s => s.tvMazeId === episode.showId);
-                          return (
-                            <div
-                              key={episode.id}
-                              className={`text-xs p-1 mb-1 rounded truncate ${
-                                episode.watched ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                              }`}
-                              title={`${show?.name} - S${episode.season}E${episode.number}: ${episode.name}`}
-                            >
-                              {show?.name} - S{episode.season}E{episode.number}
-                            </div>
-                          );
-                        })}
-                        {dayEpisodes.length > 3 && (
-                          <div className="text-xs text-center text-gray-500">
-                            +{dayEpisodes.length - 3} more
-                          </div>
-                        )}
-                      </div>
+                      {hasEpisodes && (
+                         <div className="flex-1 flex flex-col items-center justify-center gap-0.5 overflow-hidden">
+                            {dayEpisodes.slice(0, 2).map(ep => (
+                               <div key={ep.id} className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${ep.watched ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
+                            ))}
+                            {dayEpisodes.length > 2 && (
+                               <div className="text-[8px] md:text-[10px] text-gray-400 mt-0.5">+{dayEpisodes.length - 2}</div>
+                            )}
+                         </div>
+                      )}
                     </div>
                   );
                 })}
                 
                 {/* Fill in empty cells after the last day of the month */}
                 {Array.from({ length: 6 - monthEnd.getDay() }).map((_, index) => (
-                  <div key={`empty-end-${index}`} className="h-24 p-1 text-center text-sm text-gray-300"></div>
+                  <div key={`empty-end-${index}`} className="h-16 md:h-24 border border-transparent"></div>
                 ))}
               </div>
             </div>
           </div>
 
           {/* Sidebar with episode lists */}
-          <div className="w-full lg:w-5/12">
+          <div className="w-full lg:w-5/12 space-y-6">
             {/* Selected day details */}
             <AnimatePresence>
               {selectedDate && (
                 <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-white shadow rounded-lg p-6 mb-6"
+                  key="selected-day-details"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-white shadow rounded-lg p-4 md:p-6 overflow-hidden"
                 >
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Episodes on {format(selectedDate, 'MMMM d, yyyy')}
+                  <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3">
+                    Episodes on {format(selectedDate, 'MMM d, yyyy')}
                   </h3>
                   
                   {getEpisodesForDay(selectedDate).length === 0 ? (
@@ -398,8 +422,8 @@ function UserHomePage({ episodes = [], shows = [], onToggleWatched, isReleased }
             </AnimatePresence>
 
             {/* Recent unwatched episodes */}
-            <div className="bg-white shadow rounded-lg p-6 mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="bg-white shadow rounded-lg p-4 md:p-6">
+              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3">
                 Recently Aired (Unwatched)
               </h3>
               
@@ -445,8 +469,8 @@ function UserHomePage({ episodes = [], shows = [], onToggleWatched, isReleased }
             </div>
 
             {/* Upcoming episodes */}
-            <div className="bg-white shadow rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="bg-white shadow rounded-lg p-4 md:p-6">
+              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3">
                 Coming Soon
               </h3>
               
@@ -493,101 +517,63 @@ function UserHomePage({ episodes = [], shows = [], onToggleWatched, isReleased }
           </div>
         </div>
 
-        {/* Recommendations */}
-        <div className="max-w-7xl mx-auto mt-8 px-4 sm:px-6 lg:px-8">
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Recommended for You</h2>
-
-            {/* Genre-based Recommendations */}
-            <div>
+        {/* Recommendations Section (Moved outside flex container, conditional render) */}
+        {recommendedShows.length > 0 && (
+          <div className="mt-8"> { /* Ensure spacing */}
+            <div className="bg-white shadow rounded-lg p-4 md:p-6">
               <div className="flex items-center mb-4">
                 <Tag className="h-5 w-5 text-indigo-500 mr-2" />
                 <h3 className="text-lg font-medium text-gray-900">Based on Your Favorite Genres</h3>
               </div>
-
-              {filteredShows.length === 0 ? (
-                <p className="text-gray-500">Add more shows to get personalized recommendations.</p>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Filter to exclude shows that are already in the user's shows */}
-                  {filteredShows
-                    .filter(show => !shows.some(userShow => userShow.tvMazeId === show.tvMazeId))
-                    .filter(show => !show.ignored)
-                    .filter(show => show.genres && show.genres.length > 0)
-                    .sort((a, b) => {
-                      // First sort by genres that match watched shows
-                      const watchedShowGenres = new Set();
-                      filteredShows
-                        .filter(s => episodes.some(e => e.showId === s.tvMazeId && e.watched))
-                        .forEach(s => {
-                          if (s.genres) s.genres.forEach(g => watchedShowGenres.add(g));
-                        });
-                        
-                      const aMatchCount = a.genres.filter(g => watchedShowGenres.has(g)).length;
-                      const bMatchCount = b.genres.filter(g => watchedShowGenres.has(g)).length;
-                      
-                      if (aMatchCount !== bMatchCount) return bMatchCount - aMatchCount;
-                      
-                      // Then by popularity
-                      return (b.popularity || 0) - (a.popularity || 0);
-                    })
-                    .slice(0, 4)
-                    .map(show => (
-                      <Link
-                        key={show.tvMazeId}
-                        to={`/shows/${show.tvMazeId}`}
-                        className="bg-indigo-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
-                      >
-                        <div>
-                          <div className="h-40 bg-indigo-200 relative">
-                            {show.image ? (
-                              <img 
-                                src={show.image} 
-                                alt={show.name} 
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-indigo-100">
-                                <Tv className="h-12 w-12 text-indigo-300" />
-                              </div>
-                            )}
-                            
-                            {show.genres && show.genres.length > 0 && (
-                              <div className="absolute bottom-2 left-2 flex flex-wrap gap-1">
-                                {show.genres.slice(0, 2).map(genre => (
-                                  <span 
-                                    key={genre} 
-                                    className="px-2 py-1 bg-indigo-600 bg-opacity-80 rounded text-xs font-medium text-white"
-                                  >
-                                    {genre}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
+              {/* Using grid layout directly here */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {recommendedShows.map(show => (
+                  <Link
+                    key={show.tvMazeId} // Use tvMazeId if that's the unique ID
+                    to={`/shows/${show.tvMazeId}`}
+                    className="bg-indigo-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
+                  >
+                    <div>
+                      <div className="h-32 sm:h-40 bg-indigo-200 relative"> { /* Adjusted height */}
+                        {show.image ? (
+                          <img src={show.image} alt={show.name} className="w-full h-full object-cover"/>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-indigo-100">
+                            <Tv className="h-10 w-10 text-indigo-300" />
                           </div>
-                          <div className="p-4">
-                            <h4 className="font-medium text-indigo-900 truncate">{show.name}</h4>
-                            
-                            <div className="mt-2 flex items-center justify-between">
-                              <div className="text-xs text-indigo-700">
-                                {show.status}
-                              </div>
-                              {show.rating && show.rating.average && (
-                                <div className="flex items-center">
-                                  <Star className="h-3 w-3 text-yellow-500 mr-1" />
-                                  <span className="text-xs font-medium">{show.rating.average}</span>
-                                </div>
-                              )}
+                        )}
+                        {/* Genre tags */}
+                        {show.genres?.length > 0 && (
+                          <div className="absolute bottom-1 left-1 flex flex-wrap gap-1 p-1">
+                            {show.genres.slice(0, 2).map(genre => (
+                              <span key={genre} className="px-1.5 py-0.5 bg-indigo-600 bg-opacity-80 rounded text-[10px] font-medium text-white">
+                                {genre}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3">
+                        <h4 className="font-medium text-sm text-indigo-900 truncate">{show.name}</h4>
+                        <div className="mt-1 flex items-center justify-between">
+                          <div className="text-xs text-indigo-700">
+                            {show.status}
+                          </div>
+                          {show.rating?.average && (
+                            <div className="flex items-center">
+                              <Star className="h-3 w-3 text-yellow-500 mr-0.5" />
+                              <span className="text-xs font-medium">{show.rating.average}</span>
                             </div>
-                          </div>
+                          )}
                         </div>
-                      </Link>
-                    ))}
-                </div>
-              )}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Modals */}
