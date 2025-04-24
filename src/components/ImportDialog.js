@@ -4,8 +4,7 @@ import { Download } from 'lucide-react';
 import ImportSearchResultsDialog from './ImportSearchResultsDialog';
 import ProgressBar from './ProgressBar';
 import { AuthContext } from '../contexts/AuthContext';
-
-const API_BASE_URL = 'http://localhost:3001/api';
+import * as api from '../api';
 
 function ImportDialog({ isOpen, onClose, onImport }) {
   const { token } = useContext(AuthContext);
@@ -33,20 +32,9 @@ function ImportDialog({ isOpen, onClose, onImport }) {
 
   const searchForShow = async (showName) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/shows/search?q=${encodeURIComponent(showName)}`, {
-        signal: abortControllerRef.current.signal,
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (!response.ok) {
-        if (response.status === 499) {
-          console.log('Search cancelled by user');
-          return null;
-        }
-        throw new Error('Search failed');
-      }
-      return await response.json();
+      const data = await api.searchTvMaze(showName, token);
+      if (abortControllerRef.current.signal.aborted) return null;
+      return data;
     } catch (err) {
       if (err.name === 'AbortError') {
         console.log('Search cancelled by user');

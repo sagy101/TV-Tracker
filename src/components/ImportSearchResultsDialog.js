@@ -7,8 +7,7 @@ import ImportSummaryDialog from './ImportSummaryDialog';
 import StatusList from './StatusList';
 import ProgressBar from './ProgressBar';
 import { AuthContext } from '../contexts/AuthContext';
-
-const API_BASE_URL = 'http://localhost:3001/api';
+import * as api from '../api'; // Import API functions
 
 function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress }) {
   const { token } = useContext(AuthContext);
@@ -44,23 +43,13 @@ function ImportSearchResultsDialog({ isOpen, onClose, onNext, results, progress 
 
   const addShow = async (show, ignored) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/shows/${show.id}`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          ignored: ignored
-        })
-      });
-      if (!response.ok) throw new Error(`Failed to add show: ${show.name}`);
-      const data = await response.json();
-      if (data.error) throw new Error(data.error);
-      return data; // Return the server response directly which includes { show, skipped }
+      // Use the API function - needs show details which we have in `show` object
+      // Assuming `show` object from search results has name, image, status etc.
+      const result = await api.addShow(show.id, show, token);
+      return result; // Return the server response { show, skipped }
     } catch (err) {
       console.error(`Error adding show ${show.name}:`, err);
-      throw err; // Rethrow the error to be caught in processShow
+      throw err; 
     }
   };
 

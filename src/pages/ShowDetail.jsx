@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Calendar, 
@@ -19,10 +19,13 @@ import {
   Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AuthContext } from '../contexts/AuthContext';
+import * as api from '../api';
 
 function ShowDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { token } = useContext(AuthContext);
   const [show, setShow] = useState(null);
   const [episodes, setEpisodes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,56 +37,37 @@ function ShowDetail() {
 
   useEffect(() => {
     const fetchShowDetails = async () => {
+      if (!token) {
+          setError('Authentication required.');
+          setLoading(false);
+          return;
+      }
       try {
         setLoading(true);
+        setError(null);
         
-        // Get authentication token from localStorage and sessionStorage
-        const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-        const authHeaders = {
-          'Authorization': token ? `Bearer ${token}` : ''
-        };
-        
-        // Fetch show details
-        const response = await fetch(`/api/shows/${id}`, {
-          headers: authHeaders
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch show details');
-        }
-        
-        const showData = await response.json();
+        const showData = await api.fetchShowDetails(id, token);
         setShow(showData);
         
-        // Fetch episodes
-        const episodesResponse = await fetch(`/api/shows/${id}/episodes`, {
-          headers: authHeaders
-        });
-        
-        if (!episodesResponse.ok) {
-          throw new Error('Failed to fetch episodes');
-        }
-        
-        const episodesData = await episodesResponse.json();
-        setEpisodes(episodesData);
+        const episodesData = await api.fetchEpisodesForShow(id, token);
+        setEpisodes(episodesData || []);
         
         setLoading(false);
       } catch (err) {
-        setError(err.message);
+        console.error("Error fetching show details or episodes:", err);
+        setError(err.message || 'Failed to load show data.');
         setLoading(false);
       }
     };
     
     fetchShowDetails();
-  }, [id]);
+  }, [id, token]);
 
-  // Initialize expanded seasons when episodes are loaded
   useEffect(() => {
     if (episodes.length > 0) {
       const initialExpandedState = {};
       const episodesBySeason = {};
       
-      // Group episodes by season
       episodes.forEach(episode => {
         if (!episodesBySeason[episode.season]) {
           episodesBySeason[episode.season] = [];
@@ -91,7 +75,6 @@ function ShowDetail() {
         episodesBySeason[episode.season].push(episode);
       });
       
-      // Find the first season with unwatched episodes
       let seasonWithUnwatchedEpisode = null;
       Object.keys(episodesBySeason).forEach(season => {
         if (!seasonWithUnwatchedEpisode && episodesBySeason[season].some(ep => !ep.watched)) {
@@ -99,7 +82,6 @@ function ShowDetail() {
         }
       });
       
-      // Set only that season to be expanded by default
       Object.keys(episodesBySeason).forEach(season => {
         initialExpandedState[season] = season === seasonWithUnwatchedEpisode;
       });
@@ -109,103 +91,35 @@ function ShowDetail() {
   }, [episodes]);
 
   const handleToggleIgnore = async () => {
+    if (!token) {
+        setError('Authentication required.');
+        return;
+    }
     try {
-      // Reset any previous errors
       setError(null);
       
-      // Get authentication token - check both localStorage and sessionStorage with the correct key
-      let token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      const updatedShow = await api.toggleShowIgnore(id, token);
       
-      // Check if we have a token before proceeding
-      if (!token) {
-        console.error('Authentication token not found. Please log in again.');
-        setError('Authentication required. Please log in to toggle show status.');
-        return;
-      }
-      
-      console.log('Found authentication token. Sending toggle ignore request...');
-      
-      // First, ensure the show exists in the database
-      const addResponse = await fetch(`/api/shows/${id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({})
-      });
-      
-      if (!addResponse.ok) {
-        console.error('Failed to ensure show exists in database:', addResponse.status);
-        // Continue anyway, maybe it does exist
-      } else {
-        console.log('Show added/confirmed in database');
-      }
-      
-      // Now toggle the ignore status
-      const response = await fetch(`/api/shows/${id}/ignore`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      // Handle 401 Unauthorized specifically
-      if (response.status === 401) {
-        console.error('Authentication failed. Please log in again.');
-        setError('Authentication required. Please log in to toggle show status.');
-        return;
-      }
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Failed to toggle show status:', response.status, errorText);
-        throw new Error(errorText || 'Failed to toggle ignored status');
-      }
-      
-      const updatedShow = await response.json();
-      
-      // Update the local state with the new ignored status
-      setShow(prev => {
-        if (!prev) return prev;
-        return { ...prev, ignored: updatedShow.ignored };
-      });
-      
+      setShow(prev => ({ ...prev, ignored: updatedShow.ignored }));
       console.log(`Show ${id} ignored status changed to: ${updatedShow.ignored}`);
     } catch (err) {
       console.error('Error toggling ignored status:', err);
-      setError(err.message || 'Failed to update show status. Please try again.');
+      setError(err.message || 'Failed to update show status.');
     }
   };
 
   const handleToggleEpisodeWatched = async (episodeId) => {
+    if (!token) {
+       setError('Authentication required.');
+       return; 
+    }
     try {
       const episode = episodes.find(ep => ep.id === episodeId);
       if (!episode) return;
-      
       const newWatchedStatus = !episode.watched;
       
-      // Get authentication token
-      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      await api.updateEpisode(episodeId, { watched: newWatchedStatus }, token);
       
-      // Match the format used in the main App.js toggle function
-      const response = await fetch(`/api/episodes/${episodeId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': token ? `Bearer ${token}` : ''
-        },
-        body: JSON.stringify({ 
-          watched: newWatchedStatus
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to update episode');
-      }
-      
-      // Update local state
       setEpisodes(prevEpisodes => 
         prevEpisodes.map(ep => 
           ep.id === episodeId ? { ...ep, watched: newWatchedStatus } : ep
@@ -213,36 +127,25 @@ function ShowDetail() {
       );
     } catch (err) {
       console.error('Error updating episode:', err);
+      setError(err.message || 'Failed to update episode status.');
     }
   };
 
   const handleMarkSeasonWatched = async (season) => {
+    if (!token) {
+       setError('Authentication required.');
+       return; 
+    }
     try {
       const seasonEpisodes = episodes.filter(ep => ep.season === season);
       const unwatchedEpisodes = seasonEpisodes.filter(ep => !ep.watched);
-      
       if (unwatchedEpisodes.length === 0) return;
       
-      // Get authentication token
-      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-      
-      // Update all unwatched episodes in this season one by one with the same format
       const updatePromises = unwatchedEpisodes.map(episode => 
-        fetch(`/api/episodes/${episode.id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token ? `Bearer ${token}` : ''
-          },
-          body: JSON.stringify({ 
-            watched: true
-          }),
-        })
+        api.updateEpisode(episode.id, { watched: true }, token)
       );
-      
       await Promise.all(updatePromises);
       
-      // Update local state
       setEpisodes(prevEpisodes => 
         prevEpisodes.map(ep => 
           ep.season === season ? { ...ep, watched: true } : ep
@@ -250,6 +153,7 @@ function ShowDetail() {
       );
     } catch (err) {
       console.error('Error marking season as watched:', err);
+       setError(err.message || 'Failed to mark season as watched.');
     }
   };
 
@@ -260,7 +164,6 @@ function ShowDetail() {
     }));
   };
 
-  // Group episodes by season
   const episodesBySeason = episodes.reduce((acc, episode) => {
     if (!acc[episode.season]) {
       acc[episode.season] = [];
@@ -269,16 +172,14 @@ function ShowDetail() {
     return acc;
   }, {});
 
-  // Sort seasons
   const seasons = Object.keys(episodesBySeason).map(Number).sort((a, b) => a - b);
 
-  // Helper to determine if an episode is released (using a simple date comparison)
   const isReleased = (episode) => {
     if (!episode?.airdate) return false;
     try {
       const epDate = new Date(episode.airdate);
       const today = new Date();
-      today.setHours(0, 0, 0, 0); // Compare dates only
+      today.setHours(0, 0, 0, 0);
       return epDate <= today;
     } catch (e) {
       return false;
@@ -329,7 +230,6 @@ function ShowDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
-      {/* Back Navigation */}
       <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
         <button
           onClick={() => navigate(-1)}
@@ -340,13 +240,11 @@ function ShowDetail() {
         </button>
       </div>
 
-      {/* Show Hero Section */}
       <div 
         className="w-full bg-gradient-to-r from-indigo-700 to-indigo-900 py-12 shadow-xl"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row">
-            {/* Show Poster */}
             <div className="flex-shrink-0 flex justify-center lg:justify-start mb-8 lg:mb-0">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -369,7 +267,6 @@ function ShowDetail() {
               </motion.div>
             </div>
 
-            {/* Show Information */}
             <div className="lg:ml-8 flex-1 text-white">
               <motion.div
                 initial={{ opacity: 0 }}
@@ -484,7 +381,6 @@ function ShowDetail() {
         </div>
       </div>
 
-      {/* Tab Navigation */}
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8 overflow-x-auto scrollbar-hide">
@@ -512,11 +408,9 @@ function ShowDetail() {
         </div>
       </div>
 
-      {/* Tab Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {activeTab === 'overview' && (
           <div className="bg-white shadow rounded-lg p-4 md:p-6">
-            {/* User Stats Section */}
             <div className="border-t-0 pt-0">
               <h2 className="text-xl font-bold mb-4">Your Stats</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -589,7 +483,6 @@ function ShowDetail() {
                 </div>
               </div>
               
-              {/* Next Episode to Watch */}
               {episodes.length > 0 && episodes.some(ep => !ep.watched) && (
                 <div className="mt-6 bg-yellow-50 rounded-lg p-4">
                   <h3 className="font-medium text-yellow-800 mb-2">Next Episode to Watch</h3>
@@ -667,7 +560,6 @@ function ShowDetail() {
                   const canMarkAll = seasonEpisodes.some(ep => !ep.watched);
                   return (
                      <div key={season} className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
-                       {/* Season Header (remains similar) */}
                        <div 
                          className="bg-gray-100 p-3 md:p-4 flex flex-col md:flex-row items-start md:items-center justify-between cursor-pointer gap-2 md:gap-0"
                          onClick={() => toggleSeasonExpanded(season)}
@@ -700,10 +592,8 @@ function ShowDetail() {
                          </div>
                        </div>
                        
-                       {/* Episode List (conditionally rendered and responsive) */}
                        {expandedSeasons[season] && (
                          <div>
-                           {/* Desktop Table View (Hidden on Mobile) */}
                            <div className="hidden md:block divide-y divide-gray-200">
                              {seasonEpisodes.map((episode) => (
                                <div key={episode.id} className="px-4 py-3 flex items-center">
@@ -726,7 +616,6 @@ function ShowDetail() {
                              ))}
                            </div>
 
-                           {/* Mobile Card View (Visible on Mobile) */}
                            <div className="block md:hidden divide-y divide-gray-100">
                                <AnimatePresence>
                                   {seasonEpisodes.map((episode) => {
