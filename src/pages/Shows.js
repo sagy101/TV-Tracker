@@ -222,10 +222,10 @@ function Shows({ shows = [], episodes = [], onDeleteShow, onToggleIgnore }) {
                 transition={{ duration: 0.2 }}
               >
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
+                  <table className="min-w-full table-fixed divide-y divide-gray-200">
                     <thead>
                       <tr className="bg-gray-50">
-                        <SortableHeader column="name" className="pl-4">Series</SortableHeader>
+                        <SortableHeader column="name" className="pl-4 w-56">Series</SortableHeader>
                         <SortableHeader column="tvMazeId">ID</SortableHeader>
                         <SortableHeader column="seasons">Seasons</SortableHeader>
                         <SortableHeader column="episodes">Episodes</SortableHeader>
@@ -246,8 +246,8 @@ function Shows({ shows = [], episodes = [], onDeleteShow, onToggleIgnore }) {
                               isFullyWatched ? 'bg-green-50' : show.ignored ? 'bg-gray-50' : ''
                             }`}
                           >
-                            <td className="pl-4 pr-2 py-3 whitespace-nowrap">
-                              <div className="flex items-center">
+                            <td className="pl-4 pr-2 py-3 max-w-xs overflow-hidden">
+                              <div className="flex items-center max-w-full">
                                 <div className="flex-shrink-0 h-10 w-10">
                                   {show.image ? (
                                     <img className="h-10 w-10 rounded-full object-cover" src={show.image} alt={show.name} />
@@ -257,8 +257,12 @@ function Shows({ shows = [], episodes = [], onDeleteShow, onToggleIgnore }) {
                                     </div>
                                   )}
                                 </div>
-                                <div className="ml-3">
-                                  <Link to={`/shows/${show.tvMazeId}`} className="text-sm font-medium text-indigo-600 hover:text-indigo-900 hover:underline">
+                                <div className="ml-3 min-w-0 max-w-full overflow-hidden">
+                                  <Link 
+                                    to={`/shows/${show.tvMazeId}`} 
+                                    className="text-sm font-medium text-indigo-600 hover:text-indigo-900 hover:underline block truncate max-w-full"
+                                    title={show.name}
+                                  >
                                     {show.name}
                                   </Link>
                                 </div>

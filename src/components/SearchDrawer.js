@@ -4,8 +4,6 @@ import { X, Search, AlertCircle, CheckCircle } from 'lucide-react';
 import { AuthContext } from '../contexts/AuthContext';
 import * as api from '../api'; // Import centralized API functions
 
-// Remove hardcoded API_BASE_URL
-// const API_BASE_URL = 'http://localhost:3001/api';
 
 const SearchDrawer = ({ isOpen, onSelectShow, onClose, existingShows = [] }) => {
   const { token } = useContext(AuthContext);
