@@ -2,8 +2,10 @@ import React, { useState, useRef, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { X, Search, AlertCircle, CheckCircle } from 'lucide-react';
 import { AuthContext } from '../contexts/AuthContext';
+import * as api from '../api'; // Import centralized API functions
 
-const API_BASE_URL = 'http://localhost:3001/api';
+// Remove hardcoded API_BASE_URL
+// const API_BASE_URL = 'http://localhost:3001/api';
 
 const SearchDrawer = ({ isOpen, onSelectShow, onClose, existingShows = [] }) => {
   const { token } = useContext(AuthContext);
@@ -11,154 +13,108 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose, existingShows = [] }) => 
   const [yearFilter, setYearFilter] = useState('');
   const [error, setError] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [loadingSearch, setLoadingSearch] = useState(false); // Add loading state for search
   const searchTimeoutRef = useRef(null);
 
   // Create a Set of existing show IDs for quick lookup
-  const existingShowIds = new Set(existingShows.map(show => show.tvMazeId.toString()));
+  const existingShowIds = new Set(existingShows.map(show => show.tvMazeId?.toString()));
 
   // Check if a show is already in the user's collection
   const isShowInCollection = (showId) => {
-    return existingShowIds.has(showId.toString());
+    return existingShowIds.has(showId?.toString());
   };
 
-  const handleInputChange = async (e) => {
+  // Use api.searchTvMaze for searching
+  const handleInputChange = (e) => {
     const query = e.target.value;
     setSearchInput(query);
     setError('');
+    setLoadingSearch(true); // Start loading indicator
 
-    // Clear previous timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
 
-    // For both ID and text search, wait 300ms before searching
     if (query.length >= 1) {
       searchTimeoutRef.current = setTimeout(async () => {
         try {
-          const response = await fetch(`${API_BASE_URL}/shows/search?q=${encodeURIComponent(query)}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          if (!response.ok) throw new Error('Search failed');
-          const data = await response.json();
+          // Use the imported API function
+          const data = await api.searchTvMaze(query, token);
           
-          // If it's a single show (ID search), wrap it in the same format as name search
-          if (data.id) {
-            setSearchResults([{ show: data }]);
+          // Handle response format (assuming it might be single object for ID or array for name search)
+          if (data && data.id && !Array.isArray(data)) {
+             // Wrap single object result in array for consistent handling
+             setSearchResults([{ show: data }]);
+          } else if (Array.isArray(data)) {
+             setSearchResults(data);
           } else {
-            setSearchResults(data);
+             // Handle unexpected format or empty results
+             setSearchResults([]);
           }
         } catch (err) {
-          setError('Error searching for shows');
+          console.error("Search Error:", err); // Log the actual error
+          // Check for specific error messages if needed
+          if (err.message && err.message.includes('Failed to fetch')) {
+             setError('Network error searching for shows. Please check connection.');
+          } else {
+            setError('Error searching for shows. Please try again.');
+          }
           setSearchResults([]);
+        } finally {
+            setLoadingSearch(false); // Stop loading indicator
         }
       }, 300);
     } else {
       setSearchResults([]);
+      setLoadingSearch(false); // Stop loading if query is cleared
     }
   };
 
   // Filter results by year if yearFilter is set
   const filteredResults = searchResults.filter(({ show }) => {
     if (!yearFilter) return true;
-    const premiereYear = show.premiered?.split('-')[0];
+    const premiereYear = show?.premiered?.split('-')[0];
     return premiereYear === yearFilter;
   });
 
-  const handleSubmit = async (e) => {
+  // Simplify handleSubmit - just trigger onSelectShow if it's an ID
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
 
+    // Check if input looks like an ID
     if (/^\d+$/.test(searchInput)) {
-      try {
-        const response = await fetch(`${API_BASE_URL}/shows/search?q=${searchInput}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (!response.ok) throw new Error('Show not found');
-        const data = await response.json();
-        
-        let showData;
-        if (Array.isArray(data) && data.length > 0) {
-          showData = data[0].show;
-        } else if (data.id) {
-          showData = data;
-        } else {
-          throw new Error('Show not found');
-        }
-        
-        // Check if show is already in collection
-        if (isShowInCollection(showData.id)) {
-          setError('This show is already in your collection');
-          return;
-        }
-        
-        // Add the show using the new endpoint
-        const addResponse = await fetch(`${API_BASE_URL}/shows/${showData.id}`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            ignored: false
-          })
-        });
-        
-        if (!addResponse.ok) {
-          throw new Error('Failed to add show');
-        }
-        
-        // Notify parent component
-        await onSelectShow();
-        
-        // Reset UI state
-        setSearchInput('');
-        setYearFilter('');
-        setSearchResults([]);
-        onClose();
-      } catch (err) {
-        setError('Error adding show. Please check the ID and try again.');
+      const showId = searchInput; // The ID itself
+      // Check if already added locally to prevent unnecessary action
+      if (isShowInCollection(showId)) {
+         setError('This show is already in your collection (or recently added).');
+         return;
       }
+      // Pass the ID to the parent handler
+      onSelectShow(showId); 
+      // Don't reset/close here, let the parent handle it after adding
+    } else {
+       // If not an ID, maybe trigger search immediately or show message?
+       setError('Please select a show from the search results below, or enter a valid TVMaze ID.')
     }
   };
 
-  const handleSelectResult = async (show) => {
-    try {
-      // Update to use the /:id endpoint instead of the legacy route
-      const response = await fetch(`${API_BASE_URL}/shows/${show.id}`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          ignored: false
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to add show');
-      }
-      
-      // Call onSelectShow with the show ID, not the entire show object
-      await onSelectShow();
-      
-      // Reset UI state
-      setSearchInput('');
-      setYearFilter('');
-      setSearchResults([]);
-      onClose();
-    } catch (err) {
-      setError('Error adding show. Please try again.');
-    }
+  // Simplify handleSelectResult - just call onSelectShow
+  const handleSelectResult = (show) => {
+    // Pass the selected show object (or just its ID) to the parent
+    // App.js's handleAddShow expects the ID
+    onSelectShow(show.id); 
+    // Resetting state here might be premature if add fails in parent
+    // Let parent handle closing/resetting
+    // setSearchInput('');
+    // setYearFilter('');
+    // setSearchResults([]);
+    // onClose();
   };
 
   // Get unique years from search results
   const availableYears = [...new Set(searchResults
-    .map(({ show }) => show.premiered?.split('-')[0])
+    .map(({ show }) => show?.premiered?.split('-')[0])
     .filter(year => year)
   )].sort().reverse();
 
@@ -192,7 +148,7 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose, existingShows = [] }) => 
 
                 <div className="mt-8">
                   <form onSubmit={handleSubmit} className="space-y-2">
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
                       <input
                         type="text"
                         value={searchInput}
@@ -201,6 +157,7 @@ const SearchDrawer = ({ isOpen, onSelectShow, onClose, existingShows = [] }) => 
                         className="flex-1 border rounded px-3 py-1"
                         autoFocus
                       />
+                      {loadingSearch && <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>}
                     </div>
 
                     {searchResults.length > 0 && (
