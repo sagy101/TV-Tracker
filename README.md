@@ -153,11 +153,30 @@ Experience TrackTV without installation via my online demo:
 ### Prerequisites
 
 - Node.js (v14 or higher)
-- MongoDB (v4.4 or higher)
+- **MongoDB (v4.4 or higher)**: Required only if you plan to run a *local* MongoDB instance. Not needed if using MongoDB Atlas (cloud).
 - npm or yarn
 - An email sending service (e.g., Mailtrap for testing, SendGrid/Gmail for production)
 
 ### Quick Install
+
+**Windows Automated Setup:**
+
+For Windows users, you can use the provided setup scripts (`setup.bat` or `setup.ps1`) to automate the installation process.
+
+- **PowerShell (Recommended):**
+  1. Open PowerShell as Administrator.
+  2. Navigate to the project directory: `cd path\to\tv-tracker`
+  3. Allow script execution (if needed): `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process`
+  4. Run the script: `.\setup.ps1`
+
+- **Command Prompt (Batch):**
+  1. Open Command Prompt as Administrator.
+  2. Navigate to the project directory: `cd path\to\tv-tracker`
+  3. Run the script: `setup.bat`
+
+**Note:** These scripts will attempt to install Node.js (via nvm-windows) and MongoDB locally, configure them using `mongod.cfg`, install project dependencies, and set up the `.env` file with a default `MONGODB_URI` pointing to the *local* MongoDB instance. You can switch to MongoDB Atlas later by editing the `MONGODB_URI` in the generated `.env` file (see `.env` details below).
+
+**Manual Installation (All Platforms):**
 
 ```bash
 # Clone the repository
@@ -167,12 +186,12 @@ cd tv-tracker
 # Install dependencies
 npm install
 
-# Set up environment variables
-# Create your local .env file by copying the example
-cp .env.example .env 
+# Set up environment variables (See details below)
+cp .env.example .env
+
+# Ensure your database is ready (local MongoDB running or Atlas URI configured in .env)
 
 # Start the development servers (in separate terminals)
-
 # Terminal 1: Start the backend server
 npm run server
 
@@ -181,11 +200,13 @@ npm start
 ```
 
 <details>
-<summary>Click for .env variable details</summary>
+<summary><strong>.env Variable Details (Click to expand)</strong></summary>
 
-*   **Edit the `.env` file** created in the previous step.
+*   **Edit the `.env` file** created in the previous step (or by the setup scripts).
 *   **REQUIRED:**
-    *   `MONGODB_URI`: Your full MongoDB connection string.
+    *   `MONGODB_URI`: Your MongoDB connection string.
+        *   **For MongoDB Atlas (Cloud - Recommended):** Use the `mongodb+srv://...` string provided by Atlas, replacing `<db_password>` with your database user password. Example: `mongodb+srv://user:<password>@cluster-name.mongodb.net/?retryWrites=true&w=majority&appName=YourApp`
+        *   **For Local MongoDB:** Use the standard connection string format. Example: `mongodb://localhost:27017/tv-tracker` (This is the default set by the setup scripts).
     *   `EMAIL_USER`: Username for your email sending service (e.g., Mailtrap).
     *   `EMAIL_PASS`: Password for your email sending service.
     *   `JWT_SECRET`: A long, random, secure string for signing tokens. (Generate one via: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` )
@@ -193,6 +214,9 @@ npm start
     *   `EMAIL_HOST` / `EMAIL_PORT`: Defaults are set for Mailtrap (check `.env.example`).
     *   `JWT_EXPIRES_IN`: Token lifetime (defaults to `90d`).
     *   `NODE_ENV`: Set to `development` or `production`.
+*   **Local MongoDB Setup Only:** (These are primarily used by the setup scripts and the local `mongod.cfg`. Not needed when using Atlas `MONGODB_URI`)
+    *   `MONGODB_DATA_DIR`: Path where the local MongoDB instance stores its data files.
+    *   `MONGODB_LOG_DIR`: Path where the local MongoDB instance writes its log files.
 *   **Recommendation:** For `EMAIL_*` variables during development, using Mailtrap is recommended.
     *   See Mailtrap's Getting Started Guide: [https://help.mailtrap.io/article/10-getting-started-with-mailtrap-email-sandbox](https://help.mailtrap.io/article/10-getting-started-with-mailtrap-email-sandbox)
 

@@ -184,15 +184,26 @@ tv-tracker/
 </p>
 
 1. **Setting Up the Development Environment**
-   - Clone the repository
-   - Install dependencies with `npm install`
-   - Set up MongoDB database
-   - Configure environment variables (`cp .env.example .env` and edit `.env` with credentials - see README)
+   - **Windows Automated Setup:**
+     - Use `setup.bat` (Command Prompt) or `setup.ps1` (PowerShell, recommended) located in the project root. Run as Administrator.
+     - These scripts handle Node.js (via nvm-windows), local MongoDB installation, dependency installation (`npm install`), and `.env` file creation (with `MONGODB_URI` defaulted to local instance).
+     - After running the script, you can edit `.env` to switch `MONGODB_URI` to your MongoDB Atlas cluster if preferred.
+     - The `MONGODB_DATA_DIR` and `MONGODB_LOG_DIR` variables in `.env` are used by these scripts to configure the *local* MongoDB instance via `mongod.cfg`. They are not needed if connecting to Atlas.
+   - **Manual Setup (All Platforms):**
+     - Clone the repository.
+     - Install Node.js and npm/yarn.
+     - **Choose Database:** Decide whether to use a local MongoDB instance or MongoDB Atlas (cloud).
+       - If local: Install MongoDB (v4.4+) and ensure it's running.
+       - If Atlas: Create a cluster and get the connection string.
+     - Install dependencies with `npm install`.
+     - Create `.env` from `.env.example`.
+     - Configure `MONGODB_URI` in `.env` for your chosen database (local or Atlas).
+     - Configure other required `.env` variables (Email, JWT Secret).
 
 2. **Running the Application in Development Mode**
-   - Start MongoDB server
-   - Start the backend server with `npm run server`
-   - Start the frontend with `npm start`
+   - Ensure your target database is accessible (local MongoDB server running OR Atlas connection configured).
+   - Start the backend server: `npm run server`
+   - Start the frontend: `npm start`
    - Access the application at http://localhost:3000
 
 
