@@ -16,12 +16,18 @@ This document provides detailed information about the development environment, t
 
 ## Development Environment
 
-- **Cursor IDE** <img src="https://img.shields.io/badge/Cursor-00A0E4?style=flat-square&logo=cursor&logoColor=white" alt="Cursor IDE" align="right" /> - Primary development environment with integrated AI capabilities
+- **Cursor IDE** <img src="https://img.shields.io/badge/Cursor-00A0E4?style=flat-square&logo=cursor&logoColor=white" alt="Cursor IDE" align="right" /> - Desktop-based development environment with integrated AI capabilities
   - Code editing and navigation
-  - Terminal commands
+  - Integrated terminal
   - Git operations
-  - File management
+  - Local file management
   - AI-powered code completion and suggestions
+
+- **Firebase Studio** <img src="https://img.shields.io/badge/Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black" alt="Firebase Studio" align="right" /> - Agentic, cloud-based development environment (formerly Project IDX)
+  - Accessible directly in the browser
+  - Integrated AI agents for assistance
+  - Tools to prototype, build, test, and publish full-stack apps
+  - Unified platform for the development lifecycle
 
 - **Codeium Windsurf** <img src="https://img.shields.io/badge/Codeium-09B6A2?style=flat-square&logo=codeium&logoColor=white" alt="Codeium" align="right" /> - Advanced UX development
   - Real-time UI preview with Cascade
